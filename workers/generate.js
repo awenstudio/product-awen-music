@@ -67,6 +67,17 @@ export default {
       });
     }
 
+    // 密码校验：有设置 ACCESS_TOKEN 时才验证
+    if (env.ACCESS_TOKEN) {
+      const token = request.headers.get('X-Access-Token') || '';
+      if (token !== env.ACCESS_TOKEN) {
+        return new Response(JSON.stringify({ error: 'unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        });
+      }
+    }
+
     // 根据 provider 构造不同格式的请求体和请求头
     let headers, body;
 

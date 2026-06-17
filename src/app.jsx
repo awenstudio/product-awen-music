@@ -77,13 +77,28 @@ function App() {
   }
 
   // AI proxy — points to Cloudflare Worker; update WORKER_URL after deploy
-  const WORKER_URL = 'https://awen-music-api.awenstudio.workers.dev';
+  const WORKER_URL = 'https://awen-music-api.ywhang1995.workers.dev';
+  function getAccessToken() {
+    let token = localStorage.getItem('awen_music_token');
+    if (!token) {
+      token = window.prompt('请输入访问密码（只需输入一次）:');
+      if (token) localStorage.setItem('awen_music_token', token.trim());
+    }
+    return token || '';
+  }
   async function complete(prompt) {
     const r = await fetch(WORKER_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Access-Token': getAccessToken(),
+      },
       body: JSON.stringify({ prompt }),
     });
+    if (r.status === 401) {
+      localStorage.removeItem('awen_music_token');
+      throw new Error('密码错误，请重新输入');
+    }
     if (!r.ok) throw new Error('worker ' + r.status);
     const { text } = await r.json();
     return text;
