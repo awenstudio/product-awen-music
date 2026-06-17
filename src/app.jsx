@@ -76,6 +76,19 @@ function App() {
     }, 55);
   }
 
+  // AI proxy — points to Cloudflare Worker; update WORKER_URL after deploy
+  const WORKER_URL = 'https://awen-music-api.awenstudio.workers.dev';
+  async function complete(prompt) {
+    const r = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+    });
+    if (!r.ok) throw new Error('worker ' + r.status);
+    const { text } = await r.json();
+    return text;
+  }
+
   async function callAI(s) {
     const prompt =
     `You are the prompt engine for "Awen Study", a lo-fi study-music content factory run by awen yang.
@@ -93,7 +106,7 @@ RECIPE
 Return ONLY minified JSON (no markdown, no commentary) with EXACTLY this shape:
 {"title":"evocative 2-5 word Title Case song name","tagline":"3-6 word mood tagline lowercase","suno":{"style":"comma-separated Suno style tags under 140 chars; MUST include a production/texture layer (e.g. warm tape saturation, vinyl crackle, drum treatment or 'no drums', room reverb, low-pass) plus genre, mood, instrument, bpm, instrumental","prompt":"ONE short instrumental sentence (Suno barely reads this for instrumentals — keep it tight)","exclude":"comma-separated elements to exclude"},"cover":"square 1:1 album-cover art prompt: strong centered composition, calm negative space near the top for a title, light + mood, no text, no motion words","video":"16:9 looping background-video prompt: slow cinematic camera drift, lighting, shallow depth of field, seamless loop"}
 Keep everything calm, warm, instrumental and study-friendly. No vocals.`;
-    const raw = await window.claude.complete(prompt);
+    const raw = await complete(prompt);
     const a = raw.indexOf('{'),b = raw.lastIndexOf('}');
     if (a < 0 || b < 0) throw new Error('no json');
     const j = JSON.parse(raw.slice(a, b + 1));
@@ -148,7 +161,7 @@ ${lines}
 Return ONLY minified JSON, no markdown, EXACTLY:
 {"album":"evocative 2-4 word album title (Title Case)","concept":"one-line concept under 90 chars","description":"a 2-3 sentence liner note: the inspiration/source behind the album, the journey it traces, and what kind of tracks it gathers; reference the opening and closing track feel","description_zh":"the SAME liner note written naturally in fluent simplified Chinese (简体中文)","anchor":"a single shared Suno style string (under 150 chars) reused on every track; MUST include a production/texture layer (warm tape saturation, vinyl crackle, drum treatment or 'no drums', room reverb, low-pass) so timbre stays consistent","cover":"square 1:1 cover-art prompt: centered composition with negative space near the top for the album title, light + mood, no text, no motion words","video":"16:9 looping background-video prompt with slow cinematic camera drift + lighting, shallow depth of field, seamless loop","tracks":[{"title":"evocative 2-4 word track title","scene":"2-4 word scene label","prompt":"one-sentence Suno description for THIS track"}]}
 The tracks array MUST have exactly ${recipes.length} items, in order. Everything calm, warm, instrumental, study-friendly, no vocals.`;
-    const raw = await window.claude.complete(prompt);
+    const raw = await complete(prompt);
     const a = raw.indexOf('{'),b = raw.lastIndexOf('}');
     if (a < 0 || b < 0) throw new Error('no json');
     const j = JSON.parse(raw.slice(a, b + 1));
