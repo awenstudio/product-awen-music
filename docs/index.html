@@ -438,32 +438,32 @@
 (function () {
   const DIMS = [
     {
-      key: 'environment', label: 'Environment', zh: '环境', code: 'ENV', layer: 'content',
+      key: 'environment', label: 'Environment', zh: '环境', ja: '環境', ko: '환경', fr: 'Environnement', es: 'Entorno', de: 'Umgebung', pt: 'Ambiente', code: 'ENV', layer: 'content',
       options: ['Library', 'Rainy Window', 'Cozy Desk', 'Forest Cabin', 'Ocean View',
                 'Kyoto Study Room', 'Space Station', 'Night City', 'Mountain Lodge', 'Quiet Café'],
     },
     {
-      key: 'nature', label: 'Nature', zh: '自然', code: 'NAT', layer: 'content',
+      key: 'nature', label: 'Nature', zh: '自然', ja: '自然', ko: '자연', fr: 'Nature', es: 'Naturaleza', de: 'Natur', pt: 'Natureza', code: 'NAT', layer: 'content',
       options: ['Rain', 'Light Snow', 'Soft Wind', 'Ocean Waves', 'Birdsong',
                 'Fireplace', 'Distant Thunder', 'Forest Stream', 'Rustling Leaves', 'None'],
     },
     {
-      key: 'time', label: 'Time', zh: '时间', code: 'TIME', layer: 'content',
+      key: 'time', label: 'Time', zh: '时间', ja: '時間', ko: '시간', fr: 'Heure', es: 'Hora', de: 'Zeit', pt: 'Hora', code: 'TIME', layer: 'content',
       options: ['Dawn', 'Early Morning', 'Afternoon', 'Golden Hour', 'Dusk',
                 'Evening', 'Night', 'Midnight', '3 AM'],
     },
     {
-      key: 'mood', label: 'Mood', zh: '情绪', code: 'MOOD', layer: 'content',
+      key: 'mood', label: 'Mood', zh: '情绪', ja: '気分', ko: '기분', fr: 'Humeur', es: 'Ánimo', de: 'Stimmung', pt: 'Humor', code: 'MOOD', layer: 'content',
       options: ['Calm', 'Cozy', 'Warm', 'Nostalgic', 'Bittersweet',
                 'Hopeful', 'Dreamy', 'Focused', 'Lonely'],
     },
     {
-      key: 'instrument', label: 'Instrument', zh: '乐器', code: 'INST', layer: 'content',
+      key: 'instrument', label: 'Instrument', zh: '乐器', ja: '楽器', ko: '기구', fr: 'Instrument', es: 'Instrumento', de: 'Instrument', pt: 'Instrumento', code: 'INST', layer: 'content',
       options: ['Felt Piano', 'Grand Piano', 'Warm Pad', 'Strings', 'Rhodes',
                 'Acoustic Guitar', 'Music Box', 'Vibraphone', 'Cello', 'Harp'],
     },
     {
-      key: 'style', label: 'Style', zh: '风格', code: 'STY', layer: 'production',
+      key: 'style', label: 'Style', zh: '风格', ja: 'スタイル', ko: '스타일', fr: 'Style', es: 'Estilo', de: 'Stil', pt: 'Estilo', code: 'STY', layer: 'production',
       options: ['Ambient', 'Neo Classical', 'Lo-fi Hip Hop', 'Chillhop', 'Jazzhop',
                 'Minimal Piano', 'Drone Ambient', 'Slowcore'],
     },
@@ -563,33 +563,43 @@
   const ALBUM_AXES = [
     { key: 'day',    label: 'Day Arc',          moves: ['time'],
       zh: '时间从清晨走到午夜，一天的完整弧线（最经典）',
+      ja: '清晨から深夜まで、一日の完成弧（最も経典的）', ko: '찬배부터 심약까지, 하루의 완전한 호', fr: "Du matin à minuit, l'arc complet d'une journée", es: 'Del amanecer a medianoche, el arco completo de un día', de: 'Von früh bis Mitternacht — der komplette Tagesbogen', pt: 'Do amanhecer à meia-noite, o arco completo de um dia',
       en: 'Time walks from dawn to midnight — a full day arc (classic).', seq: { time: TIME_ARC } },
     { key: 'place',  label: 'Place Journey',    moves: ['environment'],
       zh: '镜头穿过一连串场景空间，像一段漫游',
+      ja: 'カメラが一紪のシーン空間を通り過ぎるような漫遊', ko: '카메라가 연이된 장소를 걷는 만하천', fr: "La caméra traverse une série d'espaces", es: 'La cámara atraviesa una serie de espacios', de: 'Die Kamera wandert durch eine Reihe von Räumen', pt: 'A câmera atravessa uma série de espaços',
       en: 'The camera moves through a series of spaces, like a journey.', seq: { environment: ENV_JOURNEY } },
     { key: 'season', label: 'Seasons Turning',  moves: ['nature'],
       zh: '环境氛围从生机流转到深冬',
+      ja: '環境の雅が春から深冬まで流れる', ko: '환경 분위기가 보리부터 겨울까지 흐른다', fr: "L'ambiance passe du printemps à l'hiver profond", es: 'El ambiente fluye desde la primavera hasta el invierno profundo', de: 'Die Stimmung wandert vom Frühling bis zum tiefen Winter', pt: 'O ambiente flui da primavera ao inverno profundo',
       en: 'Ambience turns from fresh spring to deep winter.', seq: { nature: NATURE_SEASON } },
     { key: 'morning', label: 'Morning Rise',    moves: ['time', 'bpm', 'mood'], gen: 'morning',
       zh: '清晨到午后，节奏渐快、情绪转向专注——学习开场',
+      ja: '清晨から午後まで、リズムが上がり気分が専門に向かう――学習開場', ko: '찬배부터 오후까지, 리펀가 높아지고 문든이 집중돈', fr: "Du matin à l'après-midi, rythme accéléré — ouverture d'étude", es: 'De mañana a tarde, ritmo acelerándose — apertura de estudio', de: 'Von früh bis nachmittags, Tempo steigt — Studienauftakt', pt: 'Da manhã à tarde, ritmo acelerando — abertura de estudo',
       en: 'Dawn to afternoon: tempo lifts, mood turns toward focus — a study warm-up.' },
     { key: 'focus',  label: 'Focus Session',    moves: ['bpm', 'mood'], gen: 'focus',
       zh: '节奏先升后落、中段进入专注——贴合一次真实学习时段',
+      ja: 'リズムが先上後落ち、中段で集中に入る――一回の真実の学習時帯', ko: '리펀이 선 상승 후 하락, 중단에 집중 입잌', fr: "Rythme monte puis descend — colle à une vraie session d'étude", es: 'Ritmo sube y baja — coincide con una sesión real de estudio', de: 'Tempo erst hoch dann runter — passt zu einer echten Lerneinheit', pt: 'Ritmo sobe e desce — combina com uma sessão real de estudo',
       en: 'Tempo rises then falls, focus peaks mid-set — one real study session.' },
     { key: 'latenight', label: 'Late-Night Descent', moves: ['time', 'bpm', 'mood'], gen: 'latenight',
       zh: '黄昏到凌晨三点，节奏渐慢、情绪向内下沉（深夜/失眠）',
+      ja: '黄昏から午前3時まで、リズムが後から内側へ沉む（深夜/不眠）', ko: '현장부터 오전 3시까지, 리펀이 느려지고 문든이 내로 강함', fr: 'Crépuscule à 3h, rythme ralentit — nuit profonde / insomnie', es: 'Atardecer a las 3AM, ritmo frenando — noche profunda / insomnio', de: 'Abend bis 3 Uhr, Tempo sinkt — tiefe Nacht / Schlaflosigkeit', pt: 'Entardecer às 3h, ritmo desacelerando — noite profunda / insônia',
       en: 'Evening to 3 AM: tempo slows, mood sinks inward (late night / insomnia).' },
     { key: 'storm',  label: 'Storm Passing',    moves: ['nature', 'mood'], gen: 'storm',
       zh: '一场雨从微风酰酿、到雷雨、再到放晴',
+      ja: '微風から雷雨、そして晴天まで、一場の雨の経過', ko: '재밝은 바바름부터 번거름, 그리고 희건까지', fr: "Une pluie qui commence en brise, devient orage", es: 'Una lluvia que empieza en brisa, se convierte en tormenta', de: 'Ein Regen von Brise über Gewitter bis Aufklärung', pt: 'Uma chuva que começa em brisa, vira tempestade',
       en: 'One rainstorm: from breeze, to thunder, to clearing skies.' },
     { key: 'mood',   label: 'Mood Drift',       moves: ['mood'],
       zh: '情绪从明亮沿一条曲线渐渐向内漂移',
+      ja: '気分が明るいから渐々に内側へ漂う', ko: '문든이 명량하게서 안으로 놓이는다', fr: "L'humeur dérive doucement du lumineux vers l'intérieur", es: 'El ánimo se desliza gradualmente de brillante hacia adentro', de: 'Die Stimmung driftet langsam von hell nach innen', pt: 'O humor desliza gradualmente do brilhante para o interior',
       en: 'Emotion drifts along a curve from bright to inward.', seq: { mood: MOOD_ARC } },
     { key: 'comfort', label: 'Comfort Arc',     moves: ['mood'],
       zh: '情绪从孤独/苦涩 → 平静 → 温暖，一条向上的修复曲线',
+      ja: '気分が孤独/苦準 → 平静 → 温暖、一つ上の修復曲線', ko: '문든이 고외/압 nộ → 평정 → 온남, 하나의 상승 수정 곡선', fr: "L'humeur passe de solitude à calme à chaleur", es: 'El ánimo va de soledad → calma → calidez', de: 'Stimmung von Einsamkeit → Ruhe → Wärme', pt: 'O humor vai de solidão → calma → calor',
       en: 'From lonely / bittersweet → calm → warm: an upward, healing curve.', seq: { mood: MOOD_HEAL } },
     { key: 'ep',     label: 'Concept EP',       moves: ['nature', 'time'], gen: 'ep', maxTracks: 5,
       zh: '几乎全锁、只做细微变奏（EP 形态，自动限 5 首内）',
+      ja: 'ほぼ全ディメンションをロックし、微細な変奏だけ（EP形態、自動制限5曲以内）', ko: '모든 차원을 고정하고 자여도를 만 변환 (EP 형태, 자동 제한 5곡)', fr: 'Presque tout verrouillé, variations subtiles (format EP)', es: 'Casi todo bloqueado, solo variaciones sutiles (formato EP)', de: 'Fast alles gesperrt, nur subtile Variationen (EP-Format)', pt: 'Quase tudo travado, apenas variações sutis (formato EP)',
       en: 'Almost fully locked, tiny variations only (EP form, capped at 5).' },
   ];
 
@@ -698,20 +708,28 @@
 
   const PRESETS = [
     { key: 'deep-focus', icon: '🎯', label: 'Deep Focus', zh: '深度专注',
+      ja: 'ディープフォーカス', ko: '딥 포커스', fr: 'Focus intense', es: 'Enfoque profundo', de: 'Tieffokus', pt: 'Foco intenso',
       sel: { environment: 'Library', nature: 'Rain', time: 'Night', mood: 'Focused', instrument: 'Felt Piano', style: 'Ambient', bpm: 60 } },
     { key: 'morning-coffee', icon: '☕', label: 'Morning Coffee', zh: '晨间咖啡',
+      ja: '朝のコーヒー', ko: '아침 커피', fr: 'Café du matin', es: 'Café de la mañana', de: 'Morgenkaffee', pt: 'Café da manhã',
       sel: { environment: 'Cozy Desk', nature: 'Birdsong', time: 'Early Morning', mood: 'Warm', instrument: 'Acoustic Guitar', style: 'Lo-fi Hip Hop', bpm: 72 } },
     { key: 'rainy-day', icon: '🌧', label: 'Rainy Day', zh: '雨天发呆',
+      ja: '雨の日', ko: '비오는 날', fr: 'Jour de pluie', es: 'Día de lluvia', de: 'Regentag', pt: 'Dia chuvoso',
       sel: { environment: 'Rainy Window', nature: 'Rain', time: 'Afternoon', mood: 'Nostalgic', instrument: 'Rhodes', style: 'Chillhop', bpm: 68 } },
     { key: 'late-night', icon: '🌙', label: 'Late Night', zh: '深夜独处',
+      ja: '深夜の独り', ko: '심야의 고독', fr: 'Nuit tardive', es: 'Noche tardía', de: 'Späte Nacht', pt: 'Noite tardia',
       sel: { environment: 'Night City', nature: 'Light Snow', time: 'Midnight', mood: 'Lonely', instrument: 'Warm Pad', style: 'Drone Ambient', bpm: 55 } },
     { key: 'forest-escape', icon: '🌲', label: 'Forest Escape', zh: '森林逃离',
+      ja: '森の逃走', ko: '숲 탈출', fr: 'Évasion forestière', es: 'Escape al bosque', de: 'Waldflucht', pt: 'Fuga para a floresta',
       sel: { environment: 'Forest Cabin', nature: 'Forest Stream', time: 'Golden Hour', mood: 'Calm', instrument: 'Acoustic Guitar', style: 'Neo Classical', bpm: 62 } },
     { key: 'dreamy-dusk', icon: '🌅', label: 'Dreamy Dusk', zh: '黄昏入梦',
+      ja: '夢の黄昏', ko: '꼬나는 현장', fr: 'Crépuscule rêveur', es: 'Atardecer soñador', de: 'Träumerische Dämmerung', pt: 'Entardecer sonhador',
       sel: { environment: 'Ocean View', nature: 'Ocean Waves', time: 'Dusk', mood: 'Dreamy', instrument: 'Harp', style: 'Ambient', bpm: 58 } },
     { key: 'cozy-winter', icon: '🔥', label: 'Cozy Winter', zh: '冬日壁炉',
+      ja: '温かい冬', ko: '아늑한 겨울', fr: 'Hiver douillet', es: 'Invierno acogedor', de: 'Gemütlicher Winter', pt: 'Inverno aconchegante',
       sel: { environment: 'Mountain Lodge', nature: 'Fireplace', time: 'Evening', mood: 'Cozy', instrument: 'Cello', style: 'Minimal Piano', bpm: 58 } },
     { key: 'zen-garden', icon: '🍃', label: 'Zen Garden', zh: '禅意庭院',
+      ja: '禅の庭', ko: '젠 정원', fr: 'Jardin zen', es: 'Jardín zen', de: 'Zen-Garten', pt: 'Jardim zen',
       sel: { environment: 'Kyoto Study Room', nature: 'Rustling Leaves', time: 'Dawn', mood: 'Calm', instrument: 'Music Box', style: 'Ambient', bpm: 55 } },
   ];
 
@@ -727,8 +745,50 @@
 /* Awen Study — i18n layer. Plain script, load before the JSX components.
    UI chrome only. Matrix option VALUES and Suno/Veo output stay English by design. */
 (function () {
+  function makeLang(base, patch) {
+    const out = {};
+    for (const k of Object.keys(base)) out[k] = base[k];
+    if (patch) for (const k of Object.keys(patch)) out[k] = patch[k];
+    return out;
+  }
+
+  const enBase = {
+    help: 'How it works', songsProduced: 'songs produced', albumsBuilt: 'albums built',
+    hintPick: 'Pick one element per column to compose a track.',
+    hintShuffle: 'Lock the dimensions you like, slot-machine the rest.',
+    hintDecompose: 'Start from the imported reference and mutate it track by track.',
+    hintAlbum: 'Lock one sonic identity, traverse an axis to lay out a whole album.',
+    recipeNow: 'CURRENT RECIPE', srcLabel: 'source',
+    mutated: (p) => `+${p.n} mutated`, shuffleUnlocked: 'Shuffle unlocked',
+    genSong: 'Generate song', genSongBusy: 'Generating…',
+    axisKicker: 'TRAVERSAL AXIS — what progresses across the album',
+    moving: 'MOVING', anchor: 'ANCHOR', tracksLabel: 'Tracks',
+    epCap: (p) => `EP axis — capped to ${p.n} tracks`,
+    buildAlbum: (p) => `Generate ${p.n}-track album`,
+    buildAlbumBusy: (p) => `Building ${p.n} tracks…`,
+    prodFeed: 'PRODUCTION FEED', albumShelf: 'ALBUM SHELF', clearAll: 'clear all',
+    emptySong: 'No songs yet. Build a recipe on the matrix and hit Generate.',
+    emptyAlbum: 'No albums yet. Set the sonic identity, pick a traversal axis, and build.',
+    stDraft: 'Draft', stApproved: 'Approved', stQueued: 'Queued', stPublished: 'Published',
+    sunoHint: '→ Style box + Description', veoHint: '→ video', copyForSuno: 'Copy for Suno',
+    copy: 'Copy', copied: 'Copied', copyFail: 'Press & hold to copy',
+    about: 'ABOUT THIS ALBUM',
+    anchorHint: '→ Suno Style box · every track',
+    coverHint: '→ cover art · 1:1', videoHint: '→ video · 16:9 loop',
+    tracklist: (p) => `TRACKLIST · ${p.n}`,
+    tracklistHint: "Each 'Suno' = style + title + description, pre-segmented",
+    tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} are already ordered along “${p.axis}” — top to bottom is the intended play order`,
+    copyFullAlbum: 'Copy full album', brandRange: 'brand range 55–70', tempo: 'Tempo',
+    presetsLabel: 'Quick start',
+    aiFailed: 'AI generation failed, fell back to template engine. Error:',
+    composing: 'composing prompt…',
+    aiOnTip: 'AI generation is ON', aiOffTip: 'AI generation is OFF (template engine)',
+    enterPassword: 'Please enter access password (only once):', wrongPassword: 'Wrong password, please re-enter',
+  };
+
   const S = {
-    zh: {
+    en: enBase,
+    zh: makeLang(enBase, {
       help: '使用指南',
       songsProduced: '首歌已产出',
       albumsBuilt: '张专辑已生成',
@@ -754,11 +814,16 @@
       clearAll: '清空',
       emptySong: '还没有歌曲。在矩阵盘上拼一个配方，点「生成」。',
       emptyAlbum: '还没有专辑。在矩阵上定好声音身份，选一条行进轴，开始生成。',
-      stDraft: '草稿', stApproved: '已采用', stQueued: '排队中', stPublished: '已发布',
+      stDraft: '草稿',
+      stApproved: '已采用',
+      stQueued: '排队中',
+      stPublished: '已发布',
       sunoHint: '→ 风格框 + 描述框',
       veoHint: '→ 视频生成',
       copyForSuno: '复制到 Suno',
-      copy: '复制', copied: '已复制', copyFail: '复制失败,请长按选择',
+      copy: '复制',
+      copied: '已复制',
+      copyFail: '复制失败,请长按选择',
       about: '关于这张专辑',
       anchorHint: '→ Suno 风格框 · 每首都贴',
       coverHint: '→ 封面图 · 方图 1:1',
@@ -771,51 +836,336 @@
       tempo: '速度',
       presetsLabel: '快速开始',
       aiFailed: 'AI 生成失败，已回退到模板引擎。错误信息：',
-    },
-    en: {
-      help: 'How it works',
-      songsProduced: 'songs produced',
-      albumsBuilt: 'albums built',
-      hintPick: 'Pick one element per column to compose a track.',
-      hintShuffle: 'Lock the dimensions you like, slot-machine the rest.',
-      hintDecompose: 'Start from the imported reference and mutate it track by track.',
-      hintAlbum: 'Lock one sonic identity, traverse an axis to lay out a whole album.',
-      recipeNow: 'CURRENT RECIPE',
+      composing: '正在生成 Prompt…',
+      aiOnTip: 'AI 生成已开启',
+      aiOffTip: 'AI 生成已关闭（使用模板引擎）',
+      enterPassword: '请输入访问密码（只需输入一次）:',
+      wrongPassword: '密码错误，请重新输入',
+    }),
+    ja: makeLang(enBase, {
+      help: '使い方',
+      songsProduced: '曲を制作',
+      albumsBuilt: 'アルバムを生成',
+      hintPick: '各列から1つずつ選んでトラックを組み立てましょう。',
+      hintShuffle: '满意的なディメンションをロックし、残りをスロットマシン方式で。',
+      hintDecompose: 'インポートした参考曲を分解し、トラックごとに変異 remix。',
+      hintAlbum: 'サウンドアイデンティティを固定し、軸に沿って丸ごとアルバムを生成。',
+      recipeNow: '現在のレシピ',
+      srcLabel: '原曲',
+      mutated: (p) => `+${p.n} 箇所変異`,
+      shuffleUnlocked: 'ロックされていない項目をシャッフル',
+      genSong: '曲を生成',
+      genSongBusy: '生成中…',
+      axisKicker: 'トラバーサル軸 — アルバム全体で進行するもの',
+      moving: '変化',
+      anchor: '固定',
+      tracksLabel: 'トラック数',
+      epCap: (p) => `EP軸 — 最大${p.n}曲`,
+      buildAlbum: (p) => `${p.n}曲アルバムを生成`,
+      buildAlbumBusy: (p) => `${p.n}曲を生成中…`,
+      prodFeed: 'プロダクションフィード',
+      albumShelf: 'アルバム棚',
+      clearAll: 'すべてクリア',
+      emptySong: 'まだ曲がありません。マトリックスでレシピを作成し、生成を押してください。',
+      emptyAlbum: 'まだアルバムがありません。サウンドアイデンティティを設定し、軸を選んで生成。',
+      stDraft: '下書き',
+      stApproved: '採用',
+      stQueued: 'キュー中',
+      stPublished: '公開済み',
+      sunoHint: '→ スタイルボックス + 説明',
+      veoHint: '→ 動画',
+      copyForSuno: 'Suno用にコピー',
+      copy: 'コピー',
+      copied: 'コピー済み',
+      copyFail: '長押しでコピー',
+      about: 'このאלבוםについて',
+      anchorHint: '→ Sunoスタイルボックス · 全トラック共通',
+      coverHint: '→ ジャケット · 1:1',
+      videoHint: '→ 動画 · 16:9ループ',
+      tracklist: (p) => `トラックリスト · ${p.n}`,
+      tracklistHint: '各「Suno」= スタイル + タイトル + 説明、セグメント済み',
+      tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} は「${p.axis}」に沿って整列済み — 上から順に再生順`,
+      copyFullAlbum: 'アルバム全体をコピー',
+      brandRange: 'ブランド帯 55–70',
+      tempo: 'テンポ',
+      presetsLabel: 'クイックスタート',
+      aiFailed: 'AI生成に失敗、テンプレートエンジンにフォールバック。エラー：',
+      composing: 'プロンプトを生成中…',
+      aiOnTip: 'AI生成 ON',
+      aiOffTip: 'AI生成 OFF（テンプレートエンジン）',
+      enterPassword: 'アクセスパスワードを入力してください（一度だけでOK）:',
+      wrongPassword: 'パスワードが間違っています。再入力してください',
+    }),
+    ko: makeLang(enBase, {
+      help: '사용법',
+      songsProduced: '곡 제작 완료',
+      albumsBuilt: '앨범 생성 완료',
+      hintPick: '각 열에서 하나씩 선택하여 트랙을 구성하세요.',
+      hintShuffle: '마음에 드는 차원을 고정하고 나머지를 슬롯머신 방식으로.',
+      hintDecompose: '가져온 참고곡을 분석하여 트랙별로 변형 remix.',
+      hintAlbum: '사운드 아이덴티티를 고정하고 축을 따라 전체 앨범을 생성.',
+      recipeNow: '현재 레시피',
+      srcLabel: '원곡',
+      mutated: (p) => `+${p.n} 곳 변이`,
+      shuffleUnlocked: '잠기지 않은 항목 셔플',
+      genSong: '곡 생성',
+      genSongBusy: '생성 중…',
+      axisKicker: '트래버설 축 — 앨범 전체에 걸쳐 진행되는 것',
+      moving: '변화',
+      anchor: '고정',
+      tracksLabel: '트랙 수',
+      epCap: (p) => `EP 축 — 최대 ${p.n}곡`,
+      buildAlbum: (p) => `${p.n}곡 앨범 생성`,
+      buildAlbumBusy: (p) => `${p.n}곡 생성 중…`,
+      prodFeed: '프로덕션 피드',
+      albumShelf: '앨범 선반',
+      clearAll: '모두 지우기',
+      emptySong: '아직 곡이 없습니다. 매트릭스에서 레시피를 만들고 생성을 누르세요.',
+      emptyAlbum: '아직 앨범이 없습니다. 사운드 아이덴티티를 설정하고 축을 선택하세요.',
+      stDraft: '초안',
+      stApproved: '채택',
+      stQueued: '대기 중',
+      stPublished: '공개됨',
+      sunoHint: '→ 스타일 박스 + 설명',
+      veoHint: '→ 비디오',
+      copyForSuno: 'Suno용 복사',
+      copy: '복사',
+      copied: '복사됨',
+      copyFail: '길게 눌러 복사',
+      about: '이 앨범에 대해',
+      anchorHint: '→ Suno 스타일 박스 · 모든 트랙 공통',
+      coverHint: '→ 커버 아트 · 1:1',
+      videoHint: '→ 비디오 · 16:9 루프',
+      tracklist: (p) => `트랙리스트 · ${p.n}`,
+      tracklistHint: '각 「Suno」= 스타일 + 제목 + 설명, 세그먼트 완료',
+      tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} 은 「${p.axis}」를 따라 정렬됨 — 위에서 아래가 재생 순서`,
+      copyFullAlbum: '전체 앨범 복사',
+      brandRange: '브랜드 범위 55–70',
+      tempo: '템포',
+      presetsLabel: '빠른 시작',
+      aiFailed: 'AI 생성 실패, 템플릿 엔진으로 대체. 오류:',
+      composing: '프롬프트 생성 중…',
+      aiOnTip: 'AI 생성 켜짐',
+      aiOffTip: 'AI 생성 꺼짐 (템플릿 엔진)',
+      enterPassword: '접근 비밀번호를 입력하세요 (한 번만):',
+      wrongPassword: '비밀번호가 틀렸습니다. 다시 입력하세요',
+    }),
+    fr: makeLang(enBase, {
+      help: 'Guide',
+      songsProduced: 'morceaux produits',
+      albumsBuilt: 'albums générés',
+      hintPick: 'Choisissez un élément par colonne pour composer un morceau.',
+      hintShuffle: 'Verrouillez les dimensions souhaitées, le reste en mode machine à sous.',
+      hintDecompose: 'Partez de la référence importée et mutez-la piste par piste.',
+      hintAlbum: 'Fixez une identité sonore, parcourez un axe pour créer un album entier.',
+      recipeNow: 'RECETTE ACTUELLE',
       srcLabel: 'source',
-      mutated: (p) => `+${p.n} mutated`,
-      shuffleUnlocked: 'Shuffle unlocked',
-      genSong: 'Generate song',
-      genSongBusy: 'Generating…',
-      axisKicker: 'TRAVERSAL AXIS — what progresses across the album',
-      moving: 'MOVING',
-      anchor: 'ANCHOR',
-      tracksLabel: 'Tracks',
-      epCap: (p) => `EP axis — capped to ${p.n} tracks`,
-      buildAlbum: (p) => `Generate ${p.n}-track album`,
-      buildAlbumBusy: (p) => `Building ${p.n} tracks…`,
-      prodFeed: 'PRODUCTION FEED',
-      albumShelf: 'ALBUM SHELF',
-      clearAll: 'clear all',
-      emptySong: 'No songs yet. Build a recipe on the matrix and hit Generate.',
-      emptyAlbum: 'No albums yet. Set the sonic identity, pick a traversal axis, and build.',
-      stDraft: 'Draft', stApproved: 'Approved', stQueued: 'Queued', stPublished: 'Published',
-      sunoHint: '→ Style box + Description',
-      veoHint: '→ video',
-      copyForSuno: 'Copy for Suno',
-      copy: 'Copy', copied: 'Copied', copyFail: 'Press & hold to copy',
-      about: 'ABOUT THIS ALBUM',
-      anchorHint: '→ Suno Style box · every track',
-      coverHint: '→ cover art · 1:1',
-      videoHint: '→ video · 16:9 loop',
-      tracklist: (p) => `TRACKLIST · ${p.n}`,
-      tracklistHint: "Each ‘Suno’ = style + title + description, pre-segmented",
-      tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} are already ordered along “${p.axis}” — top to bottom is the intended play order`,
-      copyFullAlbum: 'Copy full album',
-      brandRange: 'brand range 55–70',
+      mutated: (p) => `+${p.n} muté`,
+      shuffleUnlocked: 'Mélanger les non-verrouillés',
+      genSong: 'Générer le morceau',
+      genSongBusy: 'Génération…',
+      axisKicker: 'AXE DE TRAVERSÉE — ce qui progresse dans l\'album',
+      moving: 'MOUVANT',
+      anchor: 'FIXE',
+      tracksLabel: 'Pistes',
+      epCap: (p) => `Axe EP — max ${p.n} pistes`,
+      buildAlbum: (p) => `Générer un album de ${p.n} pistes`,
+      buildAlbumBusy: (p) => `Génération de ${p.n} pistes…`,
+      prodFeed: 'FLUX DE PRODUCTION',
+      albumShelf: 'BIBLIOTHÈQUE D\'ALBUMS',
+      clearAll: 'tout effacer',
+      emptySong: 'Aucun morceau. Construisez une recette sur la matrice et cliquez sur Générer.',
+      emptyAlbum: 'Aucun album. Définissez l\'identité sonore, choisissez un axe et générez.',
+      stDraft: 'Brouillon',
+      stApproved: 'Approuvé',
+      stQueued: 'En file',
+      stPublished: 'Publié',
+      sunoHint: '→ Style + Description',
+      veoHint: '→ vidéo',
+      copyForSuno: 'Copier pour Suno',
+      copy: 'Copier',
+      copied: 'Copié',
+      copyFail: 'Appuyez longuement pour copier',
+      about: 'À PROPOS DE CET ALBUM',
+      anchorHint: '→ Style Suno · chaque piste',
+      coverHint: '→ pochette · 1:1',
+      videoHint: '→ vidéo · 16:9 boucle',
+      tracklist: (p) => `LISTE DES PISTES · ${p.n}`,
+      tracklistHint: 'Chaque « Suno » = style + titre + description, pré-segmenté',
+      tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} sont ordonnés selon « ${p.axis} » — de haut en bas = ordre de lecture`,
+      copyFullAlbum: 'Copier l\'album complet',
+      brandRange: 'plage marque 55–70',
       tempo: 'Tempo',
-      presetsLabel: 'Quick start',
-      aiFailed: 'AI generation failed, fell back to template engine. Error:',
-    },
+      presetsLabel: 'Démarrage rapide',
+      aiFailed: 'Échec de la génération AI, retour au moteur de template. Erreur :',
+      composing: 'Génération du prompt…',
+      aiOnTip: 'Génération AI activée',
+      aiOffTip: 'Génération AI désactivée (moteur template)',
+      enterPassword: 'Entrez le mot de passe (une seule fois) :',
+      wrongPassword: 'Mot de passe incorrect, réessayez',
+    }),
+    es: makeLang(enBase, {
+      help: 'Guía',
+      songsProduced: 'canciones producidas',
+      albumsBuilt: 'álbumes generados',
+      hintPick: 'Elige un elemento por columna para componer una pista.',
+      hintShuffle: 'Bloquea las dimensiones que te gustan, el resto al azar.',
+      hintDecompose: 'Parte de la referencia importada y muta pista por pista.',
+      hintAlbum: 'Fija una identidad sonora, recorre un eje para crear un álbum completo.',
+      recipeNow: 'RECETA ACTUAL',
+      srcLabel: 'fuente',
+      mutated: (p) => `+${p.n} mutado`,
+      shuffleUnlocked: 'Mezclar desbloqueados',
+      genSong: 'Generar canción',
+      genSongBusy: 'Generando…',
+      axisKicker: 'EJE DE RECORRIDO — lo que progresa en el álbum',
+      moving: 'CAMBIO',
+      anchor: 'FIJO',
+      tracksLabel: 'Pistas',
+      epCap: (p) => `Eje EP — máx. ${p.n} pistas`,
+      buildAlbum: (p) => `Generar álbum de ${p.n} pistas`,
+      buildAlbumBusy: (p) => `Generando ${p.n} pistas…`,
+      prodFeed: 'FLUJO DE PRODUCCIÓN',
+      albumShelf: 'ESTANTE DE ÁLBUMES',
+      clearAll: 'borrar todo',
+      emptySong: 'Aún no hay canciones. Crea una receta en la matriz y pulsa Generar.',
+      emptyAlbum: 'Aún no hay álbumes. Define la identidad sonora, elige un eje y genera.',
+      stDraft: 'Borrador',
+      stApproved: 'Aprobado',
+      stQueued: 'En cola',
+      stPublished: 'Publicado',
+      sunoHint: '→ Estilo + Descripción',
+      veoHint: '→ vídeo',
+      copyForSuno: 'Copiar para Suno',
+      copy: 'Copiar',
+      copied: 'Copiado',
+      copyFail: 'Mantén pulsado para copiar',
+      about: 'SOBRE ESTE ÁLBUM',
+      anchorHint: '→ Estilo Suno · cada pista',
+      coverHint: '→ portada · 1:1',
+      videoHint: '→ vídeo · 16:9 bucle',
+      tracklist: (p) => `LISTA DE PISTAS · ${p.n}`,
+      tracklistHint: 'Cada « Suno » = estilo + título + descripción, pre-segmentado',
+      tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} ordenados por « ${p.axis} » — de arriba a abajo = orden de reproducción`,
+      copyFullAlbum: 'Copiar álbum completo',
+      brandRange: 'rango de marca 55–70',
+      tempo: 'Tempo',
+      presetsLabel: 'Inicio rápido',
+      aiFailed: 'Error en la generación AI, se usó el motor de plantilla. Error:',
+      composing: 'Generando prompt…',
+      aiOnTip: 'Generación AI activada',
+      aiOffTip: 'Generación AI desactivada (motor plantilla)',
+      enterPassword: 'Introduce la contraseña (solo una vez):',
+      wrongPassword: 'Contraseña incorrecta, inténtalo de nuevo',
+    }),
+    de: makeLang(enBase, {
+      help: 'Anleitung',
+      songsProduced: 'Songs produziert',
+      albumsBuilt: 'Alben generiert',
+      hintPick: 'Wähle pro Spalte ein Element, um einen Track zu komponieren.',
+      hintShuffle: 'Sperre die gewünschten Dimensionen, den Rest per Zufallsgenerator.',
+      hintDecompose: 'Starte vom importierten Referenztrack und mutiere ihn Track für Track.',
+      hintAlbum: 'Festes Sound-Identität, entlang einer Achse ein ganzes Album erstellen.',
+      recipeNow: 'AKTUELLES REZEPT',
+      srcLabel: 'Quelle',
+      mutated: (p) => `+${p.n} mutiert`,
+      shuffleUnlocked: 'Ungesperrte mischen',
+      genSong: 'Song generieren',
+      genSongBusy: 'Generiere…',
+      axisKicker: 'TRAVERSALACHSE — was sich im Album entwickelt',
+      moving: 'ÄNDERUNG',
+      anchor: 'FEST',
+      tracksLabel: 'Tracks',
+      epCap: (p) => `EP-Achse — max. ${p.n} Tracks`,
+      buildAlbum: (p) => `${p.n}-Track-Album generieren`,
+      buildAlbumBusy: (p) => `Generiere ${p.n} Tracks…`,
+      prodFeed: 'PRODUKTIONSFEED',
+      albumShelf: 'ALBUM-REGAL',
+      clearAll: 'alles löschen',
+      emptySong: 'Noch keine Songs. Erstelle ein Rezept auf der Matrix und klicke Generieren.',
+      emptyAlbum: 'Noch keine Alben. Definiere die Sound-Identität, wähle eine Achse und generiere.',
+      stDraft: 'Entwurf',
+      stApproved: 'Genehmigt',
+      stQueued: 'In Warteschlange',
+      stPublished: 'Veröffentlicht',
+      sunoHint: '→ Stil + Beschreibung',
+      veoHint: '→ Video',
+      copyForSuno: 'Für Suno kopieren',
+      copy: 'Kopieren',
+      copied: 'Kopiert',
+      copyFail: 'Lange drücken zum Kopieren',
+      about: 'ÜBER DIESES ALBUM',
+      anchorHint: '→ Suno-Stilbox · jeder Track',
+      coverHint: '→ Cover · 1:1',
+      videoHint: '→ Video · 16:9 Schleife',
+      tracklist: (p) => `TRACKLISTE · ${p.n}`,
+      tracklistHint: 'Jedes « Suno » = Stil + Titel + Beschreibung, segmentiert',
+      tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} sortiert nach « ${p.axis} » — oben nach unten = Wiedergabereihenfolge`,
+      copyFullAlbum: 'Ganzes Album kopieren',
+      brandRange: 'Markenbereich 55–70',
+      tempo: 'Tempo',
+      presetsLabel: 'Schnellstart',
+      aiFailed: 'AI-Generierung fehlgeschlagen, Template-Engine als Fallback. Fehler:',
+      composing: 'Prompt wird generiert…',
+      aiOnTip: 'AI-Generierung an',
+      aiOffTip: 'AI-Generierung aus (Template-Engine)',
+      enterPassword: 'Zugriffspasswort eingeben (nur einmal):',
+      wrongPassword: 'Falsches Passwort, bitte erneut eingeben',
+    }),
+    pt: makeLang(enBase, {
+      help: 'Guia',
+      songsProduced: 'músicas produzidas',
+      albumsBuilt: 'álbuns gerados',
+      hintPick: 'Escolha um elemento por coluna para compor uma faixa.',
+      hintShuffle: 'Trave as dimensões desejadas, o resto no modo caça-níquel.',
+      hintDecompose: 'Parta da referência importada e mutue faixa por faixa.',
+      hintAlbum: 'Fixe uma identidade sonora, percorra um eixo para criar um álbum inteiro.',
+      recipeNow: 'RECEITA ATUAL',
+      srcLabel: 'fonte',
+      mutated: (p) => `+${p.n} mutado`,
+      shuffleUnlocked: 'Embaralhar destravados',
+      genSong: 'Gerar música',
+      genSongBusy: 'Gerando…',
+      axisKicker: 'EIXO DE TRAVESSIA — o que progride no álbum',
+      moving: 'MUDANÇA',
+      anchor: 'FIXO',
+      tracksLabel: 'Faixas',
+      epCap: (p) => `Eixo EP — máx. ${p.n} faixas`,
+      buildAlbum: (p) => `Gerar álbum de ${p.n} faixas`,
+      buildAlbumBusy: (p) => `Gerando ${p.n} faixas…`,
+      prodFeed: 'FLUXO DE PRODUÇÃO',
+      albumShelf: 'ESTANTE DE ÁLBUNS',
+      clearAll: 'limpar tudo',
+      emptySong: 'Nenhuma música ainda. Crie uma receita na matriz e clique em Gerar.',
+      emptyAlbum: 'Nenhum álbum ainda. Defina a identidade sonora, escolha um eixo e gere.',
+      stDraft: 'Rascunho',
+      stApproved: 'Aprovado',
+      stQueued: 'Na fila',
+      stPublished: 'Publicado',
+      sunoHint: '→ Estilo + Descrição',
+      veoHint: '→ vídeo',
+      copyForSuno: 'Copiar para Suno',
+      copy: 'Copiar',
+      copied: 'Copiado',
+      copyFail: 'Pressione e segure para copiar',
+      about: 'SOBRE ESTE ÁLBUM',
+      anchorHint: '→ Estilo Suno · cada faixa',
+      coverHint: '→ capa · 1:1',
+      videoHint: '→ vídeo · 16:9 loop',
+      tracklist: (p) => `LISTA DE FAIXAS · ${p.n}`,
+      tracklistHint: 'Cada « Suno » = estilo + título + descrição, pré-segmentado',
+      tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} ordenados por « ${p.axis} » — de cima para baixo = ordem de reprodução`,
+      copyFullAlbum: 'Copiar álbum completo',
+      brandRange: 'faixa de marca 55–70',
+      tempo: 'Andamento',
+      presetsLabel: 'Início rápido',
+      aiFailed: 'Falha na geração AI, usando motor de template. Erro:',
+      composing: 'Gerando prompt…',
+      aiOnTip: 'Geração AI ativada',
+      aiOffTip: 'Geração AI desativada (motor template)',
+      enterPassword: 'Digite a senha de acesso (apenas uma vez):',
+      wrongPassword: 'Senha incorreta, tente novamente',
+    }),
   };
 
   const GUIDE = {
@@ -854,34 +1204,45 @@
       lead: 'This is a matrix generator: break lo-fi into combinable elements, recombine them into new tracks and whole albums, and get ready-to-use Suno / Veo prompts.',
       stepsH: 'The four tabs',
       steps: [
-        { t: 'Pick', d: 'The basic mode. Each column on the matrix board has a set of options (Environment, Nature, Time, Mood, Instrument, Style, BPM). You manually click one element per column to assemble a song “recipe” — like building blocks. Best when you already have a clear picture and want precise control.' },
-        { t: 'Shuffle', d: 'Slot-machine mode. Lock the columns you\'re happy with (click the lock icon on the column header), then hit Shuffle — the unlocked columns spin randomly. Great when you\'ve decided on some dimensions but want serendipity for the rest.' },
-        { t: 'Decompose', d: 'Reverse-engineering mode. The system imports a reference track and breaks it down into each matrix dimension. You can tweak them one by one — swap just the instrument, just the mood — to create your own remix. Best for making variations of an existing good track.' },
-        { t: 'Album', d: 'Batch mode. Lock a “sonic identity” on the matrix (e.g. piano + rain + warm), then pick a “traversal axis” (e.g. time of day from dawn to late night). The system generates a whole coherent album (5–20 tracks) along that axis in one go. Best for series content.' },
+        { t: 'Pick', d: 'The basic mode. Each column on the matrix board has a set of options. You manually click one element per column to assemble a song recipe.' },
+        { t: 'Shuffle', d: 'Slot-machine mode. Lock the columns you like, then spin the rest randomly.' },
+        { t: 'Decompose', d: 'Reverse-engineering mode. Import a reference and tweak each dimension to create your own remix.' },
+        { t: 'Album', d: 'Batch mode. Lock a sonic identity, pick a traversal axis, generate a whole coherent album.' },
       ],
       modesH: 'How to use',
       modes: [
-        { t: '① Pick a tab', d: 'The top bar has four buttons — Pick / Shuffle / Decompose / Album. Click one to enter that mode.' },
-        { t: '② Build the recipe', d: 'Work the matrix board: in Pick mode click to select; in Shuffle mode lock + spin; in Decompose mode tweak the reference; in Album mode set the identity + choose an axis.' },
-        { t: '③ Generate', d: 'Hit Generate (single track) or Generate Album. The AI writes the title + Suno prompt + cover prompt + video prompt in real time.' },
-        { t: '④ Copy → make the song', d: 'Use the copy buttons on each card: paste into Suno for audio, into Veo for visuals. The text is pre-segmented — just fill in the boxes.' },
+        { t: '① Pick a tab', d: 'Click Pick / Shuffle / Decompose / Album to enter that mode.' },
+        { t: '② Build the recipe', d: 'Work the matrix board to assemble your sound.' },
+        { t: '③ Generate', d: 'Hit Generate. The AI writes prompts in real time.' },
+        { t: '④ Copy → make the song', d: 'Paste prompts into Suno / Veo.' },
       ],
-      sunoH: 'Pasting prompts into Suno (the easy place to get stuck)',
-      sunoNote: 'Suno\'s Custom mode has three fields — don\'t dump everything in one. Each track\'s “Suno” copy is already segmented:',
+      sunoH: 'Pasting prompts into Suno',
+      sunoNote: "Suno's Custom mode has three fields. Each track's copy is already segmented:",
       sunoRows: [
-        { box: 'Style of Music', put: 'Paste the [STYLE OF MUSIC] block — in an album this is the style anchor, identical on every track so the timbre stays consistent.' },
-        { box: 'Title', put: 'Paste the [TITLE] block — the song name.' },
-        { box: 'Lyrics / Description', put: 'Paste the [DESCRIPTION] block; for instrumentals, turn the Instrumental toggle ON.' },
+        { box: 'Style of Music', put: 'Paste the [STYLE OF MUSIC] block.' },
+        { box: 'Title', put: 'Paste the [TITLE] block.' },
+        { box: 'Lyrics / Description', put: 'Paste the [DESCRIPTION] block.' },
       ],
-      anchorH: 'What the album “Style Anchor” is',
-      anchorNote: 'An album = a fixed sonic identity + one moving traversal axis. The anchor is the shared style base for every track; paste it into each track\'s Style box so the whole album stays consistent, while each track\'s own prompt handles the scene and mood variation.',
+      anchorH: 'What the album Style Anchor is',
+      anchorNote: 'An album = a fixed sonic identity + one moving traversal axis.',
       go: 'Start creating →',
     },
   };
 
+  const LANGS = [
+    { code: 'zh', name: 'Chinese',    native: '中文',  dk: 'zh' },
+    { code: 'en', name: 'English',    native: 'EN',   dk: 'label' },
+    { code: 'ja', name: 'Japanese',   native: '日本語', dk: 'ja' },
+    { code: 'ko', name: 'Korean',     native: '한국어', dk: 'ko' },
+    { code: 'fr', name: 'French',     native: 'FR',   dk: 'fr' },
+    { code: 'es', name: 'Spanish',    native: 'ES',   dk: 'es' },
+    { code: 'de', name: 'German',     native: 'DE',   dk: 'de' },
+    { code: 'pt', name: 'Portuguese', native: 'PT',   dk: 'pt' },
+  ];
+
   window.I18N = {
     lang: 'zh',
-    S, GUIDE,
+    S, GUIDE, LANGS,
     t(key, p) {
       const d = this.S[this.lang] || this.S.en;
       let v = (key in d) ? d[key] : this.S.en[key];
@@ -890,6 +1251,8 @@
     },
     guide() { return this.GUIDE[this.lang] || this.GUIDE.en; },
     isZh() { return this.lang === 'zh'; },
+    dk() { return (LANGS.find(l => l.code === this.lang) || LANGS[1]).dk; },
+    labelFor(obj) { const dk = this.dk(); return (dk === 'label') ? obj.label : (obj[dk] || obj.label); },
   };
   window.T = (k, p) => window.I18N.t(k, p);
 })();
@@ -1485,7 +1848,7 @@ function Column({ dim, value, onPick, showLock, locked, onToggleLock, refValue }
       <div className="col-head">
         <div className="col-headL">
           <span className="col-code">{dim.code}</span>
-          <span className="col-label">{window.I18N.isZh() ? (dim.zh || dim.label) : dim.label}</span>
+          <span className="col-label">{window.I18N.labelFor(dim)}</span>
         </div>
         {showLock && (
           <button type="button"
@@ -1698,7 +2061,7 @@ function SongCard({ song, onStatus, onDelete }) {
       </div>
 
       {song.generating ? (
-        <><div className="card-title dim">{window.I18N.isZh() ? '正在生成 Prompt…' : 'composing prompt…'}</div><Skeleton /></>
+        <><div className="card-title dim">{T('composing')}</div><Skeleton /></>
       ) : (
         <>
           <div className="card-title">{ai.title}</div>
@@ -1764,8 +2127,7 @@ function AlbumConsole({ axisKey, count, base, busy, onAxis, onCount, onBuild }) 
   const moving = new Set(axis.moves);
   const capped = axis.maxTracks && count > axis.maxTracks;
   const effective = capped ? axis.maxTracks : count;
-  const zh = window.I18N.isZh();
-  const dimLabel = (k) => k === 'bpm' ? 'BPM' : (zh ? (A.DIMS.find(d => d.key === k)?.zh) : (A.DIMS.find(d => d.key === k)?.label)) || k;
+  const dimLabel = (k) => k === 'bpm' ? 'BPM' : (window.I18N.labelFor(A.DIMS.find(dd => dd.key === k) || {label: k}));
   const movingLabels = axis.moves.map(dimLabel);
   const anchorLabels = A.anchorDims(axisKey).map(dimLabel);
 
@@ -1779,7 +2141,7 @@ function AlbumConsole({ axisKey, count, base, busy, onAxis, onCount, onBuild }) 
               className={'axis-btn' + (a.key === axisKey ? ' on' : '')}
               onClick={() => onAxis(a.key)}>
               <span className="axis-name">{a.label}</span>
-              <span className="axis-zh">{zh ? a.zh : a.en}</span>
+              <span className="axis-zh">{window.I18N.labelFor({...a, label: a.en})}</span>
             </button>
           ))}
         </div>
@@ -1821,7 +2183,6 @@ function AlbumCard({ album, onStatus, onDelete }) {
   const A = window.AWEN;
   const data = album.data;
   const status = album.status || 'Draft';
-  const zh = window.I18N.isZh();
   const cycle = () => {
     const i = STATUS_ORDER.indexOf(status);
     onStatus(album.id, STATUS_ORDER[(i + 1) % STATUS_ORDER.length]);
@@ -1878,15 +2239,15 @@ ${tr.prompt}`;
           </div>
 
           {album.generating ? (
-            <><div className="album-title dim">{zh ? '正在生成专辑…' : 'composing album…'}</div><Skeleton /></>
+            <><div className="album-title dim">{window.I18N.isZh() ? '正在生成专辑…' : 'composing album…'}</div><Skeleton /></>
           ) : (
             <>
               <div className="album-title">{data.album}</div>
               <div className="album-concept">{data.concept}</div>
-              {(zh ? (data.descriptionZh || data.description) : data.description) && (
+              {(window.I18N.isZh() ? (data.descriptionZh || data.description) : data.description) && (
                 <div className="album-desc">
                   <span className="album-desc-tag">{T('about')}</span>
-                  <p className="album-desc-body">{zh ? (data.descriptionZh || data.description) : data.description}</p>
+                  <p className="album-desc-body">{window.I18N.isZh() ? (data.descriptionZh || data.description) : data.description}</p>
                 </div>
               )}
               <div className="block anchor-block">
@@ -2074,6 +2435,7 @@ function App() {
   const [busy, setBusy] = React.useState(false);
   const [rolling, setRolling] = React.useState(false);
   const [showGuide, setShowGuide] = React.useState(false);
+  const [showLangs, setShowLangs] = React.useState(false);
   const [lang, setLang] = React.useState(saved?.lang || 'zh');
   window.I18N.lang = lang; // set before children render so T() resolves correctly
 
@@ -2081,6 +2443,14 @@ function App() {
   React.useEffect(() => {
     try {if (!localStorage.getItem(GUIDE_KEY)) {setShowGuide(true);localStorage.setItem(GUIDE_KEY, '1');}} catch (e) {}
   }, []);
+
+  // Close lang dropdown on outside click
+  React.useEffect(() => {
+    if (!showLangs) return;
+    const h = (e) => { if (!e.target.closest('.lang-toggle')) setShowLangs(false); };
+    document.addEventListener('click', h);
+    return () => document.removeEventListener('click', h);
+  }, [showLangs]);
 
   // persist
   React.useEffect(() => {
@@ -2116,7 +2486,7 @@ function App() {
   function getAccessToken() {
     let token = localStorage.getItem('awen_music_token');
     if (!token) {
-      token = window.prompt('请输入访问密码（只需输入一次）:');
+      token = window.prompt(T('enterPassword'));
       if (token) localStorage.setItem('awen_music_token', token.trim());
     }
     return token || '';
@@ -2132,7 +2502,7 @@ function App() {
     });
     if (r.status === 401) {
       localStorage.removeItem('awen_music_token');
-      throw new Error('密码错误，请重新输入');
+      throw new Error(T('wrongPassword'));
     }
     if (!r.ok) throw new Error('worker ' + r.status);
     const { text } = await r.json();
@@ -2273,13 +2643,13 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
           {Object.keys(MODE_INFO).map((m) =>
           <button key={m} type="button"
           className={'mode-btn' + (mode === m ? ' on' : '')}
-          onClick={() => switchMode(m)}>{MODE_INFO[m].label}</button>
+          onClick={() => switchMode(m)}>{window.I18N.labelFor(MODE_INFO[m])}</button>
           )}
         </div>
         <button type="button"
           className={'help-btn' + (t.useAI ? ' on' : '')}
           style={t.useAI ? {background:'rgba(127,212,201,0.15)',color:'var(--accent)'} : {}}
-          title={t.useAI ? 'AI 生成已开启' : 'AI 生成已关闭（使用模板引擎）'}
+          title={t.useAI ? T('aiOnTip') : T('aiOffTip')}
           onClick={() => {
             if (!t.useAI) localStorage.removeItem('awen_music_token');
             setTweak('useAI', !t.useAI);
@@ -2289,11 +2659,21 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
         <button type="button" className="help-btn" onClick={() => setShowGuide(true)}>
           <span className="help-q">?</span> {T('help')}
         </button>
-        <div className="lang-toggle">
-          <button type="button" className={'lang-opt' + (lang === 'zh' ? ' on' : '')}
-          onClick={() => setLang('zh')}>中</button>
-          <button type="button" className={'lang-opt' + (lang === 'en' ? ' on' : '')}
-          onClick={() => setLang('en')}>EN</button>
+        <div className="lang-toggle" style={{position:'relative'}}>
+          <button type="button" className="lang-opt" style={{display:'flex',alignItems:'center',gap:4,padding:'6px 11px'}}
+            onClick={() => setShowLangs(!showLangs)}>
+            {window.I18N.LANGS.find(l=>l.code===lang)?.native || lang}
+            <span style={{fontSize:9,opacity:.6}}>▼</span>
+          </button>
+          {showLangs && <div className="lang-dropdown" style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'var(--panel)',border:'1px solid var(--line)',borderRadius:10,padding:4,zIndex:100,minWidth:120,boxShadow:'var(--shadow)'}}>
+            {window.I18N.LANGS.map(l =>
+              <button key={l.code} type="button" className={'lang-opt' + (lang === l.code ? ' on' : '')}
+                style={{display:'block',width:'100%',textAlign:'left',padding:'6px 12px',borderRadius:6,fontSize:13}}
+                onClick={() => { setLang(l.code); setShowLangs(false); }}>
+                {l.native} <span style={{opacity:.5,fontSize:11}}>{l.code.toUpperCase()}</span>
+              </button>
+            )}
+          </div>}
         </div>
         <div className="topstat">
           <span className="topstat-n">{mode === 'album' ? albums.filter((a) => !a.generating).length : songs.filter((s) => !s.generating).length}</span>
@@ -2312,7 +2692,7 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
           onClick={() => setSel({ ...p.sel })}
           title={p.label}>
           <span className="preset-icon">{p.icon}</span>
-          <span className="preset-name">{lang === 'zh' ? p.zh : p.label}</span>
+          <span className="preset-name">{window.I18N.labelFor(p)}</span>
         </button>
         )}
       </div>
