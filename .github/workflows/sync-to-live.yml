@@ -12,9 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: awenstudio/awen-music
-          token: ${{ secrets.SYNC_TOKEN }}
 
       - name: Sync docs/index.html to awenstudio.github.io
         env:
