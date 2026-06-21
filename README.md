@@ -35,6 +35,23 @@ python3 -m http.server 8000 --directory docs
 # 打开 http://localhost:8000
 ```
 
+### 部署 & 同步
+
+**开发流程：**
+1. 在本地改代码 → 修改 `docs/index.html`
+2. 推送到 GitHub：`git push origin main`
+3. 运行同步脚本自动上线：
+   ```bash
+   ./sync.sh
+   ```
+4. 自动推送到 [awenstudio.github.io](https://github.com/awenstudio/awenstudio.github.io)
+5. GitHub Pages 自动更新 → https://hiawen.com/music/ 生效
+
+**部署说明：**
+- **开发仓库：** 这个仓库（awen-music）私密，只有你能看
+- **部署仓库：** [awenstudio.github.io](https://github.com/awenstudio/awenstudio.github.io) 公开，通过 GitHub Pages 提供网站服务
+- **同步方式：** `sync.sh` 脚本（比 GitHub Actions 更简单可靠）
+
 ### AI 后端
 
 - **Cloudflare Worker：** `workers/generate.js`（万能 AI 代理，支持 OpenAI / Anthropic / DeepSeek / MiMo 等）
@@ -100,6 +117,23 @@ No install needed:
 python3 -m http.server 8000 --directory docs
 # open http://localhost:8000
 ```
+
+### Deploy & Sync
+
+**Workflow:**
+1. Edit code locally → modify `docs/index.html`
+2. Push to GitHub: `git push origin main`
+3. Run sync script to go live:
+   ```bash
+   ./sync.sh
+   ```
+4. Auto-syncs to [awenstudio.github.io](https://github.com/awenstudio/awenstudio.github.io)
+5. GitHub Pages updates → https://hiawen.com/music/ live
+
+**Deployment notes:**
+- **Dev repo:** this repo (awen-music) is private (only you can see it)
+- **Live repo:** [awenstudio.github.io](https://github.com/awenstudio/awenstudio.github.io) is public and serves via GitHub Pages
+- **Sync method:** `sync.sh` script (simpler and more reliable than GitHub Actions)
 
 ### AI Backend
 
