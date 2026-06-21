@@ -1,9 +1,11 @@
 # Awen Music — Matrix Generator
 
-A web tool that turns a 7‑dimension "recipe" (Environment · Nature · Time · Mood · Instrument · Style · BPM) into ready‑to‑paste **Suno** music prompts, **cover‑art** prompts, and **background‑video** prompts — for a lo‑fi study‑music content factory. It also builds whole **coherent albums** by locking one sonic identity and traversing a single axis across the tracklist.
+> **Current version: V2.2** — Musical Coherence Engine + Track Role Signatures
+
+A web tool that turns an 11‑dimension "recipe" (7 sonic + 4 visual) into ready‑to‑paste **Suno** music prompts, **cover‑art** prompts, **video** prompts, and full **album** production plans — for a lo‑fi study‑music content factory. Features universe building, track role systems, motif recurrence, and one‑click metadata generation for YouTube / Spotify.
 
 **Live site:** [hiawen.com/music](https://hiawen.com/music/)  
-**Repo:** [github.com/awenstudio/awen-music](https://github.com/awenstudio/awen-music)
+**Deployment repo:** [awenstudio/awenstudio.github.io](https://github.com/awenstudio/awenstudio.github.io) (`music/index.html`)
 
 ---
 
@@ -11,14 +13,17 @@ A web tool that turns a 7‑dimension "recipe" (Environment · Nature · Time ·
 
 ```
 awen-music/
-├── README.md                ← this file
-├── HANDOFF.md               ← developer / Claude Code instructions
+├── README.md                    ← this file
+├── HANDOFF.md                   ← developer / Claude Code instructions
+├── CHANGELOG.md                 ← V2.0 / V2.1 / V2.2 release notes
+├── FIX_LOG.md                   ← bug history + 10 standing code rules
+├── SUNO_BEST_PRACTICES.md       ← Suno usage guide + quality troubleshooting
 ├── CONTRIBUTING.md
 ├── LICENSE
-├── build.py                 ← bundles src/ → docs/index.html
+├── build.py                     ← bundles src/ → docs/index.html
 ├── docs/
-│   └── index.html           ← SELF-CONTAINED build (live on hiawen.com/music)
-├── src/                     ← editable source
+│   └── index.html               ← SELF-CONTAINED build (V2.2, synced with live)
+├── src/                         ← editable source (V2.0 base, see note below)
 │   ├── Awen Study Matrix.html   entry HTML
 │   ├── data.js                  matrix data + offline prompt/album engine → window.AWEN
 │   ├── i18n.js                  all UI strings (8 languages)              → window.I18N, window.T
@@ -29,9 +34,12 @@ awen-music/
 │   ├── tweaks-panel.jsx         in-app settings (theme / density / AI toggle)
 │   └── app.jsx                  <App> root: state, AI calls, layout, persistence
 ├── example-backend/
-│   └── api/                 ← serverless function example for real AI generation
-└── workers/                 ← Cloudflare Workers variant
+│   └── api/                     ← serverless function example for real AI generation
+└── workers/
+    └── generate.js              ← Cloudflare Worker (universal AI proxy)
 ```
+
+> **Note:** `src/` files are at V2.0 level. V2.1/V2.2 features were developed directly in the single-file `docs/index.html`. A future task is to back-port V2.2 changes into the split source files.
 
 ---
 

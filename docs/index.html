@@ -4,6 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Awen Study — Matrix Generator</title>
+<meta name="description" content="Awen Music Matrix — a lo-fi study music generator that produces Suno style boxes, cover art prompts, video prompts, YouTube metadata, and a coherent Awen visual identity across every album.">
+<meta property="og:title" content="Awen Music Matrix" />
+<meta property="og:description" content="Lo-fi study music prompt factory — Suno + cover + video + YouTube metadata, all coherent under one Awen universe." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://hiawen.com/music/" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%2315171a'/><rect x='30' y='30' width='40' height='40' rx='6' fill='none' stroke='%237fd4c9' stroke-width='4'/><circle cx='50' cy='50' r='7' fill='%237fd4c9'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -122,6 +129,13 @@
   .refchip b{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:.06em; color:var(--ink-faint);
               font-weight:600; }
   .refcard-actions{ display:flex; align-items:center; gap:12px; margin-top:auto; padding-top:8px; }
+  .refcard-paste-row{ display:flex; gap:8px; margin-bottom:8px; }
+  .refcard-paste-input{ flex:1; min-width:0; background:var(--panel2); border:1px solid var(--line2);
+                        border-radius:7px; padding:8px 10px; font-family:var(--font-mono); font-size:11.5px;
+                        color:var(--ink); outline:none; }
+  .refcard-paste-input:focus{ border-color:var(--accent); }
+  .refcard-parse-hint{ font-size:11.5px; color:var(--accent); font-weight:600; padding:4px 0 6px; }
+  .btn.sm{ padding:6px 12px; font-size:12.5px; white-space:nowrap; }
   .refcard-diff{ font-family:var(--font-mono); font-size:11px; color:var(--accent); }
 
   /* ============================ MATRIX BOARD ============================ */
@@ -159,6 +173,23 @@
   .chip.sel .chip-dot{ background:var(--accent-ink); }
   .chip.ref{ border-color:var(--sel-line); background:var(--sel); color:var(--ink); }
   .chip.ref .chip-dot{ background:var(--sel-line); box-shadow:0 0 0 3px var(--accent-soft); }
+  .chip-swatch{ width:16px; height:16px; border-radius:5px; flex:0 0 16px;
+                border:1px solid rgba(255,255,255,.18); box-shadow:0 1px 2px rgba(0,0,0,.3); }
+  .chip.sel .chip-swatch{ border-color:rgba(0,0,0,.25); }
+
+  /* ---- V2: identity layer grouping + visual columns ---- */
+  .board-stack{ display:flex; flex-direction:column; gap:18px; margin-top:16px; }
+  .board-group{ max-width:1240px; width:100%; margin:0 auto; }
+  .board-group .board{ margin-top:8px; }
+  .board-group-h{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+                  max-width:1240px; margin:0 auto; padding:0 2px; }
+  .bg-label{ font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:.2em;
+             color:var(--ink-faint); }
+  .board-group-visual .bg-label{ color:var(--accent); }
+  .bg-hint{ font-size:11.5px; color:var(--ink-faint); }
+  .col-visual{ background:var(--panel2); box-shadow:inset 0 2px 0 var(--accent-soft); }
+  .col-visual .col-code{ color:var(--accent); }
+  .board-stack.rolling .col:not(.col-prod):not(.col-visual) .col-body{ filter:blur(.4px); }
 
   /* BPM column */
   .col-bpm{ }
@@ -264,6 +295,10 @@
   .kv .v{ flex:1; min-width:0; color:var(--ink); word-break:break-word; }
   .kv .v.mono{ font-family:var(--font-mono); font-size:11.5px; line-height:1.55; }
   .kv .v.dim{ color:var(--ink-dim); }
+  .kv .k-sub{ font-size:8.5px; letter-spacing:.04em; color:var(--accent); text-transform:none; }
+  .kv-structure{ background:var(--panel2); border:1px solid var(--accent); border-radius:8px;
+                 padding:9px 11px; margin:3px 0; }
+  .kv-structure .v{ font-size:11px; }
 
   .sk{ display:flex; flex-direction:column; gap:9px; padding:6px 0; }
   .sk-line{ height:11px; border-radius:6px;
@@ -305,11 +340,15 @@
   .anchor-readout{ display:flex; flex-direction:column; gap:7px; }
   .ar-row{ display:flex; gap:9px; align-items:baseline; }
   .ar-tag{ font-family:var(--font-mono); font-size:9px; letter-spacing:.12em; padding:3px 6px;
-           border-radius:5px; flex:0 0 auto; }
+           border-radius:5px; flex:0 0 auto; white-space:nowrap; }
   .ar-move .ar-tag{ background:var(--accent); color:var(--accent-ink); }
   .ar-hold .ar-tag{ background:var(--panel2); border:1px solid var(--line); color:var(--ink-faint); }
   .ar-vals{ font-size:12px; color:var(--ink); line-height:1.4; }
   .ar-move .ar-vals{ font-weight:600; color:var(--accent); }
+  .ar-visual .ar-tag{ background:var(--accent-soft); border:1px solid var(--accent); color:var(--accent); }
+  .ar-visual .ar-vals{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:11.5px; }
+  .dna-swatch{ width:16px; height:16px; border-radius:5px; flex:0 0 16px;
+               border:1px solid rgba(255,255,255,.2); box-shadow:0 1px 2px rgba(0,0,0,.3); }
   .count-row{ display:flex; align-items:center; justify-content:space-between; padding-top:4px;
               border-top:1px solid var(--line); margin-top:2px; }
   .count-label{ font-size:13px; font-weight:600; color:var(--ink-dim); }
@@ -338,6 +377,149 @@
   .album-title{ font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1.05; }
   .album-title.dim{ font-size:16px; font-weight:500; color:var(--ink-faint); }
   .album-concept{ font-size:13px; color:var(--ink-dim); margin-top:-3px; }
+  .dna-panel{ display:flex; align-items:center; gap:9px; flex-wrap:nowrap; margin-top:2px;
+              background:var(--accent-soft); border:1px solid var(--accent); border-radius:9px; padding:8px 11px; }
+  .dna-tag{ font-family:var(--font-mono); font-size:9px; letter-spacing:.14em; font-weight:600;
+            color:var(--accent); flex:0 0 auto; white-space:nowrap; }
+  .dna-vals{ font-size:11.5px; color:var(--ink); line-height:1.4; flex:1 1 auto; min-width:0; }
+
+  /* ---- TokenModal ---- */
+  .modal-back{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex;
+               align-items:center; justify-content:center; z-index:10000; padding:20px; }
+  .modal-card{ background:var(--panel); border:1px solid var(--line2); border-radius:14px;
+               padding:24px 26px; max-width:380px; width:100%;
+               box-shadow:0 10px 40px rgba(0,0,0,.5); }
+  .modal-h{ font-size:17px; font-weight:800; letter-spacing:-.01em; margin-bottom:4px; }
+  .modal-sub{ font-size:12.5px; color:var(--ink-dim); margin-bottom:16px; line-height:1.5; }
+  .modal-pw-row{ position:relative; margin-bottom:14px; }
+  .modal-pw-input{ width:100%; background:var(--panel2); border:1px solid var(--line2);
+                    border-radius:8px; padding:11px 70px 11px 12px; font-family:var(--font-mono);
+                    font-size:14px; color:var(--ink); outline:none; box-sizing:border-box; }
+  .modal-pw-input:focus{ border-color:var(--accent); }
+  .modal-pw-toggle{ position:absolute; right:8px; top:50%; transform:translateY(-50%);
+                    background:transparent; border:none; color:var(--ink-faint); font-size:11px;
+                    font-family:var(--font-mono); letter-spacing:.1em; cursor:pointer; padding:6px 10px;
+                    border-radius:5px; }
+  .modal-pw-toggle:hover{ color:var(--accent); background:var(--accent-soft); }
+  .modal-err{ font-size:12px; color:#e57373; margin-top:-8px; margin-bottom:12px; }
+  .modal-actions{ display:flex; gap:8px; justify-content:flex-end; }
+  .modal-btn{ padding:9px 18px; border-radius:8px; font-weight:600; font-size:13.5px;
+              cursor:pointer; border:1px solid var(--line); background:var(--panel2); color:var(--ink-dim); }
+  .modal-btn.primary{ background:var(--accent); color:#0d1014; border-color:var(--accent); }
+  .modal-btn:hover{ opacity:.85; }
+
+  /* ---- Toast ---- */
+  .toast-container{ position:fixed; top:20px; right:20px; z-index:10001; display:flex;
+                    flex-direction:column; gap:8px; max-width:340px; }
+  .toast{ background:var(--panel); border:1px solid var(--line2); border-left:3px solid var(--accent);
+          border-radius:10px; padding:11px 14px; font-size:13px; color:var(--ink);
+          box-shadow:0 6px 22px rgba(0,0,0,.35); display:flex; align-items:flex-start; gap:10px;
+          animation:toastIn .2s ease-out; }
+  .toast.error{ border-left-color:#e57373; }
+  .toast-msg{ flex:1; line-height:1.5; }
+  .toast-actions{ display:flex; gap:6px; margin-top:6px; }
+  .toast-btn{ background:transparent; border:1px solid var(--line2); border-radius:6px;
+              padding:3px 9px; font-size:11.5px; color:var(--ink-dim); cursor:pointer; }
+  .toast-btn.primary{ color:var(--accent); border-color:var(--accent); font-weight:600; }
+  .toast-btn:hover{ background:var(--panel2); }
+  .toast-close{ background:transparent; border:none; color:var(--ink-faint); font-size:18px;
+                line-height:1; cursor:pointer; padding:0 2px; flex:0 0 auto; }
+  @keyframes toastIn{ from{ opacity:0; transform:translateX(20px);} to{ opacity:1; transform:translateX(0);} }
+
+  /* ---- Tab intro panel ---- */
+  .tab-intro{ max-width:1240px; margin:14px auto 0; background:var(--panel); border:1px solid var(--line);
+              border-radius:12px; padding:14px 18px; }
+  .tab-intro-h{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .tab-intro-name{ font-size:17px; font-weight:800; letter-spacing:-.01em; color:var(--accent); }
+  .tab-intro-what{ font-size:13px; color:var(--ink-dim); line-height:1.5; }
+  .tab-intro-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px; }
+  .tab-intro-col-h{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:.18em;
+                    color:var(--ink-faint); font-weight:600; margin-bottom:6px; }
+  .tab-intro-list{ margin:0; padding-left:18px; font-size:12.5px; color:var(--ink); line-height:1.65; }
+  .tab-intro-list li{ margin-bottom:3px; }
+  .tab-intro-list li strong{ color:var(--accent); font-weight:600; }
+  .tab-intro-close{ position:absolute; top:10px; right:12px; background:transparent; border:none;
+                    color:var(--ink-faint); font-size:11px; cursor:pointer; font-family:var(--font-mono);
+                    letter-spacing:.1em; }
+  .tab-intro-close:hover{ color:var(--ink); }
+  .tab-intro{ position:relative; }
+  .tab-intro-show{ max-width:1240px; margin:8px auto 0; display:flex; justify-content:flex-end; padding:0 2px; }
+  .tab-intro-show-btn{ background:transparent; border:none; font-family:var(--font-mono); font-size:10px;
+                       letter-spacing:.16em; color:var(--ink-faint); cursor:pointer; padding:4px 8px; }
+  .tab-intro-show-btn:hover{ color:var(--accent); }
+  @media (max-width:720px){ .tab-intro-grid{ grid-template-columns:1fr; } }
+
+  /* ---- Universe Builder ---- */
+  .universe-panel{ max-width:860px; margin:20px auto 0; padding:0 16px 40px; }
+  .universe-h{ font-size:22px; font-weight:800; letter-spacing:-.02em; margin-bottom:3px; }
+  .universe-sub{ font-size:13px; color:var(--ink-dim); margin-bottom:22px; }
+  .universe-form{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:22px; }
+  .universe-form-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .universe-name-input{ flex:1; min-width:180px; background:var(--panel2); border:1px solid var(--line2);
+                         border-radius:8px; padding:9px 12px; font-family:var(--font-ui); font-size:14px;
+                         color:var(--ink); outline:none; }
+  .universe-name-input:focus{ border-color:var(--accent); }
+  .universe-save-btn{ padding:9px 18px; background:var(--accent); color:#0d1014; font-weight:700;
+                      border:none; border-radius:8px; cursor:pointer; font-size:13.5px; white-space:nowrap; }
+  .universe-save-btn:hover{ opacity:.88; }
+  .universe-dna-preview{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--ink-dim); }
+  .universe-dna-preview .dna-swatch{ flex:0 0 18px; width:18px; height:18px; }
+  .universe-list-h{ font-family:var(--font-mono); font-size:10px; letter-spacing:.18em; color:var(--ink-faint);
+                    font-weight:600; margin-bottom:10px; }
+  .universe-list{ display:flex; flex-direction:column; gap:10px; }
+  .universe-card{ background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:14px 16px;
+                  display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .universe-card-name{ font-weight:700; font-size:14.5px; flex:1; min-width:120px; }
+  .universe-card-dims{ font-size:11.5px; color:var(--ink-dim); flex:2; min-width:200px; }
+  .universe-card-actions{ display:flex; gap:8px; }
+  .universe-btn{ padding:7px 13px; border-radius:7px; border:1px solid var(--line); font-size:12.5px;
+                 font-weight:600; cursor:pointer; background:var(--panel2); color:var(--ink-dim); }
+  .universe-btn.apply{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
+  .universe-btn.del{ color:var(--ink-faint); }
+  .universe-btn:hover{ opacity:.8; }
+  .universe-empty{ color:var(--ink-faint); font-size:13px; padding:18px 0; }
+  .universe-applied{ margin-top:10px; font-size:12.5px; color:var(--accent); font-weight:600; }
+  .universe-inline{ max-width:1240px; margin:12px auto 0; padding:0 2px; }
+  .universe-inline-form{ margin-bottom:6px; }
+
+  /* ---- Tooltip ---- */
+  .tip-wrap{ position:relative; display:inline-flex; }
+  .tip-box{ position:absolute; bottom:calc(100% + 7px); left:50%; transform:translateX(-50%);
+            background:#1a2026; border:1px solid var(--line2); border-radius:8px; padding:8px 11px;
+            font-size:12px; color:var(--ink); line-height:1.5; white-space:pre-wrap;
+            max-width:240px; z-index:9999; pointer-events:none;
+            box-shadow:0 4px 16px rgba(0,0,0,.4); text-align:left; }
+  .tip-box::after{ content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+                   border:5px solid transparent; border-top-color:#1a2026; }
+
+  /* ---- Remix button ---- */
+  .remix-btn{ padding:4px 10px; border-radius:7px; border:1px solid var(--line); font-size:11.5px;
+              font-weight:600; cursor:pointer; background:var(--panel2); color:var(--ink-dim);
+              font-family:var(--font-ui); display:flex; align-items:center; gap:5px; }
+  .remix-btn:hover{ border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+
+  /* ---- Track role badge ---- */
+  .track-role{ display:inline-block; font-family:var(--font-mono); font-size:9px; letter-spacing:.12em;
+               font-weight:600; padding:2px 7px; border-radius:5px; background:var(--accent-soft);
+               color:var(--accent); border:1px solid var(--accent); margin-left:6px; vertical-align:middle; }
+
+  /* ---- Metadata block ---- */
+  .meta-block{ margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
+  .publish-helper{ margin-top:14px; border-top:1px solid var(--line); padding-top:14px;
+                   display:flex; flex-direction:column; gap:10px; }
+  .dna-chip{ display:inline-block; font-size:10.5px; color:var(--ink-dim); background:var(--panel2);
+             border:1px solid var(--line); border-radius:6px; padding:2px 8px; margin:2px 4px 2px 0; line-height:1.5; }
+
+  /* ---- Album Series ---- */
+  .series-strip{ max-width:1240px; margin:10px auto 0; padding:0 2px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .series-label{ font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; color:var(--ink-faint); font-weight:600; }
+  .series-chip{ font-size:12px; padding:4px 11px; border-radius:20px; border:1px solid var(--accent); color:var(--accent);
+                background:var(--accent-soft); cursor:pointer; font-weight:600; white-space:nowrap; }
+  .series-chip:hover{ opacity:.8; }
+  .universe-series{ margin-top:12px; border-top:1px solid var(--line); padding-top:10px; }
+  .universe-series-h{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:.14em; color:var(--ink-faint); font-weight:600; margin-bottom:7px; }
+  .series-album-chip{ font-size:11px; padding:3px 9px; border-radius:14px; background:var(--panel2); border:1px solid var(--line);
+                      color:var(--ink-dim); margin:3px 4px 0 0; display:inline-block; }
   .album-desc{ background:var(--panel2); border:1px solid var(--line); border-left:2px solid var(--accent);
                border-radius:9px; padding:11px 13px; margin-top:2px; }
   .album-desc-tag{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:.16em; color:var(--accent);
@@ -467,6 +649,29 @@
       options: ['Ambient', 'Neo Classical', 'Lo-fi Hip Hop', 'Chillhop', 'Jazzhop',
                 'Minimal Piano', 'Drone Ambient', 'Slowcore'],
     },
+    // ---- V2 visual-identity layer: these define the recognizable Awen world.
+    //      They are HELD CONSTANT across an album (identity), never part of the
+    //      sonic axis, and feed every cover / video / thumbnail prompt. ----
+    {
+      key: 'character', label: 'Character', zh: '角色', code: 'CHAR', layer: 'visual',
+      options: ['Awen', 'Night Student', 'Writer', 'Librarian', 'Traveler',
+                'Researcher', 'Dreamer', 'Coffee Drinker', 'Book Collector', 'Silent Observer'],
+    },
+    {
+      key: 'light', label: 'Light Source', zh: '光源', code: 'LIGHT', layer: 'visual',
+      options: ['Amber Lamp', 'Morning Sun', 'Rainy Window Glow', 'Candle Light', 'Moonlight',
+                'Fireplace', 'Cafe Pendant Light', 'Library Chandelier', 'Train Cabin Light', 'Neon Reflection'],
+    },
+    {
+      key: 'palette', label: 'Color Palette', zh: '色板', code: 'PAL', layer: 'visual',
+      options: ['Amber Walnut', 'Rainy Blue', 'Winter Gray', 'Autumn Gold', 'Muted Green',
+                'Dusty Rose', 'Night Indigo', 'Coffee Brown', 'Fog White', 'Library Sepia'],
+    },
+    {
+      key: 'motif', label: 'Narrative Motif', zh: '母题', code: 'MOTIF', layer: 'visual',
+      options: ['Turning Pages', 'Window Rain', 'Coffee Steam', 'Train Journey', 'Flickering Lamp',
+                'Falling Snow', 'Writing Letters', 'Burning Fireplace', 'Distant Thunder', 'Midnight Silence'],
+    },
   ];
 
   const BPM = { key: 'bpm', label: 'BPM', code: 'BPM', layer: 'production',
@@ -476,7 +681,435 @@
   const DEFAULTS = {
     environment: 'Library', nature: 'Rain', time: 'Night',
     mood: 'Calm', instrument: 'Felt Piano', style: 'Ambient', bpm: 60,
+    character: 'Awen', light: 'Amber Lamp', palette: 'Amber Walnut', motif: 'Turning Pages',
   };
+
+  const VISUAL_KEYS = ['character', 'light', 'palette', 'motif'];
+
+  /* ===================== TRACK ROLE SYSTEM (V2) =====================
+     Every track in an album gets a functional role that injects specific
+     sonic modifiers. This gives each track a distinct "purpose" while
+     keeping the shared identity locked. Roles are sampled proportionally
+     so they work for any track count (3–12). */
+  const TRACK_ROLES = [
+    { name: 'Awakening',   mod: 'upper-register, lighter harmonics, gentle entry, sparse arrangement' },
+    { name: 'Settling In', mod: 'warm and grounding, simple chords, unhurried tempo' },
+    { name: 'Focus',       mod: 'fuller voicings, stable harmony, clear melodic line' },
+    { name: 'Flow State',  mod: 'seamless groove, minimal variation, deeply hypnotic' },
+    { name: 'Reflection',  mod: 'minor-key movement, introspective, softer dynamics' },
+    { name: 'Transition',  mod: 'melodic bridge, shifting texture, bittersweet' },
+    { name: 'Deep Work',   mod: 'dense and immersive, steady pulse, rich mid-register' },
+    { name: 'Persistence', mod: 'resolute, building energy, warm and determined' },
+    { name: 'Release',     mod: 'lighter texture, opening up, letting go' },
+    { name: 'Closure',     mod: 'returning opening motif, near-silent dynamics, peaceful resolution' },
+  ];
+  function trackRole(index, total) {
+    const pos = total <= 1 ? 0 : index / (total - 1);
+    const i = Math.round(pos * (TRACK_ROLES.length - 1));
+    return TRACK_ROLES[Math.max(0, Math.min(TRACK_ROLES.length - 1, i))];
+  }
+
+  /* ===================== MOTIF RECURRENCE SYSTEM (V2) =====================
+     A four-note melodic phrase is auto-derived from the instrument and
+     injected into Track 1 (introduce), the midpoint track (variation),
+     and the final track (return). This creates album cohesion even when
+     the axis moves the harmonic/temporal content around. */
+  const MOTIF_PHRASES = {
+    'Felt Piano':       'a four-note descending felt piano phrase',
+    'Rhodes Piano':     'a four-note Rhodes motif with gentle tremolo',
+    'Upright Bass':     'a four-note upright bass ostinato',
+    'Classical Guitar': 'a four-note fingerpicked guitar phrase',
+    'Violin':           'a four-note violin melodic cell',
+    'Cello':            'a four-note cello motif',
+    'Vibraphone':       'a four-note vibraphone phrase with soft sustain',
+    'Kalimba':          'a four-note kalimba motif',
+    'Flute':            'a four-note breathy flute phrase',
+    'Harp':             'a four-note harp arpeggio motif',
+  };
+  function coreMotif(instrument) {
+    return MOTIF_PHRASES[instrument] || `a four-note ${(instrument||'piano').toLowerCase()} motif`;
+  }
+
+  /* ===================== MUSICAL COHERENCE ENGINE (V2.2) =====================
+     Fixes the three quality problems with single tracks:
+       1. "incoherent"  → pin a KEY + MODE so harmony stays consistent, and
+                          cap the arrangement to 1 lead + 1–2 support instruments
+                          (restraint is the source of authentic lo-fi).
+       2. "album too bland" → give each track ONE signature element by role.
+       3. "flat start to finish" → emit a metatag ARRANGEMENT (Intro→build→
+                          breakdown→outro) for Suno's Lyrics box, so the track
+                          has an actual arc instead of "continuing the vibe."
+     Lo-fi best practice followed throughout: describe groove + texture first;
+     avoid "crisp / polished"; keep the Style box tight. */
+
+  // Mood → a musical key + mode that fits the emotion. Minor & modal keys
+  // are the backbone of lo-fi; majors used sparingly for warmth/hope.
+  const MOOD_KEY = {
+    'Calm':       'D dorian',
+    'Melancholy': 'A minor',
+    'Focused':    'C major',
+    'Dreamy':     'F lydian',
+    'Nostalgic':  'B♭ major',
+    'Hopeful':    'G major',
+    'Lonely':     'E minor',
+    'Cozy':       'F major',
+    'Mysterious': 'C♯ minor',
+    'Energetic':  'A minor',
+  };
+  function musicalKey(mood) { return MOOD_KEY[mood] || 'A minor'; }
+
+  // Each track-role gets ONE signature musical gesture — the memorable hook
+  // that keeps an album from feeling samey track to track.
+  const ROLE_SIGNATURE = {
+    'Awakening':   'opens on a single sustained high note before the theme enters',
+    'Settling In': 'a warm upright-bass entrance grounds the groove',
+    'Focus':       'a repeating two-note ostinato runs underneath',
+    'Flow State':  'one hypnotic looped figure, almost unchanging',
+    'Reflection':  'a solo rubato passage, freely played, mid-track',
+    'Transition':  'a brief lift to the relative major, then back',
+    'Deep Work':   'a quiet counter-melody layered against the lead',
+    'Persistence': 'a slowly building rhythmic pulse that never breaks',
+    'Release':     'an opening-up to a brighter, more open voicing',
+    'Closure':     'the opening phrase returns, finally resolved',
+  };
+  function roleSignature(role) { return ROLE_SIGNATURE[role] || 'a single memorable melodic phrase anchors the track'; }
+
+  // Build the metatag ARRANGEMENT that goes in Suno's Lyrics box.
+  // This is what gives an instrumental a beginning / middle / end.
+  // `role` is optional (album tracks pass it); singles use a balanced default.
+  function buildArrangement(s, role) {
+    const inst = (s.instrument || 'felt piano').toLowerCase();
+    const key  = musicalKey(s.mood);
+    const tex  = (TEXTURE_MAP[s.style] || 'warm tape texture').split(',')[0].trim();
+    const hasDrums = !['Ambient', 'Minimal Piano', 'Drone Ambient'].includes(s.style);
+    const drumLine = hasDrums ? 'add soft brushed drums and warm bass, settle the groove' : 'add a low sustained pad beneath, no drums';
+    const sig = roleSignature(role || 'Focus');
+    return [
+      `[Intro: solo ${inst}, sparse, establish the theme in ${key}, ${tex}]`,
+      `[Main: ${drumLine}, ${sig}]`,
+      `[Lift: slightly fuller arrangement, gentle dynamic rise, stay relaxed]`,
+      `[Breakdown: strip back to ${inst} and ${tex}, intimate and quiet]`,
+      `[Outro: return to the opening phrase, fade on a long reverb tail]`,
+    ].join('\n');
+  }
+
+  // The refined, TIGHT Style box. Groove + texture first, key pinned for
+  // coherence, instrument count capped, no "polished/crisp" words.
+  function buildStyleBox(s, role) {
+    const lead = (s.instrument || 'felt piano').toLowerCase();
+    const key  = musicalKey(s.mood);
+    const groove = s.bpm <= 60 ? 'slow, unhurried groove' : (s.bpm <= 75 ? 'relaxed head-nodding groove' : 'gentle mid-tempo groove');
+    return `${s.style.toLowerCase()}, instrumental, ${key}, ${s.bpm} bpm ${groove}, ` +
+           `${lead} lead, ${textureTags(s.style)}, warm and unpolished, study-friendly`;
+  }
+
+  /* ---- Album DNA: the four semantic locks that give every album a consistent feel ---- */
+  const TEXTURE_MAP = {
+    'Ambient':         'soft room reverb tail, no drums, airy silence between notes',
+    'Neo Classical':   'warm tape hiss, light room reverb, bow-noise texture',
+    'Lo-fi Hip Hop':   'soft vinyl dust, gentle tape saturation, lo-fi crackle',
+    'Chillhop':        'warm vinyl crackle, soft brushed-drum room, subtle tape hiss',
+    'Jazzhop':         'vintage tape saturation, soft drum-brush fizz, warm low-pass',
+    'Minimal Piano':   'dry room, soft pedal resonance, sparse silence',
+    'Drone Ambient':   'long reverb decay, sub-drone hum, near-silence texture',
+    'Slowcore':        'slow tape saturation, soft noise floor, intimate room',
+  };
+  const SPACE_MAP = {
+    'Library':         'small wooden library room with high shelves and soft acoustics',
+    'Quiet Café':      'intimate café corner, low ceiling, soft ambient murmur',
+    'Home Studio':     'small treated home studio, warm and close',
+    'Rainy Window':    'a still room beside a rain-streaked window',
+    'Forest Cabin':    'a wooden cabin in the forest, quiet and insulated',
+    'Night City':      'a high-floor apartment at night, distant city hum',
+    'Rooftop Garden':  'an open rooftop garden, light breeze, soft city below',
+    'Old Bookshop':    'a narrow old bookshop, dusty shelves, warm and enclosed',
+    'Train Cabin':     'a slow train cabin at night, gentle rhythmic sway',
+    'Empty Classroom': 'a quiet empty classroom after hours, wooden floors',
+  };
+  const EMOTION_MAP = {
+    'Calm':       'quiet perseverance',
+    'Melancholy': 'gentle melancholy',
+    'Focused':    'steady, unbroken focus',
+    'Dreamy':     'soft, drifting reverie',
+    'Nostalgic':  'bittersweet nostalgia',
+    'Hopeful':    'quiet, patient hope',
+    'Lonely':     'solitary contemplation',
+    'Cozy':       'warm, contented stillness',
+    'Mysterious': 'curious, searching wonder',
+    'Energetic':  'alert, flowing momentum',
+  };
+  function albumDNA(base) {
+    return {
+      motif:   coreMotif(base.instrument),
+      texture: TEXTURE_MAP[base.style] || 'warm tape texture, soft room reverb',
+      space:   SPACE_MAP[base.environment] || `a ${(base.environment||'library').toLowerCase()} with warm acoustics`,
+      emotion: EMOTION_MAP[base.mood] || `${(base.mood||'calm').toLowerCase()} contemplation`,
+    };
+  }
+
+  /* ===================== SMART DECOMPOSE (V2) =====================
+     Parse a free-form style string (or pasted Suno style box) into the
+     matrix. Tries to match each dimension's options against the input,
+     and snaps BPM to the nearest brand value. Returns null if nothing
+     useful was extracted, so the caller can fall back to REFERENCE. */
+  function parseStyleString(text) {
+    if (!text || typeof text !== 'string') return null;
+    const lower = text.toLowerCase();
+    const tokens = lower.split(/[,;\n|\u2022\u00b7]+/).map(s => s.trim()).filter(Boolean);
+    const out = {};
+
+    // Try to match each dimension's options against any token (substring match both directions).
+    for (const dim of DIMS) {
+      for (const opt of dim.options) {
+        const o = opt.toLowerCase();
+        if (tokens.some(t => t.includes(o) || o.includes(t))) {
+          out[dim.key] = opt;
+          break;
+        }
+      }
+    }
+    // BPM: find any number 40-180 and snap to brand values.
+    const bpmMatch = lower.match(/\b(\d{2,3})\s*bpm\b/);
+    if (bpmMatch) {
+      const n = parseInt(bpmMatch[1], 10);
+      if (n >= 40 && n <= 200) {
+        out.bpm = BPM.values.reduce((b, v) => Math.abs(v - n) < Math.abs(b - n) ? v : b, BPM.values[0]);
+      }
+    }
+    // Heuristics for common phrasing that doesn't map to an option name directly.
+    if (!out.nature) {
+      if (/\brain\b/.test(lower)) out.nature = 'Rain';
+      else if (/\bsnow\b/.test(lower)) out.nature = 'Light Snow';
+      else if (/\bfire/.test(lower)) out.nature = 'Fireplace';
+      else if (/\bwind/.test(lower)) out.nature = 'Breeze';
+    }
+    if (!out.time) {
+      if (/\bnight\b|\bmidnight\b/.test(lower)) out.time = 'Night';
+      else if (/\bmorning\b|\bdawn\b/.test(lower)) out.time = 'Morning';
+      else if (/\bevening\b|\bdusk\b/.test(lower)) out.time = 'Evening';
+      else if (/\bafternoon\b/.test(lower)) out.time = 'Afternoon';
+    }
+    return Object.keys(out).length === 0 ? null : out;
+  }
+
+  /* ===================== FILE NAMING (V2) =====================
+     Build consistent filenames so a folder of downloaded Suno mp3s
+     is already organized when it lands on disk. */
+  function safeChunk(s) { return String(s || '').replace(/[^A-Za-z0-9]+/g, ''); }
+  function songFileName(song) {
+    const s = song.sel || {};
+    return [
+      song.id || 'AWN',
+      safeChunk(s.environment), safeChunk(s.time), safeChunk(s.mood),
+      safeChunk(s.instrument), (s.bpm ? s.bpm + 'bpm' : '')
+    ].filter(Boolean).join('_');
+  }
+  function albumTrackFileName(album, idx, track) {
+    return [
+      album.id || 'ALB',
+      'T' + String(idx + 1).padStart(2, '0'),
+      safeChunk(track.role || ''),
+      safeChunk(track.scene || track.title || '')
+    ].filter(Boolean).join('_');
+  }
+
+  /* ===================== EPISODE TITLE (V2) =====================
+     Auto-numbered YouTube title template. Pulls the episode number
+     from the item's ID (AWN-042 → 042). */
+  function episodeNumber(id) {
+    if (!id) return '';
+    const m = String(id).match(/(\d+)$/);
+    return m ? m[1] : '';
+  }
+  function songYouTubeTitle(song) {
+    const ep = episodeNumber(song.id);
+    const s = song.sel || {};
+    const ai = song.ai || {};
+    const title = ai.title || `${s.environment} ${s.time}`;
+    return `EP-${ep} · ${title} · Lo-fi Study Music · ${s.instrument || ''} · Awen`.replace(/ · · /g, ' · ');
+  }
+  function albumYouTubeTitle(album) {
+    const ep = episodeNumber(album.id);
+    const data = album.data || {};
+    const title = data.album || album.axisLabel || 'Awen Sessions';
+    return `EP-${ep} · ${title} · Lo-fi Study Album · Awen`;
+  }
+  // Returns a motif recurrence instruction for a given track index.
+  // null = no instruction (middle tracks).
+  function motifInstruction(idx, total, motif) {
+    if (total < 3) return null;
+    const mid = Math.floor(total / 2);
+    if (idx === 0)         return `Introduce ${motif} — let it appear clearly in the opening bars.`;
+    if (idx === mid)       return `Subtle variation on ${motif} — same four notes, different register or harmony.`;
+    if (idx === total - 1) return `Return of ${motif} from Track 1, resolved — near-silent dynamics, peaceful close.`;
+    return null;
+  }
+
+  /* ===================== METADATA GENERATOR (V2) =====================
+     Builds ready-to-paste YouTube + Spotify descriptions + tags from the
+     album object. Saves the copy-paste step when publishing. */
+  function metadataGen(album, base) {
+    base = base || {};
+    const year = new Date().getFullYear();
+    const trackList = (album.tracks || []).map((t, i) =>
+      `${String(i + 1).padStart(2, '0')}. ${t.title}${t.role ? ' [' + t.role + ']' : ''} (${t.scene})`
+    ).join('\n');
+    const style = base.style || (album.anchor || 'lo-fi').split(',')[0].trim();
+    const mood  = base.mood  || 'calm';
+    const env   = base.environment || 'library';
+    const inst  = base.instrument  || 'piano';
+    const bpm   = base.bpm || '';
+    const ytDesc =
+      `${album.description || album.concept || ''}\n\n` +
+      `▶ TRACKLIST\n${trackList}\n\n` +
+      `🎵 All tracks: ${inst} · ${style}${bpm ? ' · ' + bpm + ' bpm' : ''} · no vocals\n` +
+      `📌 Study playlist generated with Awen Study Matrix · hiawen.com/music\n\n` +
+      `#lofi #studymusic #${style.toLowerCase().replace(/\s+/g,'')} #${mood.toLowerCase()}music #instrumental`;
+    const spotifyDesc =
+      `${album.description || album.concept || ''}\n\n${trackList}\n\nAwen Study · ${year}`;
+    const tags = [
+      'lofi study music', 'study with me', 'focus music', 'instrumental',
+      style.toLowerCase(), mood.toLowerCase() + ' music',
+      env.toLowerCase() + ' ambience', inst.toLowerCase(),
+      'no vocals', 'awen study', album.album || ''
+    ].filter(Boolean);
+    return { ytDesc, spotifyDesc, tags };
+  }
+
+  /* ===================== UNIVERSE STORAGE (V2) =====================
+     Universes are named identity snapshots saved in localStorage.
+     Each album generated under a universe inherits the 4 visual dims
+     + environment, so the channel looks like one coherent world. */
+  const UNIVERSE_STORE_KEY = 'awen_universes_v1';
+  function loadUniverses() {
+    try { return JSON.parse(localStorage.getItem(UNIVERSE_STORE_KEY)) || []; } catch (e) { return []; }
+  }
+  function saveUniversesStore(arr) {
+    try { localStorage.setItem(UNIVERSE_STORE_KEY, JSON.stringify(arr)); } catch (e) {}
+  }
+
+  /* ===================== V2 VISUAL LANGUAGE ENGINE =====================
+     Turns the four visual-identity dimensions into recognizable, reusable
+     image language. Every cover / video / thumbnail prompt is assembled from
+     these so an Awen album reads as one world even as the music varies. */
+
+  // Two-to-three swatch hexes per palette, for the on-chip color preview.
+  const PALETTE_HEX = {
+    'Amber Walnut':  ['#3a2a1a', '#8a5a2b', '#d7a85a'],
+    'Rainy Blue':    ['#2a3742', '#48626f', '#9fb4bd'],
+    'Winter Gray':   ['#3a3f44', '#6b727a', '#c2c7cc'],
+    'Autumn Gold':   ['#3a2417', '#a9591f', '#e2b15a'],
+    'Muted Green':   ['#23302a', '#4f6b56', '#a7bda6'],
+    'Dusty Rose':    ['#3a2730', '#8a5560', '#d8a8ad'],
+    'Night Indigo':  ['#1c2138', '#3a4170', '#8189c0'],
+    'Coffee Brown':  ['#2a1d16', '#5a3d2b', '#a87f5e'],
+    'Fog White':     ['#9aa0a3', '#c9ccce', '#eef0f0'],
+    'Library Sepia': ['#3a2f20', '#7a6645', '#cdb98c'],
+  };
+
+  const CHARACTER_DESC = {
+    'Awen': 'Awen, a young anime-inspired student',
+    'Night Student': 'a lone night student',
+    'Writer': 'a quiet writer at a desk',
+    'Librarian': 'a gentle librarian among the shelves',
+    'Traveler': 'a traveler with a worn bag',
+    'Researcher': 'a focused researcher surrounded by notes',
+    'Dreamer': 'a daydreamer gazing out the window',
+    'Coffee Drinker': 'a figure cradling a warm cup',
+    'Book Collector': 'a reader behind stacks of books',
+    'Silent Observer': 'a still, contemplative figure',
+  };
+  const LIGHT_DESC = {
+    'Amber Lamp': 'warm amber desk-lamp glow',
+    'Morning Sun': 'soft morning sunlight',
+    'Rainy Window Glow': 'cool grey light through a rain-streaked window',
+    'Candle Light': 'flickering candlelight',
+    'Moonlight': 'pale blue moonlight',
+    'Fireplace': 'warm orange firelight',
+    'Cafe Pendant Light': 'low warm café pendant light',
+    'Library Chandelier': 'soft library chandelier glow',
+    'Train Cabin Light': 'dim train-cabin light',
+    'Neon Reflection': 'muted neon reflections',
+  };
+  const PALETTE_DESC = {
+    'Amber Walnut': 'warm walnut & amber palette',
+    'Rainy Blue': 'muted rainy-blue palette',
+    'Winter Gray': 'cool winter-gray palette',
+    'Autumn Gold': 'autumn gold & rust palette',
+    'Muted Green': 'muted sage-green palette',
+    'Dusty Rose': 'dusty rose & mauve palette',
+    'Night Indigo': 'deep night-indigo palette',
+    'Coffee Brown': 'rich coffee-brown palette',
+    'Fog White': 'soft fog-white palette',
+    'Library Sepia': 'aged library-sepia palette',
+  };
+  // motif → [static cover element, looping video motion]
+  const MOTIF_DESC = {
+    'Turning Pages': ['an open book mid-turn', 'pages turning gently'],
+    'Window Rain': ['a rain-streaked window', 'rain trickling down the glass'],
+    'Coffee Steam': ['a cup with rising steam', 'steam curling slowly upward'],
+    'Train Journey': ['a train window with passing scenery', 'scenery sliding past the window'],
+    'Flickering Lamp': ['a softly glowing lamp', 'a lamp gently flickering'],
+    'Falling Snow': ['snow settling outside the window', 'snow drifting down'],
+    'Writing Letters': ['a half-written letter and pen', 'a hand writing slowly'],
+    'Burning Fireplace': ['a low burning fireplace', 'flames flickering softly'],
+    'Distant Thunder': ['a stormy sky beyond the glass', 'distant lightning flickering'],
+    'Midnight Silence': ['a still, quiet room at midnight', 'dust motes drifting in still air'],
+  };
+
+  // Awen signature elements — Tier 1 always present; Tier 2/3 injected when the
+  // recipe makes them true, so covers stay on-brand without feeling templated.
+  const SIGNATURE = {
+    tier1: ['open book', 'warm lamp', 'wooden surfaces', 'cozy atmosphere'],
+    tier2: ['rain', 'coffee', 'paper', 'window'],
+    tier3: ['snow', 'train', 'fireplace', 'letters'],
+  };
+  function signatureElements(s) {
+    const out = [...SIGNATURE.tier1];
+    const add = (x) => { if (!out.includes(x)) out.push(x); };
+    if (s.nature === 'Rain' || s.motif === 'Window Rain' || s.environment === 'Rainy Window') add('rain');
+    if (s.character === 'Coffee Drinker' || s.motif === 'Coffee Steam' || s.environment === 'Quiet Café') add('coffee');
+    if (s.environment === 'Rainy Window' || s.motif === 'Window Rain' || s.motif === 'Distant Thunder') add('window');
+    if (s.nature === 'Light Snow' || s.motif === 'Falling Snow') add('snow');
+    if (s.environment === 'Night City' || s.motif === 'Train Journey') add('train');
+    if (s.nature === 'Fireplace' || s.motif === 'Burning Fireplace') add('fireplace');
+    if (s.motif === 'Writing Letters') add('letters');
+    return out;
+  }
+
+  const vCharacter = (s) => CHARACTER_DESC[s.character] || (s.character || 'Awen');
+  const vLight = (s) => LIGHT_DESC[s.light] || 'warm light';
+  const vPalette = (s) => PALETTE_DESC[s.palette] || 'warm palette';
+  const vMotif = (s) => MOTIF_DESC[s.motif] || ['an open book', 'soft ambient motion'];
+
+  // Cover Prompt V2 — Character + Environment + Motif + Light + Palette + Camera + Mood
+  function coverV2(s) {
+    const env = (s.environment || 'library').toLowerCase();
+    const [motifEl] = vMotif(s);
+    return `Square 1:1 album cover — ${vCharacter(s)} in a ${env}, ${motifEl}, ${vLight(s)}, ${vPalette(s)}. ` +
+      `Signature Awen elements: ${signatureElements(s).join(', ')}. ` +
+      `Shallow depth of field, cinematic still life, ${(s.mood || 'calm').toLowerCase()} contemplative mood, soft film grain. ` +
+      `Centered composition with calm negative space near the top for the album title. No text, no logos, no motion.`;
+  }
+  // Video Prompt V2 — Environment + Motion + Light + Motif + Palette + Loop instruction
+  function videoV2(s) {
+    const env = (s.environment || 'library').toLowerCase();
+    const [, motion] = vMotif(s);
+    return `16:9 seamless looping background — ${motion} in a ${env}, ${vLight(s)}, ${vPalette(s)}, ` +
+      `dust particles drifting, very slow cinematic camera drift, shallow depth of field, gentle film grain. ` +
+      `Calm and still, no people, perfect loop.`;
+  }
+  // Channel thumbnail rules — the part that makes a YouTube grid instantly read as Awen.
+  function thumbRules(s) {
+    return `YouTube thumbnail 1280×720 — keep the Awen channel look identical every time: ${vPalette(s)}, ${vLight(s)}, ` +
+      `the same warm desk lamp and open book, Awen wordmark locked to the lower-left, ` +
+      `the same rounded title type top-left. ${vCharacter(s)} kept small in frame. Consistent for instant recognition.`;
+  }
+  // Compact identity snapshot for on-screen readouts.
+  function visualDNA(s) {
+    return { character: s.character || 'Awen', light: s.light || 'Amber Lamp',
+             palette: s.palette || 'Amber Walnut', motif: s.motif || 'Turning Pages' };
+  }
 
   // Imported mainstream lo-fi sample — represented abstractly, only used to seed decompose defaults.
   const REFERENCE = {
@@ -534,12 +1167,15 @@
       title,
       tagline: `${s.mood.toLowerCase()} · ${s.time.toLowerCase()}`,
       suno: {
-        style: `${s.style}, ${s.mood.toLowerCase()} lo-fi, ${s.instrument.toLowerCase()}, ${s.bpm} bpm, ${textureTags(s.style)}, instrumental`,
+        style: buildStyleBox(s),
+        structure: buildArrangement(s),
+        key: musicalKey(s.mood),
         prompt: `Instrumental ${s.style.toLowerCase()} led by ${s.instrument.toLowerCase()}${natureClause}, ${s.mood.toLowerCase()} and study-friendly.`,
-        exclude: 'vocals, lyrics, harsh percussion, sudden dynamics',
+        exclude: 'vocals, lyrics, harsh percussion, sudden dynamics, polished, crisp',
       },
-      cover: `Square 1:1 album cover: a ${place} at ${s.time.toLowerCase()}, ${s.mood.toLowerCase()} mood, ${sceneLight}. Centered composition with calm negative space near the top for a title, soft warm light, painterly film grain. No text, no motion.`,
-      video: `16:9 looping background: a ${place} at ${s.time.toLowerCase()}, ${s.mood.toLowerCase()} and still, ${sceneLight}. Very slow cinematic camera drift, shallow depth of field, gentle film grain, seamless loop.`,
+      cover: coverV2(s),
+      video: videoV2(s),
+      thumb: thumbRules(s),
     };
   }
 
@@ -666,12 +1302,20 @@
     };
     const albumTitle = `${base.environment} ${titles[axisKey] || 'Sessions'}`;
     const anchor = `${base.style}, ${base.mood.toLowerCase()} lo-fi, ${base.instrument.toLowerCase()}, ${base.bpm} bpm range, ${textureTags(base.style)}, instrumental`;
-    const tracks = recipes.map((s) => {
+    const motif = coreMotif(base.instrument);
+    const tracks = recipes.map((s, idx) => {
       const moveLabels = axis.moves.map(k => k === 'bpm' ? s.bpm + ' bpm' : s[k]).join(' · ');
+      const role = trackRole(idx, recipes.length);
+      const motifInstr = motifInstruction(idx, recipes.length, motif);
       return {
         title: `${moveLabels}`,
         scene: `${s.time} · ${s.environment}`,
-        prompt: `${axis.moves.includes('bpm') ? s.bpm + ' bpm, ' : ''}${s.mood.toLowerCase()} ${s.style.toLowerCase()} in a ${s.environment.toLowerCase()} at ${s.time.toLowerCase()}${s.nature === 'None' ? '' : ', ' + s.nature.toLowerCase() + ' ambience'}.`,
+        role: role.name,
+        key: musicalKey(s.mood),
+        style: buildStyleBox(s, role.name),
+        structure: buildArrangement(s, role.name),
+        motifMark: idx === 0 ? 'intro' : idx === Math.floor(recipes.length/2) ? 'variation' : idx === recipes.length-1 ? 'return' : null,
+        prompt: `${axis.moves.includes('bpm') ? s.bpm + ' bpm, ' : ''}${s.mood.toLowerCase()} ${s.style.toLowerCase()} in a ${s.environment.toLowerCase()} at ${s.time.toLowerCase()}${s.nature === 'None' ? '' : ', ' + s.nature.toLowerCase() + ' ambience'}. Role: ${role.name} — ${role.mod}. ${roleSignature(role.name)}.${motifInstr ? ' ' + motifInstr : ''}`,
       };
     });
     const firstT = recipes[0], lastT = recipes[recipes.length - 1];
@@ -690,8 +1334,12 @@
       description,
       descriptionZh,
       anchor,
-      cover: `Square 1:1 cover for "${albumTitle}": a ${base.environment.toLowerCase()} at ${base.time.toLowerCase()}, ${base.mood.toLowerCase()} mood, soft cinematic light, painterly film grain. Centered composition with negative space near the top for the album title. No text, no motion.`,
-      video: `16:9 looping background video for "${albumTitle}": a ${base.environment.toLowerCase()} at ${base.time.toLowerCase()}, ${base.mood.toLowerCase()} and still, very slow cinematic camera drift, shallow depth of field, gentle film grain, seamless loop.`,
+      coreMotif: motif,
+      dna: albumDNA(base),
+      visual: visualDNA(base),
+      cover: coverV2(base),
+      video: videoV2(base),
+      thumb: thumbRules(base),
       tracks,
     };
   }
@@ -716,9 +1364,15 @@
   ];
 
   window.AWEN = {
-    DIMS, BPM, DEFAULTS, REFERENCE, CONTENT_KEYS, PRESETS,
+    DIMS, BPM, DEFAULTS, REFERENCE, CONTENT_KEYS, PRESETS, VISUAL_KEYS,
     randomSelection, mutations, fallbackPrompt, rand,
     ALBUM_AXES, buildAlbum, anchorDims, fallbackAlbum,
+    PALETTE_HEX, SIGNATURE, signatureElements,
+    coverV2, videoV2, thumbRules, visualDNA,
+    TRACK_ROLES, trackRole, coreMotif, motifInstruction, albumDNA, metadataGen,
+    musicalKey, roleSignature, buildArrangement, buildStyleBox,
+    parseStyleString, songFileName, albumTrackFileName, songYouTubeTitle, albumYouTubeTitle, episodeNumber,
+    loadUniverses, saveUniversesStore,
   };
 })();
 
@@ -763,6 +1417,38 @@
       anchorHint: '→ Suno 风格框 · 每首都贴',
       coverHint: '→ 封面图 · 方图 1:1',
       videoHint: '→ 视频 · 16:9 循环',
+      thumbHint: '→ YouTube 缩略图 · 1280×720',
+      thumbLabel: 'THUMBNAIL 规则',
+      layerContent: '内容 · CONTENT',
+      layerProduction: '制作 · PRODUCTION',
+      layerVisual: '视觉身份 · VISUAL IDENTITY',
+      layerVisualHint: '→ 选好后锁定，每次生成封面 / 视频 / 缩略图 prompt 都带这套身份，让频道封面成系列',
+      visualDna: '视觉 DNA',
+      visualDnaHint: '整张专辑的每张封面都继承同一套视觉身份',
+      universeTab: '宇宙',
+      universeTitle: 'Awen 宇宙构建器',
+      universeSubtitle: '保存一套视觉身份，跨专辑继承——让整个频道看起来像同一个世界',
+      universeName: '宇宙名称',
+      universeNamePh: '例：awen 图书馆宇宙',
+      universeSave: '保存宇宙',
+      universeLoad: '应用到矩阵',
+      universeDelete: '删除',
+      universeEmpty: '还没有保存的宇宙，先在矩阵中选好四个视觉维度，再在这里啇下名字保存',
+      universeSaved: '已保存的宇宙',
+      tokenTitle: '需要访问密码', tokenSub: '只需输入一次，浏览器会记住',
+      tokenPlaceholder: '访问密码', tokenSubmit: '确认', tokenCancel: '取消',
+      tokenShow: '显示', tokenHide: '隐藏', logout: '退出登录',
+      aiNeedToken: '需要访问密码才能使用 AI 生成',
+      aiBadToken: '密码错误，请重新输入',
+      aiTimeout: 'AI 响应超时（30 秒），请检查网络后重试',
+      aiRetry: '重试',
+      tokenCleared: '已退出登录',
+      universeApplied: '✔ 已应用到矩阵！视觉维度已更新',
+      metaLabel: '发布元数据',
+      metaYt: 'YouTube 简介',
+      metaSpotify: 'Spotify 简介',
+      metaTags: '标签 / 关键词',
+      trackRole: '识层',
       tracklist: (p) => `曲目 · ${p.n}`,
       tracklistHint: '每首「Suno」= 风格 + 标题 + 描述，已分段标好',
       tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} 已按「${p.axis}」排好 — 从上到下就是设计好的播放顺序`,
@@ -807,6 +1493,38 @@
       anchorHint: '→ Suno Style box · every track',
       coverHint: '→ cover art · 1:1',
       videoHint: '→ video · 16:9 loop',
+      thumbHint: '→ YouTube thumbnail · 1280×720',
+      thumbLabel: 'THUMBNAIL RULES',
+      layerContent: 'CONTENT',
+      layerProduction: 'PRODUCTION',
+      layerVisual: 'VISUAL IDENTITY',
+      layerVisualHint: '→ Lock these once — every cover / video / thumbnail prompt inherits this identity so your channel looks like a series.',
+      visualDna: 'VISUAL DNA',
+      visualDnaHint: 'Every cover in the album inherits one visual identity',
+      universeTab: 'Universe',
+      universeTitle: 'Awen Universe Builder',
+      universeSubtitle: 'Save a visual identity and reuse it across albums — so your whole channel looks like one world',
+      universeName: 'Universe name',
+      universeNamePh: 'e.g. Awen Library Universe',
+      universeSave: 'Save Universe',
+      universeLoad: 'Apply to matrix',
+      universeDelete: 'Delete',
+      universeEmpty: 'No saved universes yet. Pick the four visual dimensions in the matrix, give it a name, and save it here.',
+      universeSaved: 'Saved universes',
+      tokenTitle: 'Access password required', tokenSub: 'You only need to enter this once — your browser remembers it',
+      tokenPlaceholder: 'access password', tokenSubmit: 'Confirm', tokenCancel: 'Cancel',
+      tokenShow: 'show', tokenHide: 'hide', logout: 'log out',
+      aiNeedToken: 'AI generation needs an access password',
+      aiBadToken: 'Wrong password — please re-enter',
+      aiTimeout: 'AI request timed out (30s). Check your network and retry.',
+      aiRetry: 'Retry',
+      tokenCleared: 'Logged out',
+      universeApplied: '✔ Applied! Visual dims updated.',
+      metaLabel: 'Publish metadata',
+      metaYt: 'YouTube Description',
+      metaSpotify: 'Spotify Description',
+      metaTags: 'Tags / Keywords',
+      trackRole: 'Role',
       tracklist: (p) => `TRACKLIST · ${p.n}`,
       tracklistHint: "Each ‘Suno’ = style + title + description, pre-segmented",
       tracklistOrder: (p) => `01 → ${String(p.n).padStart(2, '0')} are already ordered along “${p.axis}” — top to bottom is the intended play order`,
@@ -842,7 +1560,7 @@
       sunoRows: [
         { box: 'Style of Music（风格框）', put: '贴 [STYLE OF MUSIC] 那段 —— 专辑里就是 style anchor，每首都用同一句，音色才统一。' },
         { box: 'Title（标题）', put: '贴 [TITLE] 那段，就是歌名。' },
-        { box: 'Lyrics / Description（描述框）', put: '贴 [DESCRIPTION] 那段；纯音乐记得把 Instrumental 开关打开。' },
+        { box: 'Lyrics / Description（歌词框）', put: '贴 [STRUCTURE] 那段 metatag（[Intro:…] [Main:…] 等），它决定一首歌有没有起伏、是否平淡。纯音乐把 Instrumental 开关打开。' },
       ],
       anchorH: '专辑里的「Style Anchor」是什么',
       anchorNote: '一张专辑 = 固定的声音身份 + 一条变化的行进轴。anchor 是所有曲子共用的「风格底」，把它贴进每首的风格框，整张专辑音色才统一；每首自己的 prompt 只负责场景与情绪的变化。',
@@ -871,7 +1589,7 @@
       sunoRows: [
         { box: 'Style of Music', put: 'Paste the [STYLE OF MUSIC] block — in an album this is the style anchor, identical on every track so the timbre stays consistent.' },
         { box: 'Title', put: 'Paste the [TITLE] block — the song name.' },
-        { box: 'Lyrics / Description', put: 'Paste the [DESCRIPTION] block; for instrumentals, turn the Instrumental toggle ON.' },
+        { box: 'Lyrics / Description', put: 'Paste the [STRUCTURE] metatags ([Intro:…] [Main:…] etc.) — this is what gives the track an arc. Without it Suno loops flat. Turn the Instrumental toggle ON.' },
       ],
       anchorH: 'What the album “Style Anchor” is',
       anchorNote: 'An album = a fixed sonic identity + one moving traversal axis. The anchor is the shared style base for every track; paste it into each track\'s Style box so the whole album stays consistent, while each track\'s own prompt handles the scene and mood variation.',
@@ -922,7 +1640,7 @@
 //     "dark": false
 //   }/*EDITMODE-END*/;
 //
-//   function App() {
+// function App() {
 //     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 //     return (
 //       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
@@ -1466,12 +2184,14 @@ function Icon({ name, size = 16 }) {
 }
 
 /* ---------- a single selectable cell ---------- */
-function Chip({ label, selected, fromRef, onClick }) {
+function Chip({ label, selected, fromRef, onClick, swatch }) {
   return (
     <button type="button"
       className={'chip' + (selected ? ' sel' : '') + (fromRef && !selected ? ' ref' : '')}
       onClick={onClick}>
-      <span className="chip-dot" />
+      {swatch
+        ? <span className="chip-swatch" style={{ background: `linear-gradient(135deg, ${swatch.join(', ')})` }} />
+        : <span className="chip-dot" />}
       <span className="chip-label">{label}</span>
       {selected && <span className="chip-check"><Icon name="check" size={13} /></span>}
     </button>
@@ -1480,8 +2200,10 @@ function Chip({ label, selected, fromRef, onClick }) {
 
 /* ---------- one dimension column ---------- */
 function Column({ dim, value, onPick, showLock, locked, onToggleLock, refValue }) {
+  const layerClass = dim.layer === 'production' ? ' col-prod' : (dim.layer === 'visual' ? ' col-visual' : '');
+  const hex = window.AWEN.PALETTE_HEX;
   return (
-    <div className={'col' + (dim.layer === 'production' ? ' col-prod' : '')}>
+    <div className={'col' + layerClass}>
       <div className="col-head">
         <div className="col-headL">
           <span className="col-code">{dim.code}</span>
@@ -1490,7 +2212,7 @@ function Column({ dim, value, onPick, showLock, locked, onToggleLock, refValue }
         {showLock && (
           <button type="button"
             className={'col-lock' + (locked ? ' on' : '')}
-            title={locked ? 'Locked — kept on shuffle' : 'Unlocked — will reshuffle'}
+            title={locked ? '已锁定 — Shuffle 时保持不动\n点击解锁' : '未锁定 — Shuffle 时会随机替换\n点击锁定'}
             onClick={onToggleLock}>
             <Icon name={locked ? 'lock' : 'unlock'} size={14} />
           </button>
@@ -1499,6 +2221,7 @@ function Column({ dim, value, onPick, showLock, locked, onToggleLock, refValue }
       <div className="col-body">
         {dim.options.map(opt => (
           <Chip key={opt} label={opt} selected={value === opt}
+            swatch={dim.key === 'palette' ? hex[opt] : null}
             fromRef={refValue === opt} onClick={() => onPick(dim.key, opt)} />
         ))}
       </div>
@@ -1543,14 +2266,40 @@ function Placeholder({ label, ratio = '1 / 1' }) {
 }
 
 /* ---------- reference (imported lo-fi) card, shown in Decompose mode ---------- */
-function ReferenceCard({ sample, sel, onApply, onReset }) {
+function ReferenceCard({ sample, sel, onApply, onReset, onParse }) {
   const A = window.AWEN;
   const muts = A.mutations(sel);
+  const [paste, setPaste] = React.useState('');
+  const [parseHint, setParseHint] = React.useState('');
+
+  function handleParse() {
+    const result = A.parseStyleString(paste);
+    if (!result || Object.keys(result).length === 0) {
+      setParseHint('未识别到任何标签 — 试试粘贴 Suno 风格框内容');
+      return;
+    }
+    onParse(result);
+    setParseHint(`✔ 识别到 ${Object.keys(result).length} 个维度并已填入矩阵`);
+    setTimeout(() => setParseHint(''), 2800);
+  }
+
   return (
     <div className="refcard">
       <Placeholder label="cover art" />
       <div className="refcard-body">
-        <div className="refcard-kicker">DECOMPOSED SAMPLE</div>
+        <div className="refcard-kicker">PASTE A SUNO STYLE STRING</div>
+        <div className="refcard-paste-row">
+          <input className="refcard-paste-input" value={paste}
+            onChange={e => setPaste(e.target.value)}
+            placeholder="粘贴风格框内容 e.g. Ambient, calm lo-fi, felt piano, 60 bpm, warm tape saturation, rain, night"
+            onKeyDown={e => e.key === 'Enter' && handleParse()} />
+          <button type="button" className="btn btn-primary sm" onClick={handleParse} disabled={!paste.trim()}>
+            <Icon name="reset" size={14} /> 反推
+          </button>
+        </div>
+        {parseHint && <div className="refcard-parse-hint">{parseHint}</div>}
+
+        <div className="refcard-kicker" style={{marginTop:14}}>OR START FROM REF</div>
         <div className="refcard-title">{sample.label}</div>
         <div className="refcard-sub">{sample.source} · {sample.id.slice(0, 10)}… — {sample.sub}</div>
         <div className="refcard-chips">
@@ -1597,6 +2346,19 @@ async function copyText(text) {
     document.body.removeChild(ta);
     return ok;
   } catch (e) { return false; }
+}
+
+/* ---------- tooltip component ---------- */
+function Tooltip({ text, children }) {
+  const [show, setShow] = React.useState(false);
+  return (
+    <span className="tip-wrap"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}>
+      {children}
+      {show && text && <span className="tip-box">{text}</span>}
+    </span>
+  );
 }
 
 /* ---------- copy-to-clipboard button ---------- */
@@ -1648,11 +2410,14 @@ function RecipeBar({ sel, mode, busy, mutations, onGenerate, onShuffle }) {
       </div>
       <div className="console-actions">
         {mode === 'shuffle' && (
-          <button type="button" className="btn btn-ghost" onClick={onShuffle} disabled={busy}>
-            <Icon name="dice" size={16} /> {T('shuffleUnlocked')}
-          </button>
+          <Tooltip text={"随机替换未锁定的列\n锁定列保持不动"}>
+            <button type="button" className="btn btn-ghost" onClick={onShuffle} disabled={busy}>
+              <Icon name="dice" size={16} /> {T('shuffleUnlocked')}
+            </button>
+          </Tooltip>
         )}
-        <button type="button" className="btn btn-primary" onClick={onGenerate} disabled={busy}>
+        <button type="button" className="btn btn-primary" onClick={onGenerate} disabled={busy}
+            title="根据当前配方生成 — Suno 风格框 + 封面 + 视频 prompt">
           <Icon name="bolt" size={16} />
           {busy ? T('genSongBusy') : T('genSong')}
         </button>
@@ -1672,7 +2437,7 @@ function Skeleton() {
 }
 
 /* ---------- one produced song ---------- */
-function SongCard({ song, onStatus, onDelete, onPin }) {
+function SongCard({ song, onStatus, onDelete, onPin, onRemix }) {
   const A = window.AWEN;
   const ai = song.ai;
   const tags = [...A.DIMS.map(d => ({ code: d.code, val: song.sel[d.key] })),
@@ -1690,9 +2455,19 @@ function SongCard({ song, onStatus, onDelete, onPin }) {
           {song.lineage && <span className="card-lineage">{song.lineage}</span>}
         </div>
         <div className="card-headR">
-          <button type="button" className={'status s-' + status.toLowerCase()} onClick={cycle}>
-            <span className="status-dot" />{T('st' + status)}
-          </button>
+          <Tooltip text="点击循环切换状态：草稿 → 已采用 → 排队中 → 已发布">
+            <button type="button" className={'status s-' + status.toLowerCase()} onClick={cycle}
+              aria-label={'Status: ' + status + ', click to cycle'}>
+              <span className="status-dot" />{T('st' + status)}
+            </button>
+          </Tooltip>
+          {onRemix && (
+            <Tooltip text={"把这首歌的配方填回矩阵\n换一两个维度，快速生成变体"}>
+              <button type="button" className="remix-btn" onClick={() => onRemix(song.sel)}>
+                ↺ Remix
+              </button>
+            </Tooltip>
+          )}
           <button type="button" className={"icon-btn" + (song.pinned ? " on" : "")} title={song.pinned ? "已锁定 — 点击解锁" : "锁定 (防误删)"} onClick={() => { if (song.pinned) { if (window.confirm('确认解锁？解锁后此曲目可被删除。')) onPin(song.id); } else { onPin(song.id); } }} style={song.pinned ? {background:"var(--accent)",borderColor:"var(--accent)",color:"var(--accent-ink)",fontSize:"13px"} : {fontSize:"13px"}}>{song.pinned ? '🔒' : '🔓'}</button>
           {!song.pinned && <button type="button" className="icon-btn" title="Delete" onClick={() => onDelete(song.id)}>×</button>}
         </div>
@@ -1713,12 +2488,19 @@ function SongCard({ song, onStatus, onDelete, onPin }) {
             <div className="block-head">
               <div className="block-labels">
                 <span className="block-label"><Icon name="bolt" size={12} /> SUNO PROMPT</span>
-                <span className="field-hint">→ 风格框 + 描述框</span>
+                <span className="field-hint">→ 风格框 + 结构框 + 描述框</span>
               </div>
-              <CopyBtn text={`=== AWEN STUDY · ${ai.title} ===\n[STYLE OF MUSIC]  → Suno 风格框\n${ai.suno.style}\n\n[TITLE]  → Suno 标题\n${ai.title}\n\n[DESCRIPTION]  → Suno 描述框（开 Instrumental）\n${ai.suno.prompt}\n\n[EXCLUDE]\n${ai.suno.exclude}`} label="Copy for Suno" />
+              <CopyBtn text={`=== AWEN STUDY · ${ai.title} ===\n[STYLE OF MUSIC]  → Suno 风格框\n${ai.suno.style}\n\n[STRUCTURE]  → Suno 歌词框（粘这段 metatag，给歌一个起伏弧线）\n${ai.suno.structure || ''}\n\n[TITLE]  → Suno 标题\n${ai.title}\n\n[DESCRIPTION]  → 备注\n${ai.suno.prompt}\n\n[EXCLUDE]\n${ai.suno.exclude}`} label="Copy for Suno" />
             </div>
             <div className="kv"><span className="k">style</span><span className="v mono">{ai.suno.style}</span></div>
-            <div className="kv"><span className="k">prompt</span><span className="v">{ai.suno.prompt}</span></div>
+            {ai.suno.key && <div className="kv"><span className="k">key</span><span className="v mono" style={{color:'var(--accent)'}}>{ai.suno.key}</span></div>}
+            {ai.suno.structure && (
+              <div className="kv kv-structure">
+                <span className="k">structure<br/><span className="k-sub">→ 歌词框</span></span>
+                <span className="v mono" style={{whiteSpace:'pre-wrap', lineHeight:1.55}}>{ai.suno.structure}</span>
+              </div>
+            )}
+            <div className="kv"><span className="k">note</span><span className="v">{ai.suno.prompt}</span></div>
             <div className="kv"><span className="k">exclude</span><span className="v mono dim">{ai.suno.exclude}</span></div>
           </div>
 
@@ -1745,13 +2527,52 @@ function SongCard({ song, onStatus, onDelete, onPin }) {
             </div>
             <div className="kv"><span className="v">{ai.video || ai.veo}</span></div>
           </div>
+
+          {ai.thumb && (
+            <div className="block">
+              <div className="block-head">
+                <div className="block-labels">
+                  <span className="block-label"><Icon name="image" size={12} /> {T('thumbLabel')}</span>
+                  <span className="field-hint">{T('thumbHint')}</span>
+                </div>
+                <CopyBtn text={ai.thumb} />
+              </div>
+              <div className="kv"><span className="v">{ai.thumb}</span></div>
+            </div>
+          )}
         </>
+      )}
+
+      {/* publishing helpers — auto filename + YouTube title */}
+      {!song.generating && (
+        <div className="publish-helper">
+          <div className="block">
+            <div className="block-head">
+              <div className="block-labels">
+                <span className="block-label"><Icon name="play" size={12} /> 文件名 / FILENAME</span>
+                <span className="field-hint">下载 Suno mp3 后改用此名</span>
+              </div>
+              <CopyBtn text={A.songFileName(song)} />
+            </div>
+            <div className="kv"><span className="v" style={{fontFamily:'var(--font-mono)'}}>{A.songFileName(song)}.wav</span></div>
+          </div>
+          <div className="block">
+            <div className="block-head">
+              <div className="block-labels">
+                <span className="block-label"><Icon name="play" size={12} /> YouTube 标题</span>
+                <span className="field-hint">集数自动递增</span>
+              </div>
+              <CopyBtn text={A.songYouTubeTitle(song)} />
+            </div>
+            <div className="kv"><span className="v">{A.songYouTubeTitle(song)}</span></div>
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-Object.assign(window, { RecipeBar, Skeleton, SongCard, STATUS_ORDER });
+Object.assign(window, { RecipeBar, Skeleton, SongCard, STATUS_ORDER, Tooltip });
 
 </script>
 <script type="text/babel">
@@ -1768,7 +2589,9 @@ function AlbumConsole({ axisKey, count, base, busy, onAxis, onCount, onBuild }) 
   const zh = window.I18N.isZh();
   const dimLabel = (k) => k === 'bpm' ? 'BPM' : (zh ? (A.DIMS.find(d => d.key === k)?.zh) : (A.DIMS.find(d => d.key === k)?.label)) || k;
   const movingLabels = axis.moves.map(dimLabel);
-  const anchorLabels = A.anchorDims(axisKey).map(dimLabel);
+  const anchorLabels = A.anchorDims(axisKey).filter(k => !A.VISUAL_KEYS.includes(k)).map(dimLabel);
+  const dna = A.visualDNA(base);
+  const dnaHex = A.PALETTE_HEX[dna.palette] || ['#888'];
 
   return (
     <div className="albcon">
@@ -1795,6 +2618,13 @@ function AlbumConsole({ axisKey, count, base, busy, onAxis, onCount, onBuild }) 
           <div className="ar-row ar-hold">
             <span className="ar-tag">{T('anchor')}</span>
             <span className="ar-vals">{anchorLabels.join(' · ')}</span>
+          </div>
+          <div className="ar-row ar-visual">
+            <span className="ar-tag">{T('visualDna')}</span>
+            <span className="ar-vals">
+              <span className="dna-swatch" style={{ background: `linear-gradient(135deg, ${dnaHex.join(', ')})` }} />
+              {dna.character} · {dna.light} · {dna.palette} · {dna.motif}
+            </span>
           </div>
         </div>
 
@@ -1823,6 +2653,12 @@ function AlbumCard({ album, onStatus, onDelete, onPin }) {
   const data = album.data;
   const status = album.status || 'Draft';
   const zh = window.I18N.isZh();
+  // PERF: only recompute metadata when the album's underlying data actually changes,
+  // not on every parent re-render (status cycle, pin, language toggle).
+  const metaMemo = React.useMemo(
+    () => (data && data.tracks) ? A.metadataGen(data, album.base || {}) : null,
+    [data, album.base]
+  );
   const cycle = () => {
     const i = STATUS_ORDER.indexOf(status);
     onStatus(album.id, STATUS_ORDER[(i + 1) % STATUS_ORDER.length]);
@@ -1846,20 +2682,50 @@ ${data.cover}
 
 [VIDEO PROMPT]  → background video (16:9)
 ${data.video || data.cover}
+${data.visual ? `
+[VISUAL IDENTITY]  → keep identical on every cover
+character: ${data.visual.character} · light: ${data.visual.light} · palette: ${data.visual.palette} · motif: ${data.visual.motif}
+` : ''}${data.thumb ? `
+[THUMBNAIL RULES]  → YouTube 1280×720
+${data.thumb}
+` : ''}
+[ALBUM DNA]
+Core Motif: ${data.coreMotif || ''}
+Core Texture: ${data.dna ? data.dna.texture : ''}
+Core Space: ${data.dna ? data.dna.space : ''}
+Core Emotion: ${data.dna ? data.dna.emotion : ''}
 
 [TRACKLIST]  → set Instrumental ON; each track's Description = its line below
-${fullTracklist}`;
+${fullTracklist}
+${(() => { const meta = A.metadataGen(data, album.base||{}); return `
+[YOUTUBE DESCRIPTION]
+${meta.ytDesc}
+
+[SPOTIFY DESCRIPTION]
+${meta.spotifyDesc}
+
+[TAGS]
+${meta.tags.join(', ')}`; })()}`;
 
   // Per-track Suno copy: self-documenting, mapped to Suno's three fields.
   const trackSuno = (tr) =>
 `=== ${data.album} · ${tr.title} ===
-[STYLE OF MUSIC]  → Suno 风格框
-${data.anchor}
+[STYLE OF MUSIC]  → Suno 风格框（每首用这一句，保持专辑音色统一）
+${tr.style || data.anchor}
+
+[STRUCTURE]  → Suno 歌词框（粘 metatag，给这首歌一个起伏弧线）
+${tr.structure || ''}
+
+[KEY]  → 调性参考
+${tr.key || ''}
 
 [TITLE]  → Suno 标题
 ${tr.title}
 
-[DESCRIPTION]  → Suno 描述框（开 Instrumental）
+[ROLE + SIGNATURE]
+${tr.role || ''} — ${A.roleSignature(tr.role) || ''}
+
+[DESCRIPTION / NOTE]
 ${tr.prompt}`;
 
   return (
@@ -1871,9 +2737,12 @@ ${tr.prompt}`;
             <span className="card-id">{album.id}</span>
             <span className="album-axis">{album.axisLabel}</span>
             <div className="album-head-r">
-              <button type="button" className={'status s-' + status.toLowerCase()} onClick={cycle}>
-                <span className="status-dot" />{T('st' + status)}
-              </button>
+              <Tooltip text="点击循环切换：草稿 → 已采用 → 排队中 → 已发布">
+                <button type="button" className={'status s-' + status.toLowerCase()} onClick={cycle}
+                  aria-label={'Album status: ' + status + ', click to cycle'}>
+                  <span className="status-dot" />{T('st' + status)}
+                </button>
+              </Tooltip>
               <button type="button" className={"icon-btn" + (album.pinned ? " on" : "")} title={album.pinned ? "已锁定 — 点击解锁" : "锁定 (防误删)"} onClick={() => { if (album.pinned) { if (window.confirm('确认解锁？解锁后此专辑可被删除。')) onPin(album.id); } else { onPin(album.id); } }} style={album.pinned ? {background:"var(--accent)",borderColor:"var(--accent)",color:"var(--accent-ink)",fontSize:"13px"} : {fontSize:"13px"}}>{album.pinned ? '🔒' : '🔓'}</button>
               {!album.pinned && <button type="button" className="icon-btn" onClick={() => onDelete(album.id)}>×</button>}
             </div>
@@ -1885,6 +2754,29 @@ ${tr.prompt}`;
             <>
               <div className="album-title">{data.album}</div>
               <div className="album-concept">{data.concept}</div>
+              {data.visual && (
+                <div className="dna-panel">
+                  <span className="dna-tag">{T('visualDna')}</span>
+                  <span className="dna-swatch" style={{ background: `linear-gradient(135deg, ${(A.PALETTE_HEX[data.visual.palette] || ['#888']).join(', ')})` }} />
+                  <span className="dna-vals">{data.visual.character} · {data.visual.light} · {data.visual.palette} · {data.visual.motif}</span>
+                </div>
+              )}
+              {data.coreMotif && (
+                <div className="dna-panel" style={{marginTop:6}}>
+                  <span className="dna-tag">MOTIF</span>
+                  <span className="dna-vals">♩ {data.coreMotif} — appears in Track 1 (intro) · mid (variation) · final (return)</span>
+                </div>
+              )}
+              {data.dna && (
+                <div className="dna-panel" style={{marginTop:6, flexWrap:'wrap', gap:10}}>
+                  <span className="dna-tag">ALBUM DNA</span>
+                  <span className="dna-vals">
+                    <span className="dna-chip">texture: {data.dna.texture}</span>
+                    <span className="dna-chip">space: {data.dna.space}</span>
+                    <span className="dna-chip">emotion: {data.dna.emotion}</span>
+                  </span>
+                </div>
+              )}
               {(zh ? (data.descriptionZh || data.description) : data.description) && (
                 <div className="album-desc">
                   <span className="album-desc-tag">{T('about')}</span>
@@ -1921,6 +2813,18 @@ ${tr.prompt}`;
                 </div>
                 <div className="kv"><span className="v">{data.video || data.cover}</span></div>
               </div>
+              {data.thumb && (
+                <div className="block">
+                  <div className="block-head">
+                    <div className="block-labels">
+                      <span className="block-label"><Icon name="image" size={12} /> {T('thumbLabel')}</span>
+                      <span className="field-hint">{T('thumbHint')}</span>
+                    </div>
+                    <CopyBtn text={data.thumb} />
+                  </div>
+                  <div className="kv"><span className="v">{data.thumb}</span></div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -1945,13 +2849,87 @@ ${tr.prompt}`;
               <div className="track-body">
                 <div className="track-titleRow">
                   <span className="track-title">{tr.title}</span>
+                  {tr.role && <span className="track-role">{tr.role}</span>}
+                  {tr.key && <span className="track-role" style={{background:'transparent',border:'1px solid var(--line2)',color:'var(--ink-dim)'}}>{tr.key}</span>}
+                  {tr.motifMark && tr.motifMark !== 'null' && (
+                    <span className="track-role" style={{background:'rgba(127,212,201,0.25)',marginLeft:4}}>
+                      ♩ {tr.motifMark}
+                    </span>
+                  )}
                   <span className="track-scene">{tr.scene}</span>
                 </div>
                 <div className="track-prompt">{tr.prompt}</div>
+                {tr.structure && (
+                  <div className="track-structure" style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--ink-faint)',whiteSpace:'pre-wrap',marginTop:5,lineHeight:1.55,borderLeft:'2px solid var(--accent)',paddingLeft:8}}>
+                    {tr.structure}
+                  </div>
+                )}
               </div>
               <CopyBtn text={trackSuno(tr)} label="Suno" />
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Metadata Generator block — memoized, recomputes only when album data changes */}
+      {data && data.tracks && metaMemo && (
+        <div className="meta-block">
+            <div className="tracklist-head">
+              <span className="block-label">{T('metaLabel')}</span>
+            </div>
+            <div className="block">
+              <div className="block-head">
+                <div className="block-labels">
+                  <span className="block-label"><Icon name="image" size={12} /> {T('metaYt')}</span>
+                </div>
+                <CopyBtn text={metaMemo.ytDesc} />
+              </div>
+              <div className="kv"><span className="v" style={{whiteSpace:'pre-wrap'}}>{metaMemo.ytDesc}</span></div>
+            </div>
+            <div className="block">
+              <div className="block-head">
+                <div className="block-labels">
+                  <span className="block-label"><Icon name="image" size={12} /> {T('metaSpotify')}</span>
+                </div>
+                <CopyBtn text={metaMemo.spotifyDesc} />
+              </div>
+              <div className="kv"><span className="v" style={{whiteSpace:'pre-wrap'}}>{metaMemo.spotifyDesc}</span></div>
+            </div>
+            <div className="block">
+              <div className="block-head">
+                <div className="block-labels">
+                  <span className="block-label">{T('metaTags')}</span>
+                </div>
+                <CopyBtn text={metaMemo.tags.join(', ')} />
+              </div>
+              <div className="kv"><span className="v">{metaMemo.tags.join(' · ')}</span></div>
+            </div>
+          </div>
+      )}
+
+      {/* publishing helpers for album */}
+      {data && data.tracks && (
+        <div className="publish-helper">
+          <div className="block">
+            <div className="block-head">
+              <div className="block-labels">
+                <span className="block-label"><Icon name="play" size={12} /> YouTube 专辑标题</span>
+                <span className="field-hint">集数自动递增</span>
+              </div>
+              <CopyBtn text={A.albumYouTubeTitle(album)} />
+            </div>
+            <div className="kv"><span className="v">{A.albumYouTubeTitle(album)}</span></div>
+          </div>
+          <div className="block">
+            <div className="block-head">
+              <div className="block-labels">
+                <span className="block-label"><Icon name="play" size={12} /> 专辑曲目文件名</span>
+                <span className="field-hint">所有曲目的统一命名,逐行复制</span>
+              </div>
+              <CopyBtn text={data.tracks.map((t,i)=>A.albumTrackFileName(album,i,t)+'.wav').join('\n')} />
+            </div>
+            <div className="kv"><span className="v" style={{fontFamily:'var(--font-mono)',whiteSpace:'pre-wrap',fontSize:11}}>{data.tracks.map((t,i)=>A.albumTrackFileName(album,i,t)+'.wav').join('\n')}</span></div>
+          </div>
         </div>
       )}
     </div>
@@ -2048,24 +3026,454 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 const STORE_KEY = 'awen_matrix_state_v1';
 const GUIDE_KEY = 'awen_guide_seen_v1';
 
+/* ========== TAB INTRO PANEL ========== */
+const TAB_INTROS = {
+  zh: {
+    pick: {
+      name: 'Pick · 点选模式',
+      what: '手动点选每个维度的元素，拼出一首歌的完整配方。最直接、最可控的入口。',
+      features: [
+        '<strong>11 个维度</strong>可选：声音 7 + 视觉 4',
+        '<strong>视觉身份层</strong>独立分组，决定封面/视频风格',
+        '配方实时显示，<strong>一键生成</strong> Suno + 封面 + 视频 prompt'
+      ],
+      how: [
+        '在矩阵每一列点一个元素（不选则用默认值）',
+        '满意了点底部「生成歌曲」按钮',
+        '生成后复制 Suno 风格框、描述、封面 / 视频 prompt，喂给对应工具'
+      ]
+    },
+    shuffle: {
+      name: 'Shuffle · 摇号模式',
+      what: '老虎机模式。锁住你已经确定的列，其余维度随机生成，反复摇直到满意。',
+      features: [
+        '每列列头有<strong>锁图标</strong>，点击切换锁定状态',
+        '<strong>视觉身份层永不被摇</strong>，保持频道一致性',
+        '没灵感时最快的探索方式'
+      ],
+      how: [
+        '把你满意的列点上锁（比如已经确定 Felt Piano）',
+        '点底部「摇动未锁项」，未锁的列随机变化',
+        '摇到满意了再点「生成歌曲」'
+      ]
+    },
+    decompose: {
+      name: 'Decompose · 拆解模式',
+      what: '逆向工程模式。从一段 Suno 风格串反推出矩阵配方，再做 1-2 个维度的变异 remix。',
+      features: [
+        '<strong>粘贴 Suno 风格串</strong>，自动匹配 11 个维度',
+        '<strong>识别成功率</strong>实时显示，与参考曲的差异程度可见',
+        '从爆款回推 N 个变体的最强工具'
+      ],
+      how: [
+        '把 Suno 上喜欢的歌的风格框内容复制粘贴到顶部输入框',
+        '点「反推」，矩阵自动填入识别到的维度',
+        '手动改 1-2 个维度做变体，点「生成歌曲」'
+      ]
+    },
+    album: {
+      name: 'Album · 专辑模式',
+      what: '批量生产模式。锁定声音 + 视觉身份，沿一条「行进轴」一次生成整张专辑的全套 prompt + 发布元数据。',
+      features: [
+        '<strong>11 条行进轴</strong>：从黎明到午夜、心情曲线、风暴弧线…',
+        '<strong>自动注入</strong>角色（Awakening→Closure）+ 母题回归（首/中/尾）',
+        '<strong>一键完整发布包</strong>：Suno × N + 封面 + 视频 + YouTube 简介 + Tags + 文件名'
+      ],
+      how: [
+        '在矩阵上配好声音身份 + 视觉身份',
+        '在下方专辑控制台选行进轴 + 曲目数（3–12 首）',
+        '点「生成专辑」，拿到整张专辑的完整 prompt + 元数据,逐首喂 Suno'
+      ]
+    }
+  },
+  en: {
+    pick: {
+      name: 'Pick',
+      what: 'Hand-pick one element per dimension to build a song recipe. The most direct, controllable entry.',
+      features: [
+        '<strong>11 dimensions</strong>: 7 sonic + 4 visual',
+        '<strong>Visual Identity layer</strong> grouped separately — drives cover/video',
+        'Live recipe preview, one-click generate Suno + cover + video prompts'
+      ],
+      how: [
+        'Click one element in each matrix column (or accept defaults)',
+        'When happy, hit "Generate" at the bottom',
+        'Copy the Suno style box, description, cover & video prompts to each tool'
+      ]
+    },
+    shuffle: {
+      name: 'Shuffle',
+      what: 'Slot-machine mode. Lock the columns you like, let the rest spin randomly. Reroll until happy.',
+      features: [
+        '<strong>Lock icon</strong> on every column header — click to toggle',
+        '<strong>Visual Identity never shuffles</strong>, keeping channel cohesion',
+        'Fastest way to explore when stuck'
+      ],
+      how: [
+        'Lock the columns you\'ve committed to (e.g. Felt Piano)',
+        'Hit "Shuffle unlocked" — unlocked columns reroll',
+        'When the recipe feels right, hit Generate'
+      ]
+    },
+    decompose: {
+      name: 'Decompose',
+      what: 'Reverse-engineering mode. Paste a Suno style string, the tool extracts the matrix, then mutate 1-2 dims for variants.',
+      features: [
+        '<strong>Paste a Suno style string</strong>, auto-match all 11 dimensions',
+        '<strong>Match count + mutation diff</strong> shown live',
+        'The strongest tool for spinning N variants off a hit'
+      ],
+      how: [
+        'Copy the Suno style box from a track you love',
+        'Paste in the top input, click "Decompose"',
+        'Tweak 1–2 dims for a variant, hit Generate'
+      ]
+    },
+    album: {
+      name: 'Album',
+      what: 'Batch mode. Lock sonic + visual identity, traverse one "axis" to produce a coherent album with full publish metadata.',
+      features: [
+        '<strong>11 traversal axes</strong>: day arc, mood drift, storm passing…',
+        '<strong>Auto-inject</strong> track roles (Awakening→Closure) + motif recurrence (track 1 / mid / final)',
+        '<strong>One-click publish pack</strong>: Suno × N + cover + video + YouTube + tags + filenames'
+      ],
+      how: [
+        'Lock sonic + visual identity on the matrix',
+        'Pick an axis + track count (3–12) in the album console below',
+        'Hit "Generate album" — get the full prompt pack + metadata'
+      ]
+    }
+  }
+};
+
+const TAB_INTRO_DISMISS_KEY = 'awen_tab_intro_dismissed_v1';
+
+function TabIntro({ mode }) {
+  const zh = window.I18N.isZh();
+  const intros = TAB_INTROS[zh ? 'zh' : 'en'];
+  const intro = intros[mode];
+  const [dismissed, setDismissed] = React.useState(() => {
+    try { return JSON.parse(localStorage.getItem(TAB_INTRO_DISMISS_KEY) || '{}'); } catch (e) { return {}; }
+  });
+
+  if (!intro) return null;
+  const isDismissed = !!dismissed[mode];
+
+  function dismiss() {
+    const next = { ...dismissed, [mode]: true };
+    setDismissed(next);
+    try { localStorage.setItem(TAB_INTRO_DISMISS_KEY, JSON.stringify(next)); } catch (e) {}
+  }
+  function show() {
+    const next = { ...dismissed }; delete next[mode];
+    setDismissed(next);
+    try { localStorage.setItem(TAB_INTRO_DISMISS_KEY, JSON.stringify(next)); } catch (e) {}
+  }
+
+  if (isDismissed) {
+    return (
+      <div className="tab-intro-show">
+        <button className="tab-intro-show-btn" onClick={show}>
+          ▾ {zh ? '展开本模式说明' : 'show tab guide'}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="tab-intro">
+      <button className="tab-intro-close" onClick={dismiss} title={zh ? '收起' : 'hide'}>
+        ✕ {zh ? '收起' : 'hide'}
+      </button>
+      <div className="tab-intro-h">
+        <span className="tab-intro-name">{intro.name}</span>
+        <span className="tab-intro-what">{intro.what}</span>
+      </div>
+      <div className="tab-intro-grid">
+        <div>
+          <div className="tab-intro-col-h">{zh ? '包含哪些功能' : 'WHAT IT INCLUDES'}</div>
+          <ul className="tab-intro-list">
+            {intro.features.map((f, i) => <li key={i} dangerouslySetInnerHTML={{__html: f}} />)}
+          </ul>
+        </div>
+        <div>
+          <div className="tab-intro-col-h">{zh ? '怎么用' : 'HOW TO USE'}</div>
+          <ol className="tab-intro-list">
+            {intro.how.map((h, i) => <li key={i}>{h}</li>)}
+          </ol>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ========== UNIVERSE BUILDER COMPONENT ========== */
+function UniverseBuilder({ sel, universes, onSave, onApply, onDelete, activeUniverseId, albums, inline }) {
+  const A = window.AWEN;
+  const [name, setName] = React.useState('');
+  const [applied, setApplied] = React.useState(null);
+  const dna = A.visualDNA(sel);
+  const hex = A.PALETTE_HEX[dna.palette] || ['#888'];
+
+  function handleSave() {
+    if (!name.trim()) return;
+    const u = {
+      id: Date.now(),
+      name: name.trim(),
+      character: sel.character, light: sel.light,
+      palette: sel.palette, motif: sel.motif,
+      environment: sel.environment,
+    };
+    onSave(u);
+    setName('');
+  }
+
+  function handleApply(u) {
+    onApply(u);
+    setApplied(u.id);
+    setTimeout(() => setApplied(null), 2200);
+  }
+
+  return (
+    <div className={inline ? 'universe-inline' : 'universe-panel'}>
+      {!inline && <><div className="universe-h">{T('universeTitle')}</div>
+      <div className="universe-sub">{T('universeSubtitle')}</div></>}
+
+      {/* create form */}
+      <div className={inline ? 'universe-inline-form' : 'universe-form'}>
+        <div className="universe-form-row">
+          <input className="universe-name-input" value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder={T('universeNamePh')}
+            onKeyDown={e => e.key === 'Enter' && handleSave()} />
+          <button className="universe-save-btn" onClick={handleSave}>{T('universeSave')}</button>
+        </div>
+      </div>
+
+      {/* saved list */}
+      {universes.length > 0 && (
+        <div className="universe-list" style={inline ? {marginTop:10} : {}}>
+          {universes.map(u => {
+            const uHex = A.PALETTE_HEX[u.palette] || ['#888'];
+            return (
+              <div key={u.id} className="universe-card">
+                <span className="dna-swatch" style={{ background: `linear-gradient(135deg, ${uHex.join(', ')})` }} />
+                <div className="universe-card-name">{u.name}</div>
+                <div className="universe-card-dims">
+                  {u.character} · {u.light} · {u.palette} · {u.motif} · {u.environment}
+                </div>
+                <div className="universe-card-actions">
+                  <button className="universe-btn apply" style={activeUniverseId===u.id?{fontWeight:800}:{}} onClick={() => handleApply(u)}>{activeUniverseId===u.id?'✔ '+T('universeLoad'):T('universeLoad')}</button>
+                  <button className="universe-btn del" onClick={() => onDelete(u.id)}>{T('universeDelete')}</button>
+                </div>
+                {albums && albums.filter(a=>a.universeId===u.id && !a.generating).length > 0 && (
+                  <div className="universe-series">
+                    <div className="universe-series-h">SERIES — {albums.filter(a=>a.universeId===u.id && !a.generating).length} albums</div>
+                    {albums.filter(a=>a.universeId===u.id && !a.generating).map(a=>(
+                      <span key={a.id} className="series-album-chip">{a.id} · {a.axisLabel}</span>
+                    ))}
+                  </div>
+                )}
+                {applied === u.id && <div className="universe-applied">{T('universeApplied')}</div>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const MODE_INFO = {
   pick: { label: 'Pick', zh: '点选每列一个元素，拼出一首歌' },
   shuffle: { label: 'Shuffle', zh: '锁定满意的维度，摇号生成其余（老虎机式）' },
   decompose: { label: 'Decompose', zh: '从导入的参考曲拆解出发，逐项变异 remix' },
-  album: { label: 'Album', zh: '锁定声音身份，沿一条行进轴一次铺出整张专辑' }
+  album: { label: 'Album', zh: '锁定声音身份，沿一条行进轴一次铺出整张专辑' },
 };
 
 function loadState() {
   try {return JSON.parse(localStorage.getItem(STORE_KEY)) || null;} catch (e) {return null;}
 }
 
+/* ========== TOKEN MODAL ========== */
+function TokenModal({ open, onSubmit, onCancel }) {
+  const [val, setVal] = React.useState('');
+  const [show, setShow] = React.useState(false);
+  const inputRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (open) {
+      setVal('');
+      setTimeout(() => inputRef.current && inputRef.current.focus(), 80);
+    }
+  }, [open]);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (e.key === 'Escape') onCancel(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [open, onCancel]);
+
+  if (!open) return null;
+
+  function submit() {
+    if (val.trim()) onSubmit(val.trim());
+  }
+
+  return (
+    <div className="modal-back" onClick={onCancel} role="dialog" aria-modal="true">
+      <div className="modal-card" onClick={e => e.stopPropagation()}>
+        <div className="modal-h">{T('tokenTitle')}</div>
+        <div className="modal-sub">{T('tokenSub')}</div>
+        <div className="modal-pw-row">
+          <input ref={inputRef} type={show ? 'text' : 'password'}
+            className="modal-pw-input" value={val}
+            placeholder={T('tokenPlaceholder')}
+            onChange={e => setVal(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && submit()}
+            autoComplete="current-password" />
+          <button type="button" className="modal-pw-toggle" onClick={() => setShow(!show)}>
+            {show ? T('tokenHide') : T('tokenShow')}
+          </button>
+        </div>
+        <div className="modal-actions">
+          <button type="button" className="modal-btn" onClick={onCancel}>{T('tokenCancel')}</button>
+          <button type="button" className="modal-btn primary" onClick={submit} disabled={!val.trim()}>
+            {T('tokenSubmit')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ========== TOAST SYSTEM ========== */
+function ToastContainer({ toasts, onClose, onAction }) {
+  if (!toasts.length) return null;
+  return (
+    <div className="toast-container">
+      {toasts.map(t => (
+        <div key={t.id} className={'toast' + (t.kind === 'error' ? ' error' : '')} role="alert">
+          <div className="toast-msg">
+            {t.msg}
+            {t.actionLabel && (
+              <div className="toast-actions">
+                <button className="toast-btn primary" onClick={() => onAction(t)}>{t.actionLabel}</button>
+                <button className="toast-btn" onClick={() => onClose(t.id)}>{T('tokenCancel')}</button>
+              </div>
+            )}
+          </div>
+          {!t.actionLabel && <button className="toast-close" onClick={() => onClose(t.id)} aria-label="close">×</button>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function App() {
+/* ========== TOKEN MODAL ========== */
+function TokenModal({ open, onSubmit, onCancel }) {
+  const [val, setVal] = React.useState('');
+  const [show, setShow] = React.useState(false);
+  const inputRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (open) {
+      setVal('');
+      setTimeout(() => inputRef.current && inputRef.current.focus(), 80);
+    }
+  }, [open]);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (e.key === 'Escape') onCancel(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [open, onCancel]);
+
+  if (!open) return null;
+
+  function submit() {
+    if (val.trim()) onSubmit(val.trim());
+  }
+
+  return (
+    <div className="modal-back" onClick={onCancel} role="dialog" aria-modal="true">
+      <div className="modal-card" onClick={e => e.stopPropagation()}>
+        <div className="modal-h">{T('tokenTitle')}</div>
+        <div className="modal-sub">{T('tokenSub')}</div>
+        <div className="modal-pw-row">
+          <input ref={inputRef} type={show ? 'text' : 'password'}
+            className="modal-pw-input" value={val}
+            placeholder={T('tokenPlaceholder')}
+            onChange={e => setVal(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && submit()}
+            autoComplete="current-password" />
+          <button type="button" className="modal-pw-toggle" onClick={() => setShow(!show)}>
+            {show ? T('tokenHide') : T('tokenShow')}
+          </button>
+        </div>
+        <div className="modal-actions">
+          <button type="button" className="modal-btn" onClick={onCancel}>{T('tokenCancel')}</button>
+          <button type="button" className="modal-btn primary" onClick={submit} disabled={!val.trim()}>
+            {T('tokenSubmit')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ========== TOAST SYSTEM ========== */
+function ToastContainer({ toasts, onClose, onAction }) {
+  if (!toasts.length) return null;
+  return (
+    <div className="toast-container">
+      {toasts.map(t => (
+        <div key={t.id} className={'toast' + (t.kind === 'error' ? ' error' : '')} role="alert">
+          <div className="toast-msg">
+            {t.msg}
+            {t.actionLabel && (
+              <div className="toast-actions">
+                <button className="toast-btn primary" onClick={() => onAction(t)}>{t.actionLabel}</button>
+                <button className="toast-btn" onClick={() => onClose(t.id)}>{T('tokenCancel')}</button>
+              </div>
+            )}
+          </div>
+          {!t.actionLabel && <button className="toast-close" onClick={() => onClose(t.id)} aria-label="close">×</button>}
+        </div>
+      ))}
+    </div>
+  );
+}
   const A = window.AWEN;
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
   const saved = React.useRef(loadState()).current;
   const [mode, setMode] = React.useState(saved?.mode || 'pick');
-  const [sel, setSel] = React.useState(saved?.sel || { ...A.DEFAULTS });
+  const [universes, setUniverses] = React.useState(() => A.loadUniverses());
+  const [activeUniverseId, setActiveUniverseId] = React.useState(null);
+  const [toasts, setToasts] = React.useState([]);
+  const [tokenModalOpen, setTokenModalOpen] = React.useState(false);
+
+  // Listen for AI flow's request-token event
+  React.useEffect(() => {
+    const h = () => setTokenModalOpen(true);
+    window.addEventListener('awen-need-token', h);
+    return () => window.removeEventListener('awen-need-token', h);
+  }, []);
+
+  function pushToast(msg, opts = {}) {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, msg, kind: opts.kind || 'info', actionLabel: opts.actionLabel, action: opts.action }]);
+    if (!opts.actionLabel) {
+      setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), opts.duration || 5000);
+    }
+  }
+  function dismissToast(id) { setToasts(prev => prev.filter(t => t.id !== id)); }
+  function handleToastAction(t) { if (t.action) t.action(); dismissToast(t.id); }
+  const [sel, setSel] = React.useState(saved?.sel ? { ...A.DEFAULTS, ...saved.sel } : { ...A.DEFAULTS });
   const [locks, setLocks] = React.useState(saved?.locks || {});
   const [songs, setSongs] = React.useState(saved?.songs || []);
   const [albums, setAlbums] = React.useState(saved?.albums || []);
@@ -2079,16 +3487,28 @@ function App() {
   const [lang, setLang] = React.useState(saved?.lang || 'zh');
   window.I18N.lang = lang; // set before children render so T() resolves correctly
 
+  // Keep <html lang> in sync with current UI language (for a11y + search engines).
+  React.useEffect(() => {
+    try { document.documentElement.lang = (lang === 'zh' ? 'zh-CN' : 'en'); } catch (e) {}
+  }, [lang]);
+
   // First-visit: auto-open the usage guide once.
   React.useEffect(() => {
     try {if (!localStorage.getItem(GUIDE_KEY)) {setShowGuide(true);localStorage.setItem(GUIDE_KEY, '1');}} catch (e) {}
   }, []);
 
   // persist
+  // PERF: debounce localStorage writes — at most one write per 400ms, instead of
+  // serializing the entire app state on every keystroke / status cycle / etc.
+  const _writeTimer = React.useRef(null);
   React.useEffect(() => {
-    const clean = songs.filter((s) => !s.generating);
-    const cleanAlb = albums.filter((a) => !a.generating);
-    try {localStorage.setItem(STORE_KEY, JSON.stringify({ mode, sel, locks, songs: clean, albums: cleanAlb, seq, albumSeq, axisKey, trackCount, lang }));} catch (e) {}
+    if (_writeTimer.current) clearTimeout(_writeTimer.current);
+    _writeTimer.current = setTimeout(() => {
+      const clean = songs.filter((s) => !s.generating);
+      const cleanAlb = albums.filter((a) => !a.generating);
+      try { localStorage.setItem(STORE_KEY, JSON.stringify({ mode, sel, locks, songs: clean, albums: cleanAlb, seq, albumSeq, axisKey, trackCount, lang })); } catch (e) {}
+    }, 400);
+    return () => { if (_writeTimer.current) clearTimeout(_writeTimer.current); };
   }, [mode, sel, locks, songs, albums, seq, albumSeq, axisKey, trackCount, lang]);
 
   function pick(key, val) {setSel((prev) => ({ ...prev, [key]: val }));}
@@ -2096,7 +3516,18 @@ function App() {
 
   function switchMode(m) {
     setMode(m);
-    if (m === 'decompose') setSel({ ...A.REFERENCE.decomposed });
+    if (m === 'decompose') setSel((prev) => ({ ...prev, ...A.REFERENCE.decomposed }));
+  }
+
+  function saveUniverse(u) {
+    setUniverses(prev => { const next = [...prev, u]; A.saveUniversesStore(next); return next; });
+  }
+  function applyUniverse(u) {
+    setSel(prev => ({ ...prev, character: u.character, light: u.light, palette: u.palette, motif: u.motif, environment: u.environment }));
+    setActiveUniverseId(u.id);
+  }
+  function deleteUniverse(id) {
+    setUniverses(prev => { const next = prev.filter(u => u.id !== id); A.saveUniversesStore(next); return next; });
   }
 
   function shuffle() {
@@ -2105,7 +3536,7 @@ function App() {
     const iv = setInterval(() => {
       setSel((prev) => {
         const next = { ...prev };
-        A.DIMS.forEach((d) => {if (!locks[d.key]) next[d.key] = A.rand(d.options);});
+        A.DIMS.forEach((d) => {if (d.layer === 'visual') return; if (!locks[d.key]) next[d.key] = A.rand(d.options);});
         if (!locks.bpm) next.bpm = A.rand(A.BPM.values);
         return next;
       });
@@ -2115,30 +3546,63 @@ function App() {
 
   // AI proxy — points to Cloudflare Worker; update WORKER_URL after deploy
   const WORKER_URL = 'https://awen-music-api.ywhang1995.workers.dev';
-  function getAccessToken() {
-    let token = localStorage.getItem('awen_music_token');
+  const API_TIMEOUT_MS = 30000;
+
+  // Safe localStorage wrappers — Safari private mode / quota errors will not crash the app.
+  const safeLS = {
+    get(k){ try { return localStorage.getItem(k); } catch(e) { return null; } },
+    set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e) { return false; } },
+    del(k){ try { localStorage.removeItem(k); } catch(e) {} },
+  };
+
+  // Token is now requested via a React modal (setRequestToken in App), set asynchronously.
+  // The promise is resolved when the user submits the modal.
+  let _tokenResolver = null;
+  function requestTokenViaModal() {
+    return new Promise((resolve) => {
+      _tokenResolver = resolve;
+      window.dispatchEvent(new CustomEvent('awen-need-token'));
+    });
+  }
+  function resolveToken(token) {
+    if (_tokenResolver) { _tokenResolver(token); _tokenResolver = null; }
+  }
+  window.__awen_resolveToken = resolveToken;
+
+  async function getAccessToken() {
+    let token = safeLS.get('awen_music_token');
     if (!token) {
-      token = window.prompt('请输入访问密码（只需输入一次）:');
-      if (token) localStorage.setItem('awen_music_token', token.trim());
+      token = await requestTokenViaModal();
+      if (token) safeLS.set('awen_music_token', token.trim());
     }
     return token || '';
   }
+
   async function complete(prompt) {
-    const r = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Access-Token': getAccessToken(),
-      },
-      body: JSON.stringify({ prompt }),
-    });
-    if (r.status === 401) {
-      localStorage.removeItem('awen_music_token');
-      throw new Error('密码错误，请重新输入');
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
+    try {
+      const token = await getAccessToken();
+      if (!token) throw new Error(T('aiNeedToken'));
+      const r = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Access-Token': token },
+        body: JSON.stringify({ prompt }),
+        signal: ctrl.signal,
+      });
+      if (r.status === 401) {
+        safeLS.del('awen_music_token');
+        throw new Error(T('aiBadToken'));
+      }
+      if (!r.ok) throw new Error('worker ' + r.status);
+      const { text } = await r.json();
+      return text;
+    } catch (e) {
+      if (e.name === 'AbortError') throw new Error(T('aiTimeout'));
+      throw e;
+    } finally {
+      clearTimeout(t);
     }
-    if (!r.ok) throw new Error('worker ' + r.status);
-    const { text } = await r.json();
-    return text;
   }
 
   async function callAI(s) {
@@ -2154,10 +3618,27 @@ RECIPE
 - Instrument: ${s.instrument}
 - Style: ${s.style}
 - BPM: ${s.bpm}
+VISUAL IDENTITY (keep recognizable across all Awen output)
+- Character: ${s.character}
+- Light Source: ${s.light}
+- Color Palette: ${s.palette}
+- Narrative Motif: ${s.motif}
 
-Return ONLY minified JSON (no markdown, no commentary) with EXACTLY this shape:
-{"title":"evocative 2-5 word Title Case song name","tagline":"3-6 word mood tagline lowercase","suno":{"style":"comma-separated Suno style tags under 140 chars; MUST include a production/texture layer (e.g. warm tape saturation, vinyl crackle, drum treatment or 'no drums', room reverb, low-pass) plus genre, mood, instrument, bpm, instrumental","prompt":"ONE short instrumental sentence (Suno barely reads this for instrumentals — keep it tight)","exclude":"comma-separated elements to exclude"},"cover":"square 1:1 album-cover art prompt: strong centered composition, calm negative space near the top for a title, light + mood, no text, no motion words","video":"16:9 looping background-video prompt: slow cinematic camera drift, lighting, shallow depth of field, seamless loop"}
-Keep everything calm, warm, instrumental and study-friendly. No vocals.`;
+STYLE BOX RULES (Suno v5 best practice):
+- Describe groove + texture FIRST, not emotion. Groove = "slow unhurried groove" / "relaxed head-nodding groove". Texture = vinyl crackle / tape hiss / room reverb.
+- Pin a MUSICAL KEY + MODE (e.g. "A minor", "D dorian", "F lydian") — this is the single biggest fix for incoherence.
+- Lead instrument ONLY + max 2 support instruments. Restraint = authentic lo-fi. Never stack 4+ instruments.
+- Avoid words: "crisp", "polished", "clean", "hi-fi" — these are antonyms of lo-fi.
+- Cap at 150 chars.
+
+ARRANGEMENT RULES (goes in Suno's Lyrics box — gives the track an arc):
+- Write a 5-section metatag structure: [Intro] → [Main] → [Lift] → [Breakdown] → [Outro]
+- Each section on its own line in format: [Section: what happens here, texture, energy]
+- Outro MUST return to opening motif and fade
+
+Return ONLY minified JSON (no markdown) with EXACTLY this shape:
+{"title":"evocative 2-5 word Title Case song name","tagline":"3-6 word mood tagline lowercase","suno":{"key":"musical key + mode (e.g. A minor, D dorian, F lydian)","style":"groove+texture first; key; BPM; 1 lead + max 2 support; tape/vinyl texture; instrumental — MAX 150 chars","structure":"5-line metatag arrangement for Suno Lyrics box, one section per line, [Intro]→[Main]→[Lift]→[Breakdown]→[Outro]","prompt":"ONE short sentence for notes/reference","exclude":"comma-separated exclusions, always include: vocals, lyrics, crisp, polished"},"cover":"square 1:1 cover-art prompt: Character + Environment + Motif + Light + Palette + camera + mood; Awen signatures (open book, warm lamp, wood, cozy); centered, negative space near top for title; no text, no logos, no motion","video":"16:9 looping video: motif in slow motion, same light + palette, dust drift, slow cinematic drift, shallow DOF, seamless loop, no people","thumb":"YouTube 1280×720 consistency rules: same palette + lamp + open book every time, Awen wordmark lower-left, same title type top-left"}
+No vocals, no variation. The cover / video / thumbnail MUST share the same visual identity.`;
     const raw = await complete(prompt);
     const a = raw.indexOf('{'),b = raw.lastIndexOf('}');
     if (a < 0 || b < 0) throw new Error('no json');
@@ -2167,12 +3648,15 @@ Keep everything calm, warm, instrumental and study-friendly. No vocals.`;
       title: String(j.title).slice(0, 60),
       tagline: j.tagline ? String(j.tagline) : `${s.mood.toLowerCase()} · ${s.time.toLowerCase()}`,
       suno: {
+        key: String(j.suno.key || A.musicalKey(s.mood)),
         style: String(j.suno.style || ''),
+        structure: String(j.suno.structure || A.buildArrangement(s)),
         prompt: String(j.suno.prompt),
-        exclude: String(j.suno.exclude || 'vocals, lyrics')
+        exclude: String(j.suno.exclude || 'vocals, lyrics, crisp, polished')
       },
       cover: String(j.cover || ''),
-      video: String(j.video || j.veo || '')
+      video: String(j.video || j.veo || ''),
+      thumb: String(j.thumb || A.thumbRules(s))
     };
   }
 
@@ -2190,8 +3674,14 @@ Keep everything calm, warm, instrumental and study-friendly. No vocals.`;
 
     let ai = null;
     if (t.useAI) {
-      try {ai = await callAI(baseSel);} catch (e) {
-        window.alert(T('aiFailed') + '\n' + e.message);
+      try {
+        ai = await callAI(baseSel);
+      } catch (e) {
+        pushToast(T('aiFailed') + ' — ' + e.message, {
+          kind: 'error',
+          actionLabel: T('aiRetry'),
+          action: () => generate()
+        });
         ai = null;
       }
     }
@@ -2207,17 +3697,37 @@ Keep everything calm, warm, instrumental and study-friendly. No vocals.`;
 
   // ---- album generation: one AI call returns the whole coherent album ----
   async function callAlbumAI(axis, base, recipes) {
-    const lines = recipes.map((s, i) =>
-    `${i + 1}. env=${s.environment}; nature=${s.nature}; time=${s.time}; mood=${s.mood}; inst=${s.instrument}; style=${s.style}; bpm=${s.bpm}`).join('\n');
+    const lines = recipes.map((s, i) => {
+      const role = A.trackRole(i, recipes.length);
+      return `${i + 1}. env=${s.environment}; nature=${s.nature}; time=${s.time}; mood=${s.mood}; inst=${s.instrument}; style=${s.style}; bpm=${s.bpm}; role=${role.name} (${role.mod})`;
+    }).join('\n');
     const prompt =
     `You are the album engine for "Awen Study", a lo-fi study-music label by awen yang.
 Design ONE coherent instrumental album. All tracks share a fixed sonic identity; only the "${axis.label}" axis progresses across them (${axis.moves.join(' + ')}).
+
+FIXED VISUAL IDENTITY (held constant — every cover/video/thumbnail must inherit this so the album reads as one Awen world):
+- Character: ${base.character}
+- Light Source: ${base.light}
+- Color Palette: ${base.palette}
+- Narrative Motif: ${base.motif}
+
+ALBUM DNA (these four elements must be woven into every track description and the album liner note):
+- Core Motif: ${A.albumDNA(base).motif}
+- Core Texture: ${A.albumDNA(base).texture}
+- Core Space: ${A.albumDNA(base).space}
+- Core Emotion: ${A.albumDNA(base).emotion}
+
+CORE MELODIC MOTIF (recurs across the album for cohesion):
+- ${A.coreMotif(base.instrument)}
+- Track 1: introduce it clearly in the opening bars
+- Track ${Math.floor(recipes.length/2)+1}: subtle variation (different register or harmony)
+- Track ${recipes.length}: return it resolved, near-silent dynamics
 
 TRACKS (one recipe per line):
 ${lines}
 
 Return ONLY minified JSON, no markdown, EXACTLY:
-{"album":"evocative 2-4 word album title (Title Case)","concept":"one-line concept under 90 chars","description":"a 2-3 sentence liner note: the inspiration/source behind the album, the journey it traces, and what kind of tracks it gathers; reference the opening and closing track feel","description_zh":"the SAME liner note written naturally in fluent simplified Chinese (简体中文)","anchor":"a single shared Suno style string (under 150 chars) reused on every track; MUST include a production/texture layer (warm tape saturation, vinyl crackle, drum treatment or 'no drums', room reverb, low-pass) so timbre stays consistent","cover":"square 1:1 cover-art prompt: centered composition with negative space near the top for the album title, light + mood, no text, no motion words","video":"16:9 looping background-video prompt with slow cinematic camera drift + lighting, shallow depth of field, seamless loop","tracks":[{"title":"evocative 2-4 word track title","scene":"2-4 word scene label","prompt":"one-sentence Suno description for THIS track"}]}
+{"album":"evocative 2-4 word album title (Title Case)","concept":"one-line concept under 90 chars","description":"a 2-3 sentence liner note: the inspiration/source behind the album, the journey it traces, and what kind of tracks it gathers; reference the opening and closing track feel","description_zh":"the SAME liner note written naturally in fluent simplified Chinese (简体中文)","anchor":"a single shared Suno style string (under 150 chars) reused on every track; MUST include a production/texture layer (warm tape saturation, vinyl crackle, drum treatment or 'no drums', room reverb, low-pass) so timbre stays consistent","cover":"square 1:1 cover-art prompt built as Character + Environment + Motif + Light + Palette + camera + mood, weaving the Awen signature elements (open book, warm lamp, wood, cozy atmosphere); centered, negative space near the top for the album title; no text, no logos, no motion words","video":"16:9 looping background-video prompt: the motif in slow motion, same light + palette, dust drift, slow cinematic camera drift, shallow depth of field, seamless loop, no people","thumb":"YouTube thumbnail (1280×720) consistency rules: same palette, same lamp, same open book, Awen wordmark lower-left, same title type top-left","coreMotif":"the four-note motif phrase","dna":{"motif":"","texture":"","space":"","emotion":""},"tracks":[{"title":"evocative 2-4 word track title","scene":"2-4 word scene label","role":"track role name","key":"musical key + mode for THIS track","style":"groove+texture; key; BPM; lead+max 2 support; instrumental — MAX 150 chars","structure":"5-line metatag arrangement for THIS track's Lyrics box","motifMark":"intro|variation|return|null","prompt":"one-sentence reference note for this track"}]}
 The tracks array MUST have exactly ${recipes.length} items, in order. Everything calm, warm, instrumental, study-friendly, no vocals.`;
     const raw = await complete(prompt);
     const a = raw.indexOf('{'),b = raw.lastIndexOf('}');
@@ -2230,11 +3740,20 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
       description: String(j.description || ''),
       descriptionZh: String(j.description_zh || ''),
       anchor: String(j.anchor || ''),
+      coreMotif: String(j.coreMotif || A.coreMotif(base.instrument)),
+      dna: j.dna || A.albumDNA(base),
+      visual: A.visualDNA(base),
       cover: String(j.cover || ''),
       video: String(j.video || ''),
+      thumb: String(j.thumb || A.thumbRules(base)),
       tracks: j.tracks.map((t, i) => ({
         title: String(t.title || `Track ${i + 1}`),
-        scene: String(t.scene || `${recipes[i].time} · ${recipes[i].environment}`),
+        scene: String(t.scene || `${recipes[i]?.time} · ${recipes[i]?.environment}`),
+        role: String(t.role || ''),
+        key: String(t.key || A.musicalKey(recipes[i]?.mood || 'Calm')),
+        style: String(t.style || ''),
+        structure: String(t.structure || A.buildArrangement(recipes[i] || {}, t.role || '')),
+        motifMark: t.motifMark === 'null' ? null : (t.motifMark || null),
         prompt: String(t.prompt || '')
       }))
     };
@@ -2245,7 +3764,7 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
     const { axis, recipes } = A.buildAlbum(axisKey, sel, trackCount);
     const id = 'ALB-' + String(albumSeq).padStart(3, '0');
     setAlbumSeq((n) => n + 1);
-    setAlbums((prev) => [{ id, axisLabel: axis.label, status: 'Draft', generating: true }, ...prev]);
+    setAlbums((prev) => [{ id, axisLabel: axis.label, base: { ...sel }, universeId: activeUniverseId, status: 'Draft', generating: true }, ...prev]);
     setBusy(true);
     let data = null;
     if (t.useAI) {
@@ -2258,6 +3777,11 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
     setAlbums((prev) => prev.map((x) => x.id === id ? { ...x, generating: false, data } : x));
     setBusy(false);
   }
+  function remixSong(recipeSel) {
+    setSel(prev => ({ ...prev, ...recipeSel }));
+    switchMode('pick');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
   function setAlbumStatus(id, status) {setAlbums((prev) => prev.map((a) => a.id === id ? { ...a, status } : a));}
   function setPinAlbum(id) {setAlbums((prev) => prev.map((a) => a.id === id ? { ...a, pinned: !a.pinned } : a));}
   function removeAlbum(id) {setAlbums((prev) => prev.filter((a) => a.pinned || a.id !== id));}
@@ -2267,6 +3791,10 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
 
   return (
     <div className="app" data-theme={t.theme} data-density={t.density}>
+      <TokenModal open={tokenModalOpen}
+        onSubmit={(v) => { setTokenModalOpen(false); window.__awen_resolveToken(v); }}
+        onCancel={() => { setTokenModalOpen(false); window.__awen_resolveToken(''); }} />
+      <ToastContainer toasts={toasts} onClose={dismissToast} onAction={handleToastAction} />
       {/* top bar */}
       <header className="topbar">
         <div className="brand">
@@ -2274,20 +3802,24 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
           <div className="brand-sub">MATRIX GENERATOR</div>
         </div>
         <div className="modes">
-          {Object.keys(MODE_INFO).map((m) =>
-          <button key={m} type="button"
-          className={'mode-btn' + (mode === m ? ' on' : '')}
-          onClick={() => switchMode(m)}>{MODE_INFO[m].label}</button>
-          )}
+          {Object.keys(MODE_INFO).map((m) => {
+            const tips = {pick:'手动点选每个维度，拼出一首歌的配方',shuffle:'锁定满意的列，点 Shuffle 随机生成其余维度',decompose:'从参考曲反推配方，逐项变异做 remix',album:'锁定声音身份 + 选行进轴，一次生成整张专辑'};
+            return (
+              <Tooltip key={m} text={tips[m]}>
+                <button type="button"
+                  className={'mode-btn' + (mode === m ? ' on' : '')}
+                  aria-pressed={mode === m}
+                  onClick={() => switchMode(m)}>{MODE_INFO[m].label}
+                </button>
+              </Tooltip>
+            );
+          })}
         </div>
         <button type="button"
           className={'help-btn' + (t.useAI ? ' on' : '')}
           style={t.useAI ? {background:'rgba(127,212,201,0.15)',color:'var(--accent)'} : {}}
-          title={t.useAI ? 'AI 生成已开启' : 'AI 生成已关闭（使用模板引擎）'}
-          onClick={() => {
-            if (!t.useAI) localStorage.removeItem('awen_music_token');
-            setTweak('useAI', !t.useAI);
-          }}>
+          title={t.useAI ? 'AI 生成已开启 — 每次生成都走 Claude，prompt 更丰富' : 'AI 生成已关闭 — 使用内置模板引擎，离线可用'}
+          onClick={() => setTweak('useAI', !t.useAI)}>
           ✦ AI {t.useAI ? 'ON' : 'OFF'}
         </button>
         <button type="button" className="help-btn" onClick={() => setShowGuide(true)}>
@@ -2307,13 +3839,15 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
 
       <div className="mode-hint">{T({ pick: 'hintPick', shuffle: 'hintShuffle', decompose: 'hintDecompose', album: 'hintAlbum' }[mode])}</div>
 
+      <TabIntro mode={mode} />
+
       {/* presets — quick start for beginners */}
       {(mode === 'pick' || mode === 'shuffle' || mode === 'album') &&
       <div className="presets">
         <span className="presets-label">{T('presetsLabel')}</span>
         {A.PRESETS.map((p) =>
         <button key={p.key} type="button" className="preset-btn"
-          onClick={() => setSel({ ...p.sel })}
+          onClick={() => setSel((prev) => ({ ...prev, ...p.sel }))}
           title={p.label}>
           <span className="preset-icon">{p.icon}</span>
           <span className="preset-name">{lang === 'zh' ? p.zh : p.label}</span>
@@ -2325,20 +3859,54 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
       {/* reference card in decompose mode */}
       {mode === 'decompose' &&
       <ReferenceCard sample={sampleRef} sel={sel}
-      onReset={() => setSel({ ...sampleRef.decomposed })}
-      onApply={() => setSel({ ...sampleRef.decomposed })} />
+      onReset={() => setSel((prev) => ({ ...prev, ...sampleRef.decomposed }))}
+      onApply={() => setSel((prev) => ({ ...prev, ...sampleRef.decomposed }))}
+      onParse={(parsed) => setSel((prev) => ({ ...prev, ...parsed }))} />
       }
 
-      {/* the matrix board */}
-      <div className={'board' + (rolling ? ' rolling' : '')}>
-        {A.DIMS.map((d) =>
-        <Column key={d.key} dim={d} value={sel[d.key]} onPick={pick}
-        showLock={showLock} locked={!!locks[d.key]} onToggleLock={() => toggleLock(d.key)}
-        refValue={mode === 'decompose' ? sampleRef.decomposed[d.key] : null} />
-        )}
-        <BpmColumn bpm={A.BPM} value={sel.bpm} onPick={pick}
-        showLock={showLock} locked={!!locks.bpm} onToggleLock={() => toggleLock('bpm')} />
-      </div>
+      {/* the matrix board — grouped into the three identity layers */}
+      <div className={'board-stack' + (rolling ? ' rolling' : '')}>
+        <section className="board-group">
+          <div className="board-group-h"><span className="bg-label">{T('layerContent')}</span></div>
+          <div className="board">
+            {A.DIMS.filter((d) => d.layer === 'content').map((d) =>
+            <Column key={d.key} dim={d} value={sel[d.key]} onPick={pick}
+            showLock={showLock} locked={!!locks[d.key]} onToggleLock={() => toggleLock(d.key)}
+            refValue={mode === 'decompose' ? sampleRef.decomposed[d.key] : null} />
+            )}
+          </div>
+        </section>
+
+        <section className="board-group">
+          <div className="board-group-h"><span className="bg-label">{T('layerProduction')}</span></div>
+          <div className="board">
+            {A.DIMS.filter((d) => d.layer === 'production').map((d) =>
+            <Column key={d.key} dim={d} value={sel[d.key]} onPick={pick}
+            showLock={showLock} locked={!!locks[d.key]} onToggleLock={() => toggleLock(d.key)}
+            refValue={mode === 'decompose' ? sampleRef.decomposed[d.key] : null} />
+            )}
+            <BpmColumn bpm={A.BPM} value={sel.bpm} onPick={pick}
+            showLock={showLock} locked={!!locks.bpm} onToggleLock={() => toggleLock('bpm')} />
+          </div>
+        </section>
+
+        <section className="board-group board-group-visual">
+          <div className="board-group-h">
+            <span className="bg-label">{T('layerVisual')}</span>
+            <span className="bg-hint">{T('layerVisualHint')}</span>
+          </div>
+          <div className="board">
+            {A.DIMS.filter((d) => d.layer === 'visual').map((d) =>
+            <Column key={d.key} dim={d} value={sel[d.key]} onPick={pick}
+            showLock={showLock} locked={!!locks[d.key]} onToggleLock={() => toggleLock(d.key)}
+            refValue={mode === 'decompose' ? sampleRef.decomposed[d.key] : null} />
+            )}
+          </div>
+          <UniverseBuilder sel={sel} universes={universes}
+            onSave={saveUniverse} onApply={applyUniverse} onDelete={deleteUniverse}
+            activeUniverseId={activeUniverseId} albums={albums} inline />
+        </section>
+      </div>}
 
       {/* console — album mode swaps in the axis builder */}
       {mode === 'album' ?
@@ -2348,6 +3916,25 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
       <RecipeBar sel={sel} mode={mode} busy={busy} mutations={A.mutations(sel)}
       onGenerate={generate} onShuffle={shuffle} />
       }
+
+      {/* active universe strip */}
+      {mode === 'album' && activeUniverseId && (() => {
+        const u = universes.find(x => x.id === activeUniverseId);
+        if (!u) return null;
+        const seriesAlbums = albums.filter(a => a.universeId === activeUniverseId && !a.generating);
+        return (
+          <div className="series-strip">
+            <span className="series-label">UNIVERSE</span>
+            <span className="series-chip">♾ {u.name}</span>
+            {seriesAlbums.length > 0 && <>
+              <span className="series-label" style={{marginLeft:8}}>SERIES ({seriesAlbums.length})</span>
+              {seriesAlbums.map(a => (
+                <span key={a.id} className="series-album-chip">{a.id} · {a.axisLabel}</span>
+              ))}
+            </>}
+          </div>
+        );
+      })()}
 
       {/* production feed */}
       {mode === 'album' ?
@@ -2387,7 +3974,7 @@ The tracks array MUST have exactly ${recipes.length} items, in order. Everything
 
         <div className="feed-list">
               {songs.map((s) =>
-          <SongCard key={s.id} song={s} onStatus={setStatus} onDelete={removeSong} onPin={setPinSong} />
+          <SongCard key={s.id} song={s} onStatus={setStatus} onDelete={removeSong} onPin={setPinSong} onRemix={remixSong} />
           )}
             </div>
         }

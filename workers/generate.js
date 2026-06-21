@@ -106,26 +106,58 @@ export default {
       });
     }
 
-    const r = await fetch(url, { method: 'POST', headers, body });
+    try {
+      // 使用 AbortController 防止超时
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 25000); // 25 秒超时（给响应时间）
 
-    if (!r.ok) {
-      const err = await r.text();
-      return new Response(JSON.stringify({ error: 'upstream failed', detail: err }), {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers,
+        body,
+        signal: controller.signal
+      });
+
+      clearTimeout(timeout);
+
+      if (!r.ok) {
+        const err = await r.text();
+        return new Response(JSON.stringify({ error: 'upstream failed', status: r.status, detail: err }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        });
+      }
+
+      const data = await r.json();
+
+      // 统一提取 text：Anthropic 和 OpenAI 的响应结构不同
+      const text = provider === 'anthropic'
+        ? (data?.content?.[0]?.text ?? '')
+        : (data?.choices?.[0]?.message?.content ?? '');
+
+      if (!text) {
+        return new Response(JSON.stringify({ error: 'empty response from upstream' }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        });
+      }
+
+      return new Response(JSON.stringify({ text }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+      });
+    } catch (err) {
+      // 捕获超时和其他网络错误
+      if (err.name === 'AbortError') {
+        return new Response(JSON.stringify({ error: 'upstream timeout', timeout_ms: 25000 }), {
+          status: 504,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        });
+      }
+      return new Response(JSON.stringify({ error: 'fetch error', message: err.message }), {
         status: 502,
         headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
       });
     }
-
-    const data = await r.json();
-
-    // 统一提取 text：Anthropic 和 OpenAI 的响应结构不同
-    const text = provider === 'anthropic'
-      ? (data?.content?.[0]?.text ?? '')
-      : (data?.choices?.[0]?.message?.content ?? '');
-
-    return new Response(JSON.stringify({ text }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
-    });
   },
 };
