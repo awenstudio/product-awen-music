@@ -1,180 +1,142 @@
 # Awen Music — Matrix Generator
 
-> **Current version: V2.2** — Musical Coherence Engine + Track Role Signatures
+> **V2.2** — Musical Coherence Engine + Track Role Signatures
 
-A web tool that turns an 11‑dimension "recipe" (7 sonic + 4 visual) into ready‑to‑paste **Suno** music prompts, **cover‑art** prompts, **video** prompts, and full **album** production plans — for a lo‑fi study‑music content factory. Features universe building, track role systems, motif recurrence, and one‑click metadata generation for YouTube / Spotify.
+[English](#english) | [中文](#中文)
 
-**Live site:** [hiawen.com/music](https://hiawen.com/music/)  
-**Deployment repo:** [awenstudio/awenstudio.github.io](https://github.com/awenstudio/awenstudio.github.io) (`music/index.html`)
+**Live:** [hiawen.com/music](https://hiawen.com/music/) · **Deploy repo:** [awenstudio.github.io](https://github.com/awenstudio/awenstudio.github.io)
 
 ---
 
-## What's in this bundle
+<a id="中文"></a>
+
+## 中文
+
+一个 **lo-fi 学习音乐的 Prompt 工厂**。在 11 维度矩阵上配好"声音配方"，自动生成 Suno 风格框、编曲结构、封面/视频 prompt、YouTube 元数据、文件命名——从灵感到发布，一站式完成。
+
+### 核心功能
+
+- **11 维度矩阵** — 声音 7 维（环境 · 自然 · 时间 · 情绪 · 乐器 · 风格 · BPM）+ 视觉 4 维（角色 · 光线 · 色板 · 叙事母题）
+- **4 种模式** — Pick 手选 · Shuffle 随机 · Decompose 反推 · Album 专辑
+- **Musical Coherence Engine** — 自动生成调性、精炼风格框、5 段编曲结构（metatag 格式）
+- **Track Role Signatures** — 每首歌在专辑中有独立角色和记忆点
+- **Universe Builder** — 保存视觉身份，跨专辑复用
+- **一键复制** — Suno 三框、封面 prompt、视频 prompt、YouTube 元数据、文件命名
+- **AI + 离线双引擎** — AI 不可用时自动切换模板引擎，所有功能可用
+- **8 种语言** — 中 · 英 · 日 · 韩 · 法 · 西 · 德 · 葡
+- **4 套主题** — Console（深色）· Lo-fi（暖棕）· Clean（浅色）· Studio（中性深）
+
+### 本地运行
+
+无需安装，直接启动：
+
+```bash
+python3 -m http.server 8000 --directory docs
+# 打开 http://localhost:8000
+```
+
+### AI 后端
+
+- **Cloudflare Worker：** `workers/generate.js`（万能 AI 代理，支持 OpenAI / Anthropic / DeepSeek / MiMo 等）
+- **认证：** 用户通过弹窗输入访问密码，存在 `localStorage`
+- **离线降级：** AI 不可用时自动使用内置模板引擎
+
+### 项目结构
 
 ```
 awen-music/
-├── README.md                    ← this file
-├── HANDOFF.md                   ← developer / Claude Code instructions
-├── CHANGELOG.md                 ← V2.0 / V2.1 / V2.2 release notes
-├── FIX_LOG.md                   ← bug history + 10 standing code rules
-├── SUNO_BEST_PRACTICES.md       ← Suno usage guide + quality troubleshooting
-├── CONTRIBUTING.md
-├── LICENSE
-├── build.py                     ← bundles src/ → docs/index.html
-├── docs/
-│   └── index.html               ← SELF-CONTAINED build (V2.2, synced with live)
-├── src/                         ← editable source (V2.0 base, see note below)
-│   ├── Awen Study Matrix.html   entry HTML
-│   ├── data.js                  matrix data + offline prompt/album engine → window.AWEN
-│   ├── i18n.js                  all UI strings (8 languages)              → window.I18N, window.T
-│   ├── components.jsx           icons, chips, columns, copy button
-│   ├── cards.jsx                recipe console + single-song result card
-│   ├── album.jsx                album axis console + album result card
-│   ├── guide.jsx                first-run usage guide overlay
-│   ├── tweaks-panel.jsx         in-app settings (theme / density / AI toggle)
-│   └── app.jsx                  <App> root: state, AI calls, layout, persistence
-├── example-backend/
-│   └── api/                     ← serverless function example for real AI generation
-└── workers/
-    └── generate.js              ← Cloudflare Worker (universal AI proxy)
+├── docs/index.html              ← 完整构建（V2.2，与线上同步）
+├── src/                         ← 拆分源码（V2.0 基础版）
+│   ├── data.js                  矩阵数据 + prompt 引擎
+│   ├── i18n.js                  多语言字符串
+│   ├── components.jsx           通用组件
+│   ├── cards.jsx                单曲卡片
+│   ├── album.jsx                专辑控制台
+│   ├── guide.jsx                首次使用引导
+│   ├── tweaks-panel.jsx         设置面板
+│   └── app.jsx                  App 根组件
+├── workers/generate.js          ← Cloudflare Worker
+├── CHANGELOG.md                 版本变更记录
+├── FIX_LOG.md                   Bug 修复日志 + 代码规范
+└── SUNO_BEST_PRACTICES.md       Suno 使用指南
 ```
 
-> **Note:** `src/` files are at V2.0 level. V2.1/V2.2 features were developed directly in the single-file `docs/index.html`. A future task is to back-port V2.2 changes into the split source files.
+> `src/` 目前是 V2.0 版本。V2.1/V2.2 的新功能直接在 `docs/index.html` 单文件中开发。后续计划回迁到拆分源码。
+
+### 版本历史
+
+| 版本 | 主要变更 |
+|---|---|
+| **V2.2** | Musical Coherence Engine · Track Role Signatures · 增强 SongCard/AlbumCard |
+| **V2.1** | 健壮性修复：safeLS · AbortController 超时 · TokenModal · Toast 通知 |
+| **V2.0** | Universe Engine：11 维矩阵 · 视觉身份 · 专辑 DNA · 元数据生成 · Smart Decompose |
+| **V1.0** | 7 维矩阵 · 4 模式 · 8 预设 · 离线引擎 |
 
 ---
 
-## Tech stack
+<a id="english"></a>
 
-- **React 18.3.1 + Babel** — transpiled in-browser, no build step, no npm
-- **State** — persisted to `localStorage` under `awen_matrix_state_v1`
-- **AI** — calls `window.claude.complete(prompt)`; gracefully falls back to the deterministic offline engine if unavailable
+## English
 
----
+A **lo-fi study music prompt factory**. Configure a "sound recipe" on an 11-dimension matrix, then auto-generate Suno style boxes, arrangement structures, cover/video prompts, YouTube metadata, and file naming — end-to-end from inspiration to publish.
 
-## Run it locally
+### Key Features
 
-No install needed. From the `src/` folder:
+- **11-dimension matrix** — 7 sonic (Environment · Nature · Time · Mood · Instrument · Style · BPM) + 4 visual (Character · Light · Palette · Motif)
+- **4 modes** — Pick · Shuffle · Decompose · Album
+- **Musical Coherence Engine** — auto-generate musical key, refined style boxes, 5-segment arrangement structures (metatag format)
+- **Track Role Signatures** — each song gets a unique role and signature element within an album
+- **Universe Builder** — save and reuse visual identities across albums
+- **One-click copy** — Suno three-box, cover prompt, video prompt, YouTube metadata, file naming
+- **AI + offline dual engine** — graceful fallback to template engine when AI is unavailable
+- **8 languages** — ZH · EN · JA · KO · FR · ES · DE · PT
+- **4 themes** — Console (dark) · Lo-fi (warm) · Clean (light) · Studio (neutral dark)
+
+### Run Locally
+
+No install needed:
 
 ```bash
-python3 -m http.server 8000
-# open http://localhost:8000/Awen%20Study%20Matrix.html
+python3 -m http.server 8000 --directory docs
+# open http://localhost:8000
 ```
 
-> Opening via `file://` won't load `.jsx` modules — always use a local server.
+### AI Backend
 
----
+- **Cloudflare Worker:** `workers/generate.js` (universal AI proxy — OpenAI / Anthropic / DeepSeek / MiMo compatible)
+- **Auth:** user enters access password via modal, stored in `localStorage`
+- **Offline fallback:** built-in template engine activates automatically when AI is unavailable
 
-## How it works
+### Project Structure
 
-### The 7-dimension matrix
+```
+awen-music/
+├── docs/index.html              ← self-contained build (V2.2, synced with live)
+├── src/                         ← split source files (V2.0 base)
+│   ├── data.js                  matrix data + prompt engine
+│   ├── i18n.js                  i18n strings
+│   ├── components.jsx           shared components
+│   ├── cards.jsx                song cards
+│   ├── album.jsx                album console
+│   ├── guide.jsx                first-run guide
+│   ├── tweaks-panel.jsx         settings panel
+│   └── app.jsx                  App root component
+├── workers/generate.js          ← Cloudflare Worker
+├── CHANGELOG.md                 release notes
+├── FIX_LOG.md                   bug history + code rules
+└── SUNO_BEST_PRACTICES.md       Suno usage guide
+```
 
-| Dimension | Options (10 each unless noted) |
+> `src/` is at V2.0 level. V2.1/V2.2 features were developed directly in the single-file `docs/index.html`. Back-porting to split source files is a future task.
+
+### Version History
+
+| Version | Key Changes |
 |---|---|
-| **Environment** | Library, Rainy Window, Cozy Desk, Cafe, Bookshop, Study Room, Greenhouse, Attic Studio, Japanese Apartment, Old Train |
-| **Nature** | Rain, Light Snow, Birdsong, Distant Thunder, Wind, Fireplace, River, Cicadas, Ocean Waves, Silence |
-| **Time** | Dawn, Early Morning, Morning, Noon, Afternoon, Dusk, Evening, Night, 3 AM (9 options) |
-| **Mood** | Calm, Cozy, Warm, Nostalgic, Focused, Melancholy, Hopeful, Dreamy, Introspective |
-| **Instrument** | Felt Piano, Grand Piano, Strings, Guitar, Rhodes, Marimba, Harp, Vibraphone, Organ, Synth Pad |
-| **Style** | Ambient, Neo Classical, Lo-fi Hip Hop, Chillhop, Jazzhop, Minimal Piano, Cinematic, Dream Pop (8 options) |
-| **BPM** | 55, 58, 60, 62, 65, 68, 70 |
-
-**Brand default:** Library · Rain · Night · Calm · Felt Piano · Ambient · 60 BPM
-
-### 4 operational modes
-
-| Mode | What it does |
-|---|---|
-| **Pick** | Hand-pick one cell per column to assemble a recipe |
-| **Shuffle** | Lock columns you want, randomize the rest (slot-machine style) |
-| **Decompose** | Start from the reference track, mutate individual dimensions to remix |
-| **Album** | Lock a sonic identity, choose an axis, generate a coherent tracklist (3–20 tracks) |
-
-### 8 quick-start presets
-
-Deep Focus · Morning Coffee · Rainy Day · Late Night Study · Cozy Afternoon · Creative Flow · Gentle Awakening · Midnight Session
-
-### Generated output (per track)
-
-Each generation produces three copy-ready blocks:
-
-1. **Suno prompt** — Style anchor + Title + Description + Exclusions  
-2. **Cover art prompt** — 1:1 square for image generation  
-3. **Video prompt** — 16:9 looping background
-
-**Texture logic:**
-- Beat-driven styles (Lo-fi Hip Hop, Chillhop, Jazzhop) → `soft brushed drums, gentle swing, warm tape saturation, vinyl crackle`
-- Ambient/piano styles → `no drums, warm tape saturation, soft room reverb, low-pass filter, airy, intimate`
-
-**Status badges:** Draft → Approved → Queued → Published (track workflow states)
-
----
-
-## Album mode — 10 traversal axes
-
-| # | Axis | What moves |
-|---|---|---|
-| 1 | **Day Arc** | Time: dawn → midnight |
-| 2 | **Place Journey** | Environment across 10 locations |
-| 3 | **Seasons Turning** | Nature through seasonal sequence |
-| 4 | **Morning Rise** | Time + BPM + mood, energy builds toward focus |
-| 5 | **Focus Session** | BPM peaks mid-album, mood deepens |
-| 6 | **Late-Night Descent** | Evening → 3 AM, decelerating tempo, inward mood |
-| 7 | **Storm Passing** | Weather front building, then clearing |
-| 8 | **Mood Drift** | Emotional arc: bright → introspective |
-| 9 | **Comfort Arc** | Healing trajectory: lonely → calm → warm |
-| 10 | **Concept EP** | Minimal variation, auto-capped at 5 tracks |
-
-Tracks 01→N are pre-ordered along the axis (top-to-bottom = intended play order). Output includes a shared Style Anchor, liner notes (bilingual), cover + video prompts, and a per-track Suno line.
-
----
-
-## Customization
-
-### Themes (4)
-
-| Theme | Feel |
-|---|---|
-| `console` | Dark blue-teal (default) |
-| `lofi` | Warm tan/brown |
-| `clean` | Minimal light blue |
-| `studio` | Warm dark brown |
-
-### Density modes
-
-**Compact** / **Regular** — adjusts padding, chip height, and board height.
-
-### Language support (8)
-
-Simplified Chinese · English · Japanese · Korean · French · Spanish · German · Portuguese
-
-UI labels switch instantly. Matrix dimension names stay in English by design (production consistency for Suno prompts).
-
----
-
-## Deployment options
-
-| Path | Effort | Notes |
-|---|---|---|
-| **Static (current)** | Already live | `docs/index.html` on GitHub Pages → hiawen.com/music. Offline engine. |
-| **Real AI** | Add backend | Serverless proxy on Vercel/Netlify/Cloudflare. See `example-backend/`. **Never ship an API key in the front end.** |
-
----
-
-## Project status
-
-**Status:** v1.0 — live at [hiawen.com/music](https://hiawen.com/music/)
-
-**v1.0 (current, live)**
-- 7-dimension matrix → Suno / cover / video prompts
-- Pick · Shuffle · Decompose · Album modes (10 axes)
-- 8 presets, 4 themes, density modes
-- 8-language UI, local persistence, offline deterministic engine
-
-**v2.0 (planned)**
-- Live AI generation backend (model-written prompts per generation)
-- Automated tests for prompt/album engine + CI
-- More platforms beyond Suno, expandable matrix-data format
-- Shareable presets / exportable recipe links
+| **V2.2** | Musical Coherence Engine · Track Role Signatures · Enhanced SongCard/AlbumCard |
+| **V2.1** | Robustness: safeLS · AbortController timeout · TokenModal · Toast notifications |
+| **V2.0** | Universe Engine: 11-dim matrix · Visual identity · Album DNA · Metadata gen · Smart Decompose |
+| **V1.0** | 7-dim matrix · 4 modes · 8 presets · Offline engine |
 
 ---
 
