@@ -1,0 +1,36 @@
+name: Sync Music to Live
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/index.html'
+      - '.github/workflows/sync-to-live.yml'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: awenstudio/awen-music
+          token: ${{ secrets.SYNC_TOKEN }}
+
+      - name: Sync docs/index.html to awenstudio.github.io
+        run: |
+          # Clone target repo
+          git clone https://x-access-token:${{ secrets.SYNC_TOKEN }}@github.com/awenstudio/awenstudio.github.io.git target-repo
+
+          # Copy file
+          cp docs/index.html target-repo/music/index.html
+
+          # Commit and push
+          cd target-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add music/index.html
+          git diff --cached --quiet || git commit -m "sync: update music/index.html from awen-music
+
+Auto-synced from awen-music docs/index.html
+$(git -C .. log -1 --pretty=format:%H)"
+          git push origin main
