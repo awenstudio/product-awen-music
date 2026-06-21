@@ -3,9 +3,6 @@ name: Sync Music to Live
 on:
   push:
     branches: [main]
-    paths:
-      - 'docs/index.html'
-      - '.github/workflows/sync-to-live.yml'
 
 jobs:
   sync:
