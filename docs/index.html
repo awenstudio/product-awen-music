@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
+<script>localStorage.setItem('awen_api_key','sk-8409eabe07204ffdb5b2eeb4039c957d');</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Awen Study — Matrix Generator</title>
 <meta name="description" content="Awen Music Matrix — a lo-fi study music generator that produces Suno style boxes, cover art prompts, video prompts, YouTube metadata, and a coherent Awen visual identity across every album.">
@@ -785,11 +786,27 @@
     const drumLine = hasDrums ? 'add soft brushed drums and warm bass, settle the groove' : 'add a low sustained pad beneath, no drums';
     const sig = roleSignature(role || 'Focus');
     return [
-      `[Intro: solo ${inst}, sparse, establish the theme in ${key}, ${tex}]`,
-      `[Main: ${drumLine}, ${sig}]`,
-      `[Lift: slightly fuller arrangement, gentle dynamic rise, stay relaxed]`,
-      `[Breakdown: strip back to ${inst} and ${tex}, intimate and quiet]`,
-      `[Outro: return to the opening phrase, fade on a long reverb tail]`,
+      '[Instrumental]',
+      '',
+      '[Intro]',
+      `solo ${inst}`,
+      `sparse ${tex}`,
+      `establish the theme`,
+      '',
+      '[Verse]',
+      drumLine,
+      `${sig}`,
+      '',
+      '[Bridge]',
+      'gentle dynamic rise',
+      'stay relaxed',
+      '',
+      '[Outro]',
+      'return to opening phrase',
+      'long reverb tail',
+      'fade out',
+      '',
+      '[End]',
     ].join('\n');
   }
 
@@ -1436,7 +1453,7 @@
       universeEmpty: '还没有保存的宇宙，先在矩阵中选好四个视觉维度，再在这里啇下名字保存',
       universeSaved: '已保存的宇宙',
       tokenTitle: '输入 MiMo API Key', tokenSub: '只需输入一次，浏览器会记住；在 xiaomimimo.com 的「专属 API key」页面复制',
-      tokenPlaceholder: 'tp-xxxxxxxx...', tokenSubmit: '确认', tokenCancel: '取消',
+      tokenPlaceholder: 'sk-xxxxxxxx...', tokenSubmit: '确认', tokenCancel: '取消',
       tokenShow: '显示', tokenHide: '隐藏', logout: '清除 API Key',
       aiNeedToken: '需要 MiMo API Key 才能使用 AI 生成',
       aiBadToken: 'API Key 无效（401），请重新输入',
@@ -1512,7 +1529,7 @@
       universeEmpty: 'No saved universes yet. Pick the four visual dimensions in the matrix, give it a name, and save it here.',
       universeSaved: 'Saved universes',
       tokenTitle: 'Enter MiMo API Key', tokenSub: 'One-time setup — your browser remembers it. Copy from xiaomimimo.com → API Key page.',
-      tokenPlaceholder: 'tp-xxxxxxxx...', tokenSubmit: 'Confirm', tokenCancel: 'Cancel',
+      tokenPlaceholder: 'sk-xxxxxxxx...', tokenSubmit: 'Confirm', tokenCancel: 'Cancel',
       tokenShow: 'show', tokenHide: 'hide', logout: 'Clear API Key',
       aiNeedToken: 'MiMo API Key required for AI generation',
       aiBadToken: 'Invalid API Key (401) — please re-enter',
@@ -2484,25 +2501,35 @@ function SongCard({ song, onStatus, onDelete, onPin, onRemix }) {
             {tags.map(t => <span key={t.code} className="tag"><b>{t.code}</b>{t.val}</span>)}
           </div>
 
+          {/* ── STYLE block ── */}
           <div className="block">
             <div className="block-head">
               <div className="block-labels">
-                <span className="block-label"><Icon name="bolt" size={12} /> SUNO PROMPT</span>
-                <span className="field-hint">→ 风格框 + 结构框 + 描述框</span>
+                <span className="block-label"><Icon name="bolt" size={12} /> STYLE</span>
+                <span className="field-hint">→ 贴进 Suno「Style of Music」框</span>
               </div>
-              <CopyBtn text={`=== AWEN STUDY · ${ai.title} ===\n[STYLE OF MUSIC]  → Suno 风格框\n${ai.suno.style}\n\n[STRUCTURE]  → Suno 歌词框（粘这段 metatag，给歌一个起伏弧线）\n${ai.suno.structure || ''}\n\n[TITLE]  → Suno 标题\n${ai.title}\n\n[DESCRIPTION]  → 备注\n${ai.suno.prompt}\n\n[EXCLUDE]\n${ai.suno.exclude}`} label="Copy for Suno" />
+              <CopyBtn text={ai.suno.style} label="Copy Style" />
             </div>
-            <div className="kv"><span className="k">style</span><span className="v mono">{ai.suno.style}</span></div>
-            {ai.suno.key && <div className="kv"><span className="k">key</span><span className="v mono" style={{color:'var(--accent)'}}>{ai.suno.key}</span></div>}
-            {ai.suno.structure && (
-              <div className="kv kv-structure">
-                <span className="k">structure<br/><span className="k-sub">→ 歌词框</span></span>
-                <span className="v mono" style={{whiteSpace:'pre-wrap', lineHeight:1.55}}>{ai.suno.structure}</span>
-              </div>
-            )}
-            <div className="kv"><span className="k">note</span><span className="v">{ai.suno.prompt}</span></div>
-            <div className="kv"><span className="k">exclude</span><span className="v mono dim">{ai.suno.exclude}</span></div>
+            <div className="kv"><span className="v mono" style={{whiteSpace:'pre-wrap'}}>{ai.suno.style}</span></div>
+            {ai.suno.key && <div className="kv"><span className="k">key ref</span><span className="v mono dim">{ai.suno.key}</span></div>}
           </div>
+
+          {/* ── LYRICS block ── */}
+          {(ai.suno.lyrics || ai.suno.structure) && (
+            <div className="block">
+              <div className="block-head">
+                <div className="block-labels">
+                  <span className="block-label"><Icon name="music" size={12} /> LYRICS</span>
+                  <span className="field-hint">→ 贴进 Suno「Lyrics」框，开 Instrumental</span>
+                </div>
+                <CopyBtn text={ai.suno.lyrics || ai.suno.structure} label="Copy Lyrics" />
+              </div>
+              <div className="kv">
+                <span className="v mono" style={{whiteSpace:'pre-wrap', lineHeight:1.7, fontSize:'0.82em'}}>{ai.suno.lyrics || ai.suno.structure}</span>
+              </div>
+              <div className="kv"><span className="k">note</span><span className="v dim">{ai.suno.prompt}</span></div>
+            </div>
+          )}
 
           {ai.cover && (
             <div className="block">
@@ -3636,21 +3663,24 @@ VISUAL IDENTITY (keep recognizable across all Awen output)
 - Color Palette: ${s.palette}
 - Narrative Motif: ${s.motif}
 
-STYLE BOX RULES (Suno v5 best practice):
-- Describe groove + texture FIRST, not emotion. Groove = "slow unhurried groove" / "relaxed head-nodding groove". Texture = vinyl crackle / tape hiss / room reverb.
-- Pin a MUSICAL KEY + MODE (e.g. "A minor", "D dorian", "F lydian") — this is the single biggest fix for incoherence.
-- Lead instrument ONLY + max 2 support instruments. Restraint = authentic lo-fi. Never stack 4+ instruments.
-- Avoid words: "crisp", "polished", "clean", "hi-fi" — these are antonyms of lo-fi.
-- Cap at 150 chars.
+STYLE BOX RULES — goes in Suno's "Style of Music" field:
+- Comma-separated descriptors ONLY. No structure, no sentences.
+- Order: instrument → texture → sound design → no-drums/drums → BPM → vibe
+- 1 lead instrument + max 2 support. Never stack 4+.
+- Must include: tape/vinyl texture (e.g. "vinyl crackle", "tape hiss"), BPM, "no drums" or drum style.
+- Avoid: "crisp", "polished", "clean", "hi-fi". Cap at 120 chars.
 
-ARRANGEMENT RULES (goes in Suno's Lyrics box — gives the track an arc):
-- Write a 5-section metatag structure: [Intro] → [Main] → [Lift] → [Breakdown] → [Outro]
-- Each section on its own line in format: [Section: what happens here, texture, energy]
-- Outro MUST return to opening motif and fade
+LYRICS BOX RULES — goes in Suno's "Lyrics" field (this is what gives the track an arc):
+- Use NATIVE Suno metatag format. Each tag on its own line, NO colons after tag names.
+- Start with [Instrumental] on line 1 (blank line after).
+- Then: [Intro] → [Verse] → [Bridge] (optional) → [Outro] → [End]
+- Under each tag: 2-4 short descriptor phrases, one per line (no punctuation).
+- End always with a blank line then [End].
+- These exact tag names appear most in Suno training data — do NOT use [Main], [Lift], [Breakdown], or "Intro:" colon format.
 
 Return ONLY minified JSON (no markdown) with EXACTLY this shape:
-{"title":"evocative 2-5 word Title Case song name","tagline":"3-6 word mood tagline lowercase","suno":{"key":"musical key + mode (e.g. A minor, D dorian, F lydian)","style":"groove+texture first; key; BPM; 1 lead + max 2 support; tape/vinyl texture; instrumental — MAX 150 chars","structure":"5-line metatag arrangement for Suno Lyrics box, one section per line, [Intro]→[Main]→[Lift]→[Breakdown]→[Outro]","prompt":"ONE short sentence for notes/reference","exclude":"comma-separated exclusions, always include: vocals, lyrics, crisp, polished"},"cover":"square 1:1 cover-art prompt: Character + Environment + Motif + Light + Palette + camera + mood; Awen signatures (open book, warm lamp, wood, cozy); centered, negative space near top for title; no text, no logos, no motion","video":"16:9 looping video: motif in slow motion, same light + palette, dust drift, slow cinematic drift, shallow DOF, seamless loop, no people","thumb":"YouTube 1280×720 consistency rules: same palette + lamp + open book every time, Awen wordmark lower-left, same title type top-left"}
-No vocals, no variation. The cover / video / thumbnail MUST share the same visual identity.`;
+{"title":"evocative 2-5 word Title Case song name","tagline":"3-6 word mood tagline lowercase","suno":{"key":"musical key + mode (e.g. A minor, D dorian)","style":"comma-separated style string for Suno Style box — MAX 120 chars","lyrics":"[Instrumental]\n\n[Intro]\ndescriptor\ndescriptor\n\n[Verse]\ndescriptor\ndescriptor\n\n[Bridge]\ndescriptor\n\n[Outro]\ndescriptor\nfade out\n\n[End]","prompt":"ONE short reference sentence"},"cover":"square 1:1 cover-art prompt: Character + Environment + Motif + Light + Palette + camera + mood; Awen signatures (open book, warm lamp, wood, cozy); centered, negative space near top for title; no text, no logos, no motion","video":"16:9 looping video: motif in slow motion, same light + palette, dust drift, slow cinematic drift, shallow DOF, seamless loop, no people","thumb":"YouTube 1280×720 consistency rules: same palette + lamp + open book every time, Awen wordmark lower-left, same title type top-left"}
+No vocals. Cover / video / thumbnail MUST share the same visual identity.`;
     const raw = await complete(prompt);
     const a = raw.indexOf('{'),b = raw.lastIndexOf('}');
     if (a < 0 || b < 0) throw new Error('no json');
@@ -3662,7 +3692,7 @@ No vocals, no variation. The cover / video / thumbnail MUST share the same visua
       suno: {
         key: String(j.suno.key || A.musicalKey(s.mood)),
         style: String(j.suno.style || ''),
-        structure: String(j.suno.structure || A.buildArrangement(s)),
+        lyrics: String(j.suno.lyrics || A.buildArrangement(s)),
         prompt: String(j.suno.prompt),
         exclude: String(j.suno.exclude || 'vocals, lyrics, crisp, polished')
       },
