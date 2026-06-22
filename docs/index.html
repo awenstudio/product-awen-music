@@ -777,46 +777,48 @@
   // Build the metatag ARRANGEMENT that goes in Suno's Lyrics box.
   // This is what gives an instrumental a beginning / middle / end.
   // `role` is optional (album tracks pass it); singles use a balanced default.
+  // V3.0 default style-reinforcement words. Appended to every STYLE box —
+  // these push Suno toward 4-6 min Spotify-grade pieces instead of 1-2 min loops.
+  const V3_LONGFORM = 'long-form composition, slow evolving arrangement, extended instrumental passages, gradual development, patient pacing, organic dynamics, deep focus atmosphere, minimal repetition changes, high fidelity, studio quality, no vocals';
+
+  // V3.0 native 9-section arrangement for Suno's Lyrics box. Forbidden:
+  // the flat Intro/Verse/Outro trio. The longer arc forces a 4-5 min runtime
+  // and every track threads the same shared motif (intro → variations → return).
   function buildArrangement(s, role) {
     const inst = (s.instrument || 'felt piano').toLowerCase();
-    const key  = musicalKey(s.mood);
+    const env  = (s.environment || 'a quiet room').toLowerCase();
     const tex  = (TEXTURE_MAP[s.style] || 'warm tape texture').split(',')[0].trim();
     const hasDrums = !['Ambient', 'Minimal Piano', 'Drone Ambient'].includes(s.style);
-    const drumLine = hasDrums ? 'add soft brushed drums and warm bass, settle the groove' : 'add a low sustained pad beneath, no drums';
-    const sig = roleSignature(role || 'Focus');
+    const drumLine = hasDrums ? 'soft brush drums enter warm bass supports the motif' : 'a low sustained pad breathes beneath no drums';
     return [
       '[Instrumental]',
-      '',
-      '[Intro]',
-      `solo ${inst}`,
-      `sparse ${tex}`,
-      `establish the theme`,
-      '',
-      '[Verse]',
-      drumLine,
-      `${sig}`,
-      '',
-      '[Bridge]',
-      'gentle dynamic rise',
-      'stay relaxed',
-      '',
-      '[Outro]',
-      'return to opening phrase',
-      'long reverb tail',
-      'fade out',
-      '',
+      `[Intro] ${env} appears a lone ${inst} note the motif is introduced`,
+      '[Verse A] the motif repeats slow and patient',
+      '[Verse B] the motif returns with subtle variation space between phrases',
+      `[Bridge] ambient transition ${tex} expands`,
+      `[Verse C] ${drumLine}`,
+      '[Bridge] the motif moves into a higher register focus deepens',
+      '[Verse D] all elements breathe together nothing rushes',
+      '[Outro] elements gradually disappear the motif slowly dissolves',
       '[End]',
     ].join('\n');
   }
 
-  // The refined, TIGHT Style box. Groove + texture first, key pinned for
-  // coherence, instrument count capped, no "polished/crisp" words.
+  // V3.0 Style box. Genre + lead + motif + texture, then the long-form words
+  // appended so Suno produces a 4-6 min piece instead of a short loop.
   function buildStyleBox(s, role) {
     const lead = (s.instrument || 'felt piano').toLowerCase();
-    const key  = musicalKey(s.mood);
-    const groove = s.bpm <= 60 ? 'slow, unhurried groove' : (s.bpm <= 75 ? 'relaxed head-nodding groove' : 'gentle mid-tempo groove');
-    return `${s.style.toLowerCase()}, instrumental, ${key}, ${s.bpm} bpm ${groove}, ` +
-           `${lead} lead, ${textureTags(s.style)}, warm and unpolished, study-friendly`;
+    const groove = s.bpm <= 60 ? 'slow unhurried groove' : (s.bpm <= 75 ? 'relaxed head-nodding groove' : 'gentle mid-tempo groove');
+    const base = `${s.style.toLowerCase()}, instrumental, ${lead} lead, ${coreMotif(s.instrument)}, ` +
+                 `${s.bpm} bpm ${groove}, ${textureTags(s.style)}, warm and unpolished`;
+    return ensureLongform(base);
+  }
+
+  // Append the V3 long-form reinforcement words if they aren't already present.
+  function ensureLongform(style) {
+    const s = (style || '').trim().replace(/[,\s]+$/, '');
+    if (/long-form composition/i.test(s)) return s;
+    return `${s}, ${V3_LONGFORM}`;
   }
 
   /* ---- Album DNA: the four semantic locks that give every album a consistent feel ---- */
@@ -1184,8 +1186,9 @@
       tagline: `${s.mood.toLowerCase()} · ${s.time.toLowerCase()}`,
       suno: {
         style: buildStyleBox(s),
-        structure: buildArrangement(s),
+        lyrics: buildArrangement(s),
         key: musicalKey(s.mood),
+        motif: coreMotif(s.instrument),
         prompt: `Instrumental ${s.style.toLowerCase()} led by ${s.instrument.toLowerCase()}${natureClause}, ${s.mood.toLowerCase()} and study-friendly.`,
         exclude: 'vocals, lyrics, harsh percussion, sudden dynamics, polished, crisp',
       },
@@ -1317,7 +1320,7 @@
       latenight: 'Small Hours', storm: 'The Passing Rain', ep: 'Quiet Set',
     };
     const albumTitle = `${base.environment} ${titles[axisKey] || 'Sessions'}`;
-    const anchor = `${base.style}, ${base.mood.toLowerCase()} lo-fi, ${base.instrument.toLowerCase()}, ${base.bpm} bpm range, ${textureTags(base.style)}, instrumental`;
+    const anchor = ensureLongform(`${base.style}, ${base.mood.toLowerCase()} lo-fi, ${base.instrument.toLowerCase()}, ${coreMotif(base.instrument)}, ${base.bpm} bpm range, ${textureTags(base.style)}, instrumental`);
     const motif = coreMotif(base.instrument);
     const tracks = recipes.map((s, idx) => {
       const moveLabels = axis.moves.map(k => k === 'bpm' ? s.bpm + ' bpm' : s[k]).join(' · ');
@@ -1329,7 +1332,7 @@
         role: role.name,
         key: musicalKey(s.mood),
         style: buildStyleBox(s, role.name),
-        structure: buildArrangement(s, role.name),
+        lyrics: buildArrangement(s, role.name),
         motifMark: idx === 0 ? 'intro' : idx === Math.floor(recipes.length/2) ? 'variation' : idx === recipes.length-1 ? 'return' : null,
         prompt: `${axis.moves.includes('bpm') ? s.bpm + ' bpm, ' : ''}${s.mood.toLowerCase()} ${s.style.toLowerCase()} in a ${s.environment.toLowerCase()} at ${s.time.toLowerCase()}${s.nature === 'None' ? '' : ', ' + s.nature.toLowerCase() + ' ambience'}. Role: ${role.name} — ${role.mod}. ${roleSignature(role.name)}.${motifInstr ? ' ' + motifInstr : ''}`,
       };
@@ -1387,6 +1390,7 @@
     coverV2, videoV2, thumbRules, visualDNA,
     TRACK_ROLES, trackRole, coreMotif, motifInstruction, albumDNA, metadataGen,
     musicalKey, roleSignature, buildArrangement, buildStyleBox,
+    V3_LONGFORM, ensureLongform,
     parseStyleString, songFileName, albumTrackFileName, songYouTubeTitle, albumYouTubeTitle, episodeNumber,
     loadUniverses, saveUniversesStore,
   };
@@ -2510,7 +2514,6 @@ function SongCard({ song, onStatus, onDelete, onPin, onRemix }) {
               <CopyBtn text={ai.suno.style} label="Copy Style" />
             </div>
             <div className="kv"><span className="v mono" style={{whiteSpace:'pre-wrap'}}>{ai.suno.style}</span></div>
-            {ai.suno.key && <div className="kv"><span className="k">key ref</span><span className="v mono dim">{ai.suno.key}</span></div>}
           </div>
 
           {/* ── LYRICS block ── */}
@@ -2733,26 +2736,17 @@ ${meta.spotifyDesc}
 [TAGS]
 ${meta.tags.join(', ')}`; })()}`;
 
-  // Per-track Suno copy: self-documenting, mapped to Suno's three fields.
+  // Per-track Suno copy: V3 — only the two boxes Suno actually reads.
   const trackSuno = (tr) =>
 `=== ${data.album} · ${tr.title} ===
-[STYLE OF MUSIC]  → Suno 风格框（每首用这一句，保持专辑音色统一）
+[STYLE]  → Suno「Style of Music」框
 ${tr.style || data.anchor}
 
-[STRUCTURE]  → Suno 歌词框（粘 metatag，给这首歌一个起伏弧线）
-${tr.structure || ''}
-
-[KEY]  → 调性参考
-${tr.key || ''}
+[LYRICS]  → Suno「Lyrics」框（开 Instrumental）
+${tr.lyrics || ''}
 
 [TITLE]  → Suno 标题
-${tr.title}
-
-[ROLE + SIGNATURE]
-${tr.role || ''} — ${A.roleSignature(tr.role) || ''}
-
-[DESCRIPTION / NOTE]
-${tr.prompt}`;
+${tr.title}`;
 
   return (
     <div className="album">
@@ -2876,7 +2870,6 @@ ${tr.prompt}`;
                 <div className="track-titleRow">
                   <span className="track-title">{tr.title}</span>
                   {tr.role && <span className="track-role">{tr.role}</span>}
-                  {tr.key && <span className="track-role" style={{background:'transparent',border:'1px solid var(--line2)',color:'var(--ink-dim)'}}>{tr.key}</span>}
                   {tr.motifMark && tr.motifMark !== 'null' && (
                     <span className="track-role" style={{background:'rgba(127,212,201,0.25)',marginLeft:4}}>
                       ♩ {tr.motifMark}
@@ -2885,9 +2878,9 @@ ${tr.prompt}`;
                   <span className="track-scene">{tr.scene}</span>
                 </div>
                 <div className="track-prompt">{tr.prompt}</div>
-                {tr.structure && (
+                {tr.lyrics && (
                   <div className="track-structure" style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--ink-faint)',whiteSpace:'pre-wrap',marginTop:5,lineHeight:1.55,borderLeft:'2px solid var(--accent)',paddingLeft:8}}>
-                    {tr.structure}
+                    {tr.lyrics}
                   </div>
                 )}
               </div>
@@ -3503,7 +3496,7 @@ function ToastContainer({ toasts, onClose, onAction }) {
   const [songs, setSongs] = React.useState(saved?.songs || []);
   const [albums, setAlbums] = React.useState(saved?.albums || []);
   const [axisKey, setAxisKey] = React.useState(saved?.axisKey || 'day');
-  const [trackCount, setTrackCount] = React.useState(saved?.trackCount || 10);
+  const [trackCount, setTrackCount] = React.useState(saved?.trackCount || 8);
   const [albumSeq, setAlbumSeq] = React.useState(saved?.albumSeq || 1);
   const [seq, setSeq] = React.useState(saved?.seq || 1);
   const [busy, setBusy] = React.useState(false);
@@ -3662,23 +3655,33 @@ VISUAL IDENTITY (keep recognizable across all Awen output)
 - Color Palette: ${s.palette}
 - Narrative Motif: ${s.motif}
 
+GOAL (Awen Music V3.0): produce a Spotify-grade, 4-6 MINUTE instrumental piece — never a 1-2 min loop.
+
 STYLE BOX RULES — goes in Suno's "Style of Music" field:
 - Comma-separated descriptors ONLY. No structure, no sentences.
-- Order: instrument → texture → sound design → no-drums/drums → BPM → vibe
-- 1 lead instrument + max 2 support. Never stack 4+.
-- Must include: tape/vinyl texture (e.g. "vinyl crackle", "tape hiss"), BPM, "no drums" or drum style.
-- Avoid: "crisp", "polished", "clean", "hi-fi". Cap at 120 chars.
+- Order: genre → lead instrument → MOTIF (e.g. "repeating four-note motif") → 1-2 support → ambience/scene → mood → texture (vinyl crackle, tape saturation, analog warmth).
+- 1 lead + max 2 support instruments. Restraint = authentic lo-fi.
+- You MUST append these long-form words verbatim at the end (they force a 4-6 min runtime): "${A.V3_LONGFORM}".
+- Avoid: "crisp", "polished", "clean". No char cap — a rich STYLE is good.
 
-LYRICS BOX RULES — goes in Suno's "Lyrics" field (this is what gives the track an arc):
-- Use NATIVE Suno metatag format. Each tag on its own line, NO colons after tag names.
-- Start with [Instrumental] on line 1 (blank line after).
-- Then: [Intro] → [Verse] → [Bridge] (optional) → [Outro] → [End]
-- Under each tag: 2-4 short descriptor phrases, one per line (no punctuation).
-- End always with a blank line then [End].
-- These exact tag names appear most in Suno training data — do NOT use [Main], [Lift], [Breakdown], or "Intro:" colon format.
+LYRICS BOX RULES — goes in Suno's "Lyrics" field (this is what gives the track its length + arc):
+- Use NATIVE Suno metatags. Each tag on its OWN line. NO colons after tag names.
+- FORBIDDEN: the flat Intro/Verse/Outro trio — it produces short 1-2 min tracks.
+- REQUIRED 10-line structure, exactly these tags in this order, each followed by a short scene/motif description on the SAME line:
+  [Instrumental]
+  [Intro] environment appears, motif introduced
+  [Verse A] motif repeats slow and patient
+  [Verse B] motif variation, space between phrases
+  [Bridge] ambient transition, room expands
+  [Verse C] secondary texture / soft drums enter
+  [Bridge] motif transforms into a higher register
+  [Verse D] full atmosphere, all elements breathe
+  [Outro] elements gradually disappear, motif dissolves
+  [End]
+- This long arc is what reaches 4-5 minutes. Thread ONE shared motif through every section.
 
 Return ONLY minified JSON (no markdown) with EXACTLY this shape:
-{"title":"evocative 2-5 word Title Case song name","tagline":"3-6 word mood tagline lowercase","suno":{"key":"musical key + mode (e.g. A minor, D dorian)","style":"comma-separated style string for Suno Style box — MAX 120 chars","lyrics":"[Instrumental]\n\n[Intro]\ndescriptor\ndescriptor\n\n[Verse]\ndescriptor\ndescriptor\n\n[Bridge]\ndescriptor\n\n[Outro]\ndescriptor\nfade out\n\n[End]","prompt":"ONE short reference sentence"},"cover":"square 1:1 cover-art prompt: Character + Environment + Motif + Light + Palette + camera + mood; Awen signatures (open book, warm lamp, wood, cozy); centered, negative space near top for title; no text, no logos, no motion","video":"16:9 looping video: motif in slow motion, same light + palette, dust drift, slow cinematic drift, shallow DOF, seamless loop, no people","thumb":"YouTube 1280×720 consistency rules: same palette + lamp + open book every time, Awen wordmark lower-left, same title type top-left"}
+{"title":"evocative 2-5 word Title Case song name","tagline":"3-6 word mood tagline lowercase","suno":{"key":"musical key + mode (INTERNAL, not shown)","style":"comma-separated Suno Style string, motif included, ending with the long-form words","lyrics":"[Instrumental]\n[Intro] ...\n[Verse A] ...\n[Verse B] ...\n[Bridge] ...\n[Verse C] ...\n[Bridge] ...\n[Verse D] ...\n[Outro] ...\n[End]","prompt":"ONE short reference sentence","motif":"the shared melodic motif in 3-6 words"},"cover":"square 1:1 cover-art prompt: Character + Environment + Motif + Light + Palette + camera + mood; Awen signatures (open book, warm lamp, wood, cozy); centered, negative space near top for title; no text, no logos, no motion","video":"16:9 looping video: motif in slow motion, same light + palette, dust drift, slow cinematic drift, shallow DOF, seamless loop, no people","thumb":"YouTube 1280×720 consistency rules: same palette + lamp + open book every time, Awen wordmark lower-left, same title type top-left"}
 No vocals. Cover / video / thumbnail MUST share the same visual identity.`;
     const raw = await complete(prompt);
     const a = raw.indexOf('{'),b = raw.lastIndexOf('}');
@@ -3690,9 +3693,10 @@ No vocals. Cover / video / thumbnail MUST share the same visual identity.`;
       tagline: j.tagline ? String(j.tagline) : `${s.mood.toLowerCase()} · ${s.time.toLowerCase()}`,
       suno: {
         key: String(j.suno.key || A.musicalKey(s.mood)),
-        style: String(j.suno.style || ''),
+        style: A.ensureLongform(String(j.suno.style || '')),
         lyrics: String(j.suno.lyrics || A.buildArrangement(s)),
         prompt: String(j.suno.prompt),
+        motif: String(j.suno.motif || A.coreMotif(s.instrument)),
         exclude: String(j.suno.exclude || 'vocals, lyrics, crisp, polished')
       },
       cover: String(j.cover || ''),
@@ -3752,8 +3756,8 @@ No vocals. Cover / video / thumbnail MUST share the same visual identity.`;
       scene:     String(t.scene    || `${r.time} · ${r.environment}`),
       role:      String(t.role     || ''),
       key:       String(t.key      || A.musicalKey(r.mood || 'Calm')),
-      style:     String(t.style    || ''),
-      structure: String(t.structure || A.buildArrangement(r, t.role || '')),
+      style:     A.ensureLongform(String(t.style || '')),
+      lyrics:    String(t.lyrics || t.structure || A.buildArrangement(r, t.role || '')),
       motifMark: t.motifMark === 'null' ? null : (t.motifMark || null),
       prompt:    String(t.prompt   || ''),
     };
@@ -3779,8 +3783,14 @@ Track 1: introduce clearly. Track ${Math.floor(total/2)+1}: subtle variation. Tr
 TRACKS FOR THIS BATCH:
 ${lines}
 
+V3.0 TRACK RULES (every track):
+- "style": comma-separated Suno Style string. Include the shared motif. MUST end with these long-form words verbatim: "${A.V3_LONGFORM}". No char cap.
+- "lyrics": native Suno metatags, this EXACT 10-line arc (forces a 4-6 min track), each tag on its own line, a short scene/motif phrase after the tag:
+  [Instrumental] / [Intro] / [Verse A] / [Verse B] / [Bridge] / [Verse C] / [Bridge] / [Verse D] / [Outro] / [End]
+- Thread the SAME shared motif through all tracks. NEVER use the flat Intro/Verse/Outro trio.
+
 Return ONLY minified JSON, no markdown:
-{"album":"2-4 word Title Case","concept":"under 90 chars","description":"2-3 sentence liner note","description_zh":"same in 简体中文","anchor":"shared Suno style string under 150 chars — MUST include production texture (vinyl crackle, tape saturation, room reverb, low-pass)","cover":"1:1 cover-art prompt","video":"16:9 loop video prompt","thumb":"YouTube thumbnail rules","coreMotif":"four-note phrase","dna":{"motif":"","texture":"","space":"","emotion":""},"tracks":[{"title":"","scene":"2-4 words","role":"","key":"","style":"MAX 150 chars","structure":"5-line arrangement","motifMark":"intro|variation|return|null","prompt":""}]}
+{"album":"2-4 word Title Case","concept":"under 90 chars","description":"2-3 sentence liner note","description_zh":"same in 简体中文","anchor":"shared Suno style string — MUST include production texture (vinyl crackle, tape saturation, room reverb) AND end with the long-form words","cover":"1:1 cover-art prompt","video":"16:9 loop video prompt","thumb":"YouTube thumbnail rules","coreMotif":"four-note phrase","dna":{"motif":"","texture":"","space":"","emotion":""},"tracks":[{"title":"","scene":"2-4 words","role":"","key":"","style":"motif + long-form words","lyrics":"[Instrumental]\\n[Intro] ...\\n[Verse A] ...\\n[Verse B] ...\\n[Bridge] ...\\n[Verse C] ...\\n[Bridge] ...\\n[Verse D] ...\\n[Outro] ...\\n[End]","motifMark":"intro|variation|return|null","prompt":""}]}
 tracks array MUST have exactly ${batchSize} items. Calm, warm, instrumental, no vocals.`;
   }
 
@@ -3798,8 +3808,10 @@ ${isLast ? `- Track ${total} MUST return the core motif resolved, near-silent dy
 TRACKS ${startIdx + 1}–${startIdx + batch.length} of ${total}:
 ${lines}
 
+Each track: "style" ends with the long-form words "${A.V3_LONGFORM}"; "lyrics" uses the EXACT 10-line arc [Instrumental]/[Intro]/[Verse A]/[Verse B]/[Bridge]/[Verse C]/[Bridge]/[Verse D]/[Outro]/[End] (one tag per line, short scene phrase after each), threading the shared core motif. Never the flat Intro/Verse/Outro trio.
+
 Return ONLY a minified JSON ARRAY (no wrapper), exactly ${batch.length} items:
-[{"title":"","scene":"2-4 words","role":"","key":"","style":"MAX 150 chars","structure":"5-line arrangement","motifMark":"intro|variation|return|null","prompt":""}]
+[{"title":"","scene":"2-4 words","role":"","key":"","style":"motif + long-form words","lyrics":"[Instrumental]\\n[Intro] ...\\n[Verse A] ...\\n[Verse B] ...\\n[Bridge] ...\\n[Verse C] ...\\n[Bridge] ...\\n[Verse D] ...\\n[Outro] ...\\n[End]","motifMark":"intro|variation|return|null","prompt":""}]
 Calm, warm, instrumental, no vocals.`;
   }
 
@@ -3842,7 +3854,7 @@ Calm, warm, instrumental, no vocals.`;
       concept:       String(j1.concept       || ''),
       description:   String(j1.description   || ''),
       descriptionZh: String(j1.description_zh || ''),
-      anchor:        String(j1.anchor        || ''),
+      anchor:        A.ensureLongform(String(j1.anchor || '')),
       coreMotif:     meta.coreMotif,
       dna:           meta.dna,
       visual:        A.visualDNA(base),
@@ -3862,7 +3874,7 @@ Calm, warm, instrumental, no vocals.`;
     setBusy(true);
     let data = null;
     try {data = await callAlbumAI(axis, sel, recipes);} catch (e) {
-      pushToast({ type: 'warn', msg: T('aiFailed') + ' — ' + e.message + '  (已切换模板引擎)', duration: 6000 });
+      pushToast(T('aiFailed') + ' — ' + e.message + '  (已切换模板引擎)', { kind: 'warn' });
       data = null;
     }
     if (!data) data = A.fallbackAlbum(axisKey, sel, recipes);
