@@ -1435,14 +1435,14 @@
       universeDelete: '删除',
       universeEmpty: '还没有保存的宇宙，先在矩阵中选好四个视觉维度，再在这里啇下名字保存',
       universeSaved: '已保存的宇宙',
-      tokenTitle: '需要访问密码', tokenSub: '只需输入一次，浏览器会记住',
-      tokenPlaceholder: '访问密码', tokenSubmit: '确认', tokenCancel: '取消',
-      tokenShow: '显示', tokenHide: '隐藏', logout: '退出登录',
-      aiNeedToken: '需要访问密码才能使用 AI 生成',
-      aiBadToken: '密码错误，请重新输入',
-      aiTimeout: 'AI 响应超时（30 秒），请检查网络后重试',
+      tokenTitle: '输入 MiMo API Key', tokenSub: '只需输入一次，浏览器会记住；在 xiaomimimo.com 的「专属 API key」页面复制',
+      tokenPlaceholder: 'tp-xxxxxxxx...', tokenSubmit: '确认', tokenCancel: '取消',
+      tokenShow: '显示', tokenHide: '隐藏', logout: '清除 API Key',
+      aiNeedToken: '需要 MiMo API Key 才能使用 AI 生成',
+      aiBadToken: 'API Key 无效（401），请重新输入',
+      aiTimeout: 'AI 响应超时，请稍后重试',
       aiRetry: '重试',
-      tokenCleared: '已退出登录',
+      tokenCleared: '已清除 API Key',
       universeApplied: '✔ 已应用到矩阵！视觉维度已更新',
       metaLabel: '发布元数据',
       metaYt: 'YouTube 简介',
@@ -1511,14 +1511,14 @@
       universeDelete: 'Delete',
       universeEmpty: 'No saved universes yet. Pick the four visual dimensions in the matrix, give it a name, and save it here.',
       universeSaved: 'Saved universes',
-      tokenTitle: 'Access password required', tokenSub: 'You only need to enter this once — your browser remembers it',
-      tokenPlaceholder: 'access password', tokenSubmit: 'Confirm', tokenCancel: 'Cancel',
-      tokenShow: 'show', tokenHide: 'hide', logout: 'log out',
-      aiNeedToken: 'AI generation needs an access password',
-      aiBadToken: 'Wrong password — please re-enter',
-      aiTimeout: 'AI request timed out (30s). Check your network and retry.',
+      tokenTitle: 'Enter MiMo API Key', tokenSub: 'One-time setup — your browser remembers it. Copy from xiaomimimo.com → API Key page.',
+      tokenPlaceholder: 'tp-xxxxxxxx...', tokenSubmit: 'Confirm', tokenCancel: 'Cancel',
+      tokenShow: 'show', tokenHide: 'hide', logout: 'Clear API Key',
+      aiNeedToken: 'MiMo API Key required for AI generation',
+      aiBadToken: 'Invalid API Key (401) — please re-enter',
+      aiTimeout: 'AI request timed out — please retry',
       aiRetry: 'Retry',
-      tokenCleared: 'Logged out',
+      tokenCleared: 'API Key cleared',
       universeApplied: '✔ Applied! Visual dims updated.',
       metaLabel: 'Publish metadata',
       metaYt: 'YouTube Description',
@@ -3543,9 +3543,11 @@ function ToastContainer({ toasts, onClose, onAction }) {
     }, 55);
   }
 
-  // AI proxy — points to Cloudflare Worker; update WORKER_URL after deploy
-  const WORKER_URL = 'https://awen-music-api.ywhang1995.workers.dev';
-  const API_TIMEOUT_MS = 90000; // album generation can take 40-60s for 10 tracks
+  // Direct MiMo API — calls xiaomimimo.com from the browser (CORS allowed).
+  // API key is entered once via modal and stored in localStorage.
+  const MIMO_URL   = 'https://api.deepseek.com/v1/chat/completions';
+  const MIMO_MODEL = 'deepseek-chat';
+  const API_TIMEOUT_MS = 90000;
 
   // Safe localStorage wrappers — Safari private mode / quota errors will not crash the app.
   const safeLS = {
@@ -3554,8 +3556,7 @@ function ToastContainer({ toasts, onClose, onAction }) {
     del(k){ try { localStorage.removeItem(k); } catch(e) {} },
   };
 
-  // Token is now requested via a React modal (setRequestToken in App), set asynchronously.
-  // The promise is resolved when the user submits the modal.
+  // API key is requested via a React modal on first use, then stored in localStorage.
   let _tokenResolver = null;
   function requestTokenViaModal() {
     return new Promise((resolve) => {
@@ -3568,33 +3569,45 @@ function ToastContainer({ toasts, onClose, onAction }) {
   }
   window.__awen_resolveToken = resolveToken;
 
-  async function getAccessToken() {
-    let token = safeLS.get('awen_music_token');
-    if (!token) {
-      token = await requestTokenViaModal();
-      if (token) safeLS.set('awen_music_token', token.trim());
+  async function getApiKey() {
+    let key = safeLS.get('awen_api_key');
+    if (!key) {
+      key = await requestTokenViaModal();
+      if (key) safeLS.set('awen_api_key', key.trim());
     }
-    return token || '';
+    return key || '';
   }
 
   async function complete(prompt) {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
     try {
-      const token = await getAccessToken();
-      if (!token) throw new Error(T('aiNeedToken'));
-      const r = await fetch(WORKER_URL, {
+      const apiKey = await getApiKey();
+      if (!apiKey) throw new Error(T('aiNeedToken'));
+      const r = await fetch(MIMO_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Access-Token': token },
-        body: JSON.stringify({ prompt }),
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: MIMO_MODEL,
+          max_tokens: 16384,
+          messages: [{ role: 'user', content: prompt }],
+        }),
         signal: ctrl.signal,
       });
       if (r.status === 401) {
-        safeLS.del('awen_music_token');
+        safeLS.del('awen_api_key');
         throw new Error(T('aiBadToken'));
       }
-      if (!r.ok) throw new Error('worker ' + r.status);
-      const { text } = await r.json();
+      if (!r.ok) {
+        const err = await r.text().catch(() => '');
+        throw new Error(`MiMo ${r.status}: ${err.slice(0, 100)}`);
+      }
+      const data = await r.json();
+      const text = data?.choices?.[0]?.message?.content ?? '';
+      if (!text) throw new Error('MiMo returned empty response');
       return text;
     } catch (e) {
       if (e.name === 'AbortError') throw new Error(T('aiTimeout'));
