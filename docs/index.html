@@ -716,22 +716,20 @@
 
   const VISUAL_KEYS = ['character', 'light', 'palette', 'motif'];
 
-  /* ===================== TRACK ROLE SYSTEM (V2) =====================
-     Every track in an album gets a functional role that injects specific
-     sonic modifiers. This gives each track a distinct "purpose" while
-     keeping the shared identity locked. Roles are sampled proportionally
-     so they work for any track count (3–12). */
+  /* ===================== TRACK ARC MODEL (V4) =====================
+     V4's 8-track emotional arc: Arrival → Exploration → Development →
+     Reflection → Immersion → Drift → Release → Closure. The mods are
+     INTERNAL sonic guidance only (never shown to the user). An 8-track
+     album maps 1:1; other counts sample the arc proportionally. */
   const TRACK_ROLES = [
-    { name: 'Awakening',   mod: 'upper-register, lighter harmonics, gentle entry, sparse arrangement' },
-    { name: 'Settling In', mod: 'warm and grounding, simple chords, unhurried tempo' },
-    { name: 'Focus',       mod: 'fuller voicings, stable harmony, clear melodic line' },
-    { name: 'Flow State',  mod: 'seamless groove, minimal variation, deeply hypnotic' },
-    { name: 'Reflection',  mod: 'minor-key movement, introspective, softer dynamics' },
-    { name: 'Transition',  mod: 'melodic bridge, shifting texture, bittersweet' },
-    { name: 'Deep Work',   mod: 'dense and immersive, steady pulse, rich mid-register' },
-    { name: 'Persistence', mod: 'resolute, building energy, warm and determined' },
-    { name: 'Release',     mod: 'lighter texture, opening up, letting go' },
-    { name: 'Closure',     mod: 'returning opening motif, near-silent dynamics, peaceful resolution' },
+    { name: 'Arrival',     mod: 'gentle entry, sparse and spacious, the scene appears' },
+    { name: 'Exploration', mod: 'the motif settles in, warm and unhurried, room to breathe' },
+    { name: 'Development', mod: 'fuller and steadier, the world fills in around the motif' },
+    { name: 'Reflection',  mod: 'softer and inward, the motif turned over slowly' },
+    { name: 'Immersion',   mod: 'deep and enveloping, hypnotic, time dissolves' },
+    { name: 'Drift',       mod: 'loosening, floating, the edges soften' },
+    { name: 'Release',     mod: 'opening up, lighter, letting go' },
+    { name: 'Closure',     mod: 'the opening motif returns, near-silent, peaceful resolution' },
   ];
   function trackRole(index, total) {
     const pos = total <= 1 ? 0 : index / (total - 1);
@@ -758,6 +756,43 @@
   };
   function coreMotif(instrument) {
     return MOTIF_PHRASES[instrument] || `a four-note ${(instrument||'piano').toLowerCase()} motif`;
+  }
+
+  // V4 forbids note names in the motif (no "C E F E", "D#4", "A minor arpeggio").
+  // If the AI returns note-name-ish text, swap in a descriptive phrase instead.
+  function cleanMotif(raw, instrument) {
+    const s = (raw || '').trim();
+    if (!s) return coreMotif(instrument);
+    const looksLikeNotes =
+      /\b[A-G][#b♯♭]?\d?\b(\s+[A-G][#b♯♭]?\d?\b){1,}/.test(s) ||   // "C E F E" / "D#4 E4 G#4"
+      /\b[A-G][#b♯♭]?\s*(minor|major)?\s*(arpeggio|scale|triad|chord)\b/i.test(s); // "A minor arpeggio"
+    return looksLikeNotes ? coreMotif(instrument) : s;
+  }
+
+  // V4 safety net: LYRICS must be pure imagery. If the AI leaks an audio /
+  // instrument word, swap it for a neutral imagery equivalent so the lyrics
+  // never describe sound. (The prompt is the primary control; this is backup.)
+  function cleanLyrics(text) {
+    if (!text) return text;
+    const repl = [
+      [/\b(soft\s+)?(brush(ed)?\s+)?drums?\b/gi, 'a soft pulse'],
+      [/\bupright\s+bass\b/gi, 'a low warmth'],
+      [/\bbass\b/gi, 'a low warmth'],
+      [/\b(felt\s+|grand\s+)?rhodes\b/gi, 'melody'],
+      [/\b(felt\s+|grand\s+)?piano\b/gi, 'melody'],
+      [/\b(warm\s+)?pad\b/gi, 'warmth'],
+      [/\bvinyl\s+crackle\b/gi, 'a faint warmth'],
+      [/\bvinyl\b/gi, 'a faint warmth'],
+      [/\btape\s+(hiss|saturation)\b/gi, 'a soft haze'],
+      [/\btape\b/gi, 'a soft haze'],
+      [/\breverb\b/gi, 'open space'],
+      [/\b\d+\s*bpm\b/gi, 'a slow pulse'],
+    ];
+    let s = text;
+    for (const [re, to] of repl) s = s.replace(re, to);
+    // collapse artifacts from adjacent replacements: "melody melody" → "melody", "the the" → "the"
+    s = s.replace(/\b(\w+)(\s+\1\b)+/gi, '$1').replace(/\bthe\s+the\b/gi, 'the');
+    return s;
   }
 
   /* ===================== MUSICAL COHERENCE ENGINE (V2.2) =====================
@@ -791,16 +826,14 @@
   // Each track-role gets ONE signature musical gesture — the memorable hook
   // that keeps an album from feeling samey track to track.
   const ROLE_SIGNATURE = {
-    'Awakening':   'opens on a single sustained high note before the theme enters',
-    'Settling In': 'a warm upright-bass entrance grounds the groove',
-    'Focus':       'a repeating two-note ostinato runs underneath',
-    'Flow State':  'one hypnotic looped figure, almost unchanging',
-    'Reflection':  'a solo rubato passage, freely played, mid-track',
-    'Transition':  'a brief lift to the relative major, then back',
-    'Deep Work':   'a quiet counter-melody layered against the lead',
-    'Persistence': 'a slowly building rhythmic pulse that never breaks',
+    'Arrival':     'opens on a single sustained note, the scene easing into view',
+    'Exploration': 'the motif first settles in, warm and unhurried',
+    'Development': 'the world fills in gently around the motif',
+    'Reflection':  'a freely played, inward passage mid-track',
+    'Immersion':   'one hypnotic looped figure, almost unchanging',
+    'Drift':       'the edges soften, the motif floats free',
     'Release':     'an opening-up to a brighter, more open voicing',
-    'Closure':     'the opening phrase returns, finally resolved',
+    'Closure':     'the opening motif returns, finally resolved',
   };
   function roleSignature(role) { return ROLE_SIGNATURE[role] || 'a single memorable melodic phrase anchors the track'; }
 
@@ -811,26 +844,49 @@
   // these push Suno toward 4-6 min Spotify-grade pieces instead of 1-2 min loops.
   const V3_LONGFORM = 'long-form composition, slow evolving arrangement, extended instrumental passages, gradual development, patient pacing, organic dynamics, deep focus atmosphere, minimal repetition changes, high fidelity, studio quality, no vocals';
 
-  // V3.0 native 9-section arrangement for Suno's Lyrics box. Forbidden:
-  // the flat Intro/Verse/Outro trio. The longer arc forces a 4-5 min runtime
-  // and every track threads the same shared motif (intro → variations → return).
+  // V4 LYRICS imagery vocabulary — LYRICS must be PURE cinematic imagery:
+  // weather, light, room, time, motion, memory. NEVER audio-engineering words
+  // (no drums / bass / Rhodes / reverb / vinyl / tape / BPM). Style controls
+  // sound; lyrics control imagery — the two never mix (V4 Rule 1-5).
+  const ENV_IMAGERY = {
+    'Library': 'a quiet library, tall shelves and soft light', 'Rainy Window': 'a room behind a rain-streaked window',
+    'Cozy Desk': 'a warm desk in the corner of a small room', 'Forest Cabin': 'a wooden cabin deep in the trees',
+    'Ocean View': 'a still room above the open sea', 'Kyoto Study Room': 'a paper-screened room, slow and quiet',
+    'Space Station': 'a quiet cabin drifting above the earth', 'Night City': 'a high window over the sleeping city',
+    'Mountain Lodge': 'a lodge high above the treeline', 'Quiet Café': 'a corner table in a near-empty café',
+  };
+  const NAT_IMAGERY = {
+    'Rain': 'soft rain against the window', 'Light Snow': 'light snow drifting past the glass',
+    'Soft Wind': 'a soft wind moving outside', 'Ocean Waves': 'slow waves far below',
+    'Birdsong': 'distant birdsong in the early air', 'Fireplace': 'a low fire glowing in the hearth',
+    'Distant Thunder': 'distant thunder rolling far away', 'Forest Stream': 'a stream running somewhere past the trees',
+    'Rustling Leaves': 'leaves stirring just outside', 'None': 'a deep, settled quiet',
+  };
+  const TIME_IMAGERY = {
+    'Dawn': 'first gray light at the window', 'Early Morning': 'pale morning light spreading slowly',
+    'Afternoon': 'a soft afternoon glow', 'Golden Hour': 'low golden light across the floor',
+    'Dusk': 'the last light fading to blue', 'Evening': 'a warm evening settling in',
+    'Night': 'the room dim, one warm lamp lit', 'Midnight': 'deep midnight stillness',
+    '3 AM': 'the small silent hours before dawn',
+  };
+
+  // V4 native 10-section LYRICS arc — pure imagery, threads one motif, no audio
+  // words. Mirrors the Golden Lyrics Template; forces a 4-6 min runtime.
   function buildArrangement(s, role) {
-    const inst = (s.instrument || 'felt piano').toLowerCase();
-    const env  = (s.environment || 'a quiet room').toLowerCase();
-    const tex  = (TEXTURE_MAP[s.style] || 'warm tape texture').split(',')[0].trim();
-    const hasDrums = !['Ambient', 'Minimal Piano', 'Drone Ambient'].includes(s.style);
-    const drumLine = hasDrums ? 'soft brush drums enter warm bass supports the motif' : 'a low sustained pad breathes beneath no drums';
+    const place   = ENV_IMAGERY[s.environment] || 'a quiet room waiting';
+    const weather = NAT_IMAGERY[s.nature]      || 'a deep, settled quiet';
+    const light   = TIME_IMAGERY[s.time]       || 'soft, even light';
     return [
       '[Instrumental]',
-      `[Intro] ${env} appears a lone ${inst} note the motif is introduced`,
-      '[Verse A] the motif repeats slow and patient',
-      '[Verse B] the motif returns with subtle variation space between phrases',
-      `[Bridge] ambient transition ${tex} expands`,
-      `[Verse C] ${drumLine}`,
-      '[Bridge] the motif moves into a higher register focus deepens',
-      '[Verse D] all elements breathe together nothing rushes',
-      '[Outro] elements gradually disappear the motif slowly dissolves',
-      '[End]',
+      `[Intro] ${weather} ${place}`,
+      '[Verse A] a repeating motif appears slow and patient',
+      '[Verse B] outside nothing changes focus begins to settle',
+      '[Bridge] pages turn somewhere in the distance time moves more slowly',
+      `[Verse C] the room feels warmer ${light}`,
+      '[Bridge] the motif returns slightly brighter than before',
+      '[Verse D] everything breathes together nothing rushes',
+      '[Outro] the light fades into gray',
+      '[End] only the quiet remains',
     ].join('\n');
   }
 
@@ -1452,26 +1508,46 @@
       atmosphere: 'the rhythmic clatter of rails, mountain peaks sliding past the window, dawn mist',
       recipe: { environment: 'Mountain Lodge', nature: 'Soft Wind', time: 'Dawn', instrument: 'Vibraphone', style: 'Chillhop',
                 character: 'Traveler', light: 'Train Cabin Light', palette: 'Muted Green', motif: 'Train Journey' } },
+    { key: 'airport-lounge', emoji: '🛫', label: 'Airport Lounge', zh: '机场休息室',
+      atmosphere: 'distant announcements, wide glass windows, the hush of people waiting between places',
+      recipe: { environment: 'Quiet Café', nature: 'Soft Wind', time: 'Evening', instrument: 'Warm Pad', style: 'Ambient',
+                character: 'Traveler', light: 'Neon Reflection', palette: 'Fog White', motif: 'Train Journey' } },
+    { key: 'ocean-study', emoji: '🌊', label: 'Ocean View Study Room', zh: '海景书房',
+      atmosphere: 'slow waves below, salt light across the desk, an open notebook by the window',
+      recipe: { environment: 'Ocean View', nature: 'Ocean Waves', time: 'Afternoon', instrument: 'Felt Piano', style: 'Ambient',
+                character: 'Dreamer', light: 'Morning Sun', palette: 'Rainy Blue', motif: 'Window Rain' } },
+    { key: 'empty-classroom', emoji: '🪑', label: 'Empty Classroom', zh: '空教室',
+      atmosphere: 'rows of empty desks, late sun through tall windows, chalk dust settling in the quiet',
+      recipe: { environment: 'Library', nature: 'Rustling Leaves', time: 'Golden Hour', instrument: 'Music Box', style: 'Minimal Piano',
+                character: 'Silent Observer', light: 'Morning Sun', palette: 'Autumn Gold', motif: 'Writing Letters' } },
+    { key: 'late-university', emoji: '🏛️', label: 'Late Night University', zh: '深夜大学',
+      atmosphere: 'a lamp-lit corner of a sleeping campus, distant corridors, the focus that comes after midnight',
+      recipe: { environment: 'Library', nature: 'None', time: 'Midnight', instrument: 'Felt Piano', style: 'Drone Ambient',
+                character: 'Night Student', light: 'Amber Lamp', palette: 'Night Indigo', motif: 'Midnight Silence' } },
   ];
 
-  // 6 focus moods (PDF). Map to a matrix mood + bpm nudge + emotion word.
+  // 8 focus moods (V4). Map to a matrix mood + bpm nudge + emotion word.
   const V3_MOODS = [
     { key: 'focused',     label: 'Focused',     zh: '专注',  mood: 'Focused',    bpmDelta: 3,  emotion: 'deep concentrated focus' },
     { key: 'reflective',  label: 'Reflective',  zh: '沉思',  mood: 'Dreamy',     bpmDelta: 0,  emotion: 'quiet reflection' },
-    { key: 'calm',        label: 'Calm',        zh: '平静',  mood: 'Calm',       bpmDelta: -3, emotion: 'still and unhurried' },
     { key: 'nostalgic',   label: 'Nostalgic',   zh: '怀旧',  mood: 'Nostalgic',  bpmDelta: 0,  emotion: 'warm nostalgia' },
+    { key: 'calm',        label: 'Calm',        zh: '平静',  mood: 'Calm',       bpmDelta: -3, emotion: 'still and unhurried' },
     { key: 'melancholic', label: 'Melancholic', zh: '忧郁',  mood: 'Bittersweet',bpmDelta: -3, emotion: 'tender melancholy' },
     { key: 'hopeful',     label: 'Hopeful',     zh: '希望',  mood: 'Hopeful',    bpmDelta: 2,  emotion: 'gentle quiet hope' },
+    { key: 'dreamy',      label: 'Dreamy',      zh: '梦幻',  mood: 'Dreamy',     bpmDelta: -2, emotion: 'a soft dreamlike haze' },
+    { key: 'comforting',  label: 'Comforting',  zh: '温暖',  mood: 'Cozy',       bpmDelta: -2, emotion: 'warm and comforting' },
   ];
 
-  // 6 purposes (PDF). Each sets a base BPM + a use-tag woven into the album.
+  // 8 purposes (V4). Each sets a base BPM + a use-tag woven into the album.
   const V3_PURPOSES = [
     { key: 'study',      label: 'Study',      zh: '学习', bpm: 60, tag: 'deep study focus' },
     { key: 'coding',     label: 'Coding',     zh: '编码', bpm: 65, tag: 'a long coding session' },
     { key: 'reading',    label: 'Reading',    zh: '阅读', bpm: 58, tag: 'immersive reading' },
     { key: 'writing',    label: 'Writing',    zh: '写作', bpm: 62, tag: 'flow-state writing' },
-    { key: 'sleep',      label: 'Sleep',      zh: '睡眠', bpm: 55, tag: 'drifting toward sleep' },
     { key: 'relaxation', label: 'Relaxation', zh: '放松', bpm: 55, tag: 'unwinding and rest' },
+    { key: 'sleep',      label: 'Sleep',      zh: '睡眠', bpm: 55, tag: 'drifting toward sleep' },
+    { key: 'meditation', label: 'Meditation', zh: '冥想', bpm: 55, tag: 'quiet meditation' },
+    { key: 'deepwork',   label: 'Deep Work',  zh: '深度工作', bpm: 64, tag: 'long deep-work focus' },
   ];
 
   // Combine Scene + Mood + Purpose into a full internal recipe (sel shape)
@@ -1503,7 +1579,7 @@
     ALBUM_AXES, buildAlbum, anchorDims, fallbackAlbum,
     PALETTE_HEX, SIGNATURE, signatureElements,
     coverV2, videoV2, thumbRules, visualDNA,
-    TRACK_ROLES, trackRole, coreMotif, motifInstruction, albumDNA, metadataGen,
+    TRACK_ROLES, trackRole, coreMotif, cleanMotif, cleanLyrics, motifInstruction, albumDNA, metadataGen,
     musicalKey, roleSignature, buildArrangement, buildStyleBox,
     V3_LONGFORM, ensureLongform,
     parseStyleString, songFileName, albumTrackFileName, songYouTubeTitle, albumYouTubeTitle, episodeNumber,
@@ -1521,7 +1597,7 @@
       help: '使用指南',
       songsProduced: '首歌已产出',
       albumsBuilt: '张专辑已生成',
-      hintScene: '选一个场景 → 心情 → 用途，一键生成一张 4-6 分钟/首的 Suno 原生专辑（V3 推荐入口）。',
+      hintScene: '选一个场景 → 心情 → 用途，一键生成一张 4-6 分钟/首的 Suno 原生专辑（V4 推荐入口）。',
       hintPick: '点选每列一个元素，拼出一首歌。',
       hintShuffle: '锁定满意的维度，摇号生成其余（老虎机式）。',
       hintDecompose: '从导入的参考曲拆解出发，逐项变异 remix。',
@@ -1598,7 +1674,7 @@
       help: 'How it works',
       songsProduced: 'songs produced',
       albumsBuilt: 'albums built',
-      hintScene: 'Pick a Scene → Mood → Purpose and generate a Suno-native album (4-6 min per track). The V3 recommended entry point.',
+      hintScene: 'Pick a Scene → Mood → Purpose and generate a Suno-native album (4-6 min per track). The V4 recommended entry point.',
       hintPick: 'Pick one element per column to compose a track.',
       hintShuffle: 'Lock the dimensions you like, slot-machine the rest.',
       hintDecompose: 'Start from the imported reference and mutate it track by track.',
@@ -3490,7 +3566,7 @@ function UniverseBuilder({ sel, universes, onSave, onApply, onDelete, activeUniv
 }
 
 const MODE_INFO = {
-  scene: { label: 'Scene', zh: '选场景 → 心情 → 用途，一键生成整张专辑（V3 推荐）' },
+  scene: { label: 'Scene', zh: '选场景 → 心情 → 用途，一键生成整张专辑（V4 推荐）' },
   pick: { label: 'Pick', zh: '点选每列一个元素，拼出一首歌' },
   shuffle: { label: 'Shuffle', zh: '锁定满意的维度，摇号生成其余（老虎机式）' },
   decompose: { label: 'Decompose', zh: '从导入的参考曲拆解出发，逐项变异 remix' },
@@ -3847,30 +3923,34 @@ VISUAL IDENTITY (keep recognizable across all Awen output)
 - Color Palette: ${s.palette}
 - Narrative Motif: ${s.motif}
 
-GOAL (Awen Music V3.0): produce a Spotify-grade, 4-6 MINUTE instrumental piece — never a 1-2 min loop.
+GOAL (Awen Music V4): produce a Spotify-grade, 4-6 MINUTE instrumental piece — never a 1-2 min loop.
+CARDINAL RULE: STYLE controls SOUND. LYRICS controls IMAGERY. Never mix them.
 
-STYLE BOX RULES — goes in Suno's "Style of Music" field:
+STYLE BOX RULES — goes in Suno's "Style of Music" field (SOUND only):
 - Comma-separated descriptors ONLY. No structure, no sentences.
-- Order: genre → lead instrument → MOTIF (e.g. "repeating four-note motif") → 1-2 support → ambience/scene → mood → texture (vinyl crackle, tape saturation, analog warmth).
+- Order: genre → lead instrument → MOTIF (descriptive, e.g. "repeating four-note motif") → 1-2 support → ambience/scene → mood → texture (vinyl crackle, tape saturation, analog warmth).
 - 1 lead + max 2 support instruments. Restraint = authentic lo-fi.
+- The motif MUST be described in words, NEVER as note names (never "D#4 E4", never "C minor arpeggio").
 - You MUST append these long-form words verbatim at the end (they force a 4-6 min runtime): "${A.V3_LONGFORM}".
 - Avoid: "crisp", "polished", "clean". No char cap — a rich STYLE is good.
 
-LYRICS BOX RULES — goes in Suno's "Lyrics" field (this is what gives the track its length + arc):
+LYRICS BOX RULES — goes in Suno's "Lyrics" field (IMAGERY only — this is a cinematic scene, NOT a sound description):
 - Use NATIVE Suno metatags. Each tag on its OWN line. NO colons after tag names.
-- FORBIDDEN: the flat Intro/Verse/Outro trio — it produces short 1-2 min tracks.
-- REQUIRED 10-line structure, exactly these tags in this order, each followed by a short scene/motif description on the SAME line:
+- ABSOLUTELY FORBIDDEN inside lyrics: any audio-engineering or instrument words — no "drums", "bass", "Rhodes", "piano", "pad", "reverb", "vinyl", "tape", "BPM", "mix", "EQ", "note", "register", "arrangement", "texture". These belong ONLY in STYLE.
+- Use ONLY cinematic imagery: weather, light, room, window, time of day, motion, memory, distance, silence (rain, snow, wind, library, café, hallway, streetlight, afternoon, evening, shadow, reflection, focus).
+- Refer to the recurring melody only as "a motif" / "the motif" — never name notes or instruments.
+- FORBIDDEN: the flat Intro/Verse/Outro trio. REQUIRED exact 10-line arc, each tag then a short imagery line:
   [Instrumental]
-  [Intro] environment appears, motif introduced
-  [Verse A] motif repeats slow and patient
-  [Verse B] motif variation, space between phrases
-  [Bridge] ambient transition, room expands
-  [Verse C] secondary texture / soft drums enter
-  [Bridge] motif transforms into a higher register
-  [Verse D] full atmosphere, all elements breathe
-  [Outro] elements gradually disappear, motif dissolves
-  [End]
-- This long arc is what reaches 4-5 minutes. Thread ONE shared motif through every section.
+  [Intro] (weather + the room, e.g. "soft rain against the window a quiet room waiting")
+  [Verse A] a repeating motif appears slow and patient
+  [Verse B] (outside continues, focus begins to settle)
+  [Bridge] (something distant — pages, footsteps, a far sound — time moves more slowly)
+  [Verse C] (the room warms, the light shifts)
+  [Bridge] the motif returns slightly brighter than before
+  [Verse D] everything breathes together nothing rushes
+  [Outro] (the light fades)
+  [End] (one last image — "only rain remains")
+- This long imagery arc is what reaches 4-6 minutes. Thread ONE motif through it.
 
 Return ONLY minified JSON (no markdown) with EXACTLY this shape:
 {"title":"evocative 2-5 word Title Case song name","tagline":"3-6 word mood tagline lowercase","suno":{"key":"musical key + mode (INTERNAL, not shown)","style":"comma-separated Suno Style string, motif included, ending with the long-form words","lyrics":"[Instrumental]\n[Intro] ...\n[Verse A] ...\n[Verse B] ...\n[Bridge] ...\n[Verse C] ...\n[Bridge] ...\n[Verse D] ...\n[Outro] ...\n[End]","prompt":"ONE short reference sentence","motif":"the shared melodic motif in 3-6 words"},"cover":"square 1:1 cover-art prompt: Character + Environment + Motif + Light + Palette + camera + mood; Awen signatures (open book, warm lamp, wood, cozy); centered, negative space near top for title; no text, no logos, no motion","video":"16:9 looping video: motif in slow motion, same light + palette, dust drift, slow cinematic drift, shallow DOF, seamless loop, no people","thumb":"YouTube 1280×720 consistency rules: same palette + lamp + open book every time, Awen wordmark lower-left, same title type top-left"}
@@ -3886,9 +3966,9 @@ No vocals. Cover / video / thumbnail MUST share the same visual identity.`;
       suno: {
         key: String(j.suno.key || A.musicalKey(s.mood)),
         style: A.ensureLongform(String(j.suno.style || '')),
-        lyrics: String(j.suno.lyrics || A.buildArrangement(s)),
+        lyrics: A.cleanLyrics(String(j.suno.lyrics || A.buildArrangement(s))),
         prompt: String(j.suno.prompt),
-        motif: String(j.suno.motif || A.coreMotif(s.instrument)),
+        motif: A.cleanMotif(String(j.suno.motif || ''), s.instrument),
         exclude: String(j.suno.exclude || 'vocals, lyrics, crisp, polished')
       },
       cover: String(j.cover || ''),
@@ -3949,7 +4029,7 @@ No vocals. Cover / video / thumbnail MUST share the same visual identity.`;
       role:      String(t.role     || ''),
       key:       String(t.key      || A.musicalKey(r.mood || 'Calm')),
       style:     A.ensureLongform(String(t.style || '')),
-      lyrics:    String(t.lyrics || t.structure || A.buildArrangement(r, t.role || '')),
+      lyrics:    A.cleanLyrics(String(t.lyrics || t.structure || A.buildArrangement(r, t.role || ''))),
       motifMark: t.motifMark === 'null' ? null : (t.motifMark || null),
       prompt:    String(t.prompt   || ''),
     };
@@ -3977,20 +4057,22 @@ ${sceneBlock}VISUAL IDENTITY:
 ALBUM DNA (weave into every track):
 motif=${dna.motif}; texture=${dna.texture}; space=${dna.space}; emotion=${dna.emotion}
 
-MELODIC MOTIF: ${A.coreMotif(base.instrument)}
+MELODIC MOTIF (describe in WORDS, never note names): ${A.coreMotif(base.instrument)}
 Track 1: introduce clearly. Track ${Math.floor(total/2)+1}: subtle variation. Track ${total}: return resolved.
 
 TRACKS FOR THIS BATCH:
 ${lines}
 
-V3.0 TRACK RULES (every track):
-- "style": comma-separated Suno Style string. Include the shared motif. MUST end with these long-form words verbatim: "${A.V3_LONGFORM}". No char cap.
-- "lyrics": native Suno metatags, this EXACT 10-line arc (forces a 4-6 min track), each tag on its own line, a short scene/motif phrase after the tag:
+V4 TRACK RULES (every track) — STYLE controls SOUND, LYRICS controls IMAGERY, never mixed:
+- "style": comma-separated Suno Style string (SOUND only: instruments, texture, ambience, production). Include the shared motif described in WORDS (never note names). MUST end with these long-form words verbatim: "${A.V3_LONGFORM}". No char cap.
+- "lyrics": native Suno metatags, EXACT 10-line arc, each tag on its own line then a short CINEMATIC IMAGERY line (weather, light, room, time, motion, memory):
   [Instrumental] / [Intro] / [Verse A] / [Verse B] / [Bridge] / [Verse C] / [Bridge] / [Verse D] / [Outro] / [End]
+- LYRICS ABSOLUTELY FORBIDDEN words: drums, bass, Rhodes, piano, pad, reverb, vinyl, tape, BPM, note, register, arrangement, texture, mix — any sound/audio word. Lyrics are a SCENE, not a sound description. Refer to the melody only as "the motif".
 - Thread the SAME shared motif through all tracks. NEVER use the flat Intro/Verse/Outro trio.
+- This album's 8 tracks follow an emotional arc: Arrival → Exploration → Development → Reflection → Immersion → Drift → Release → Closure.
 
 Return ONLY minified JSON, no markdown:
-{"album":"2-4 word Title Case","concept":"under 90 chars","theme":"the album's one-line theme","story":"2-3 sentence album story arc","atmosphere":"one vivid sentence of the album's atmosphere","description":"2-3 sentence liner note","description_zh":"same in 简体中文","anchor":"shared Suno style string — MUST include production texture (vinyl crackle, tape saturation, room reverb) AND end with the long-form words","cover":"1:1 cover-art prompt","video":"16:9 loop video prompt","thumb":"YouTube thumbnail rules","coreMotif":"four-note phrase","dna":{"motif":"","texture":"","space":"","emotion":""},"tracks":[{"title":"","scene":"2-4 words","role":"","key":"","style":"motif + long-form words","lyrics":"[Instrumental]\\n[Intro] ...\\n[Verse A] ...\\n[Verse B] ...\\n[Bridge] ...\\n[Verse C] ...\\n[Bridge] ...\\n[Verse D] ...\\n[Outro] ...\\n[End]","motifMark":"intro|variation|return|null","prompt":""}]}
+{"album":"2-4 word Title Case","concept":"under 90 chars","theme":"the album's one-line theme","story":"2-3 sentence album story arc","atmosphere":"one vivid sentence of the album's atmosphere","description":"2-3 sentence liner note","description_zh":"same in 简体中文","anchor":"shared Suno style string — MUST include production texture (vinyl crackle, tape saturation, room reverb) AND end with the long-form words","cover":"1:1 cover-art prompt","video":"16:9 loop video prompt","thumb":"YouTube thumbnail rules","coreMotif":"descriptive motif phrase in plain words e.g. 'a repeating four-note motif' — NEVER note names like C E F or D#4","dna":{"motif":"","texture":"","space":"","emotion":""},"tracks":[{"title":"","scene":"2-4 words","role":"","key":"","style":"motif + long-form words","lyrics":"[Instrumental]\\n[Intro] imagery only\\n[Verse A] ...\\n[Verse B] ...\\n[Bridge] ...\\n[Verse C] ...\\n[Bridge] ...\\n[Verse D] ...\\n[Outro] ...\\n[End]","motifMark":"intro|variation|return|null","prompt":""}]}
 tracks array MUST have exactly ${batchSize} items. Calm, warm, instrumental, no vocals.`;
   }
 
@@ -4008,7 +4090,7 @@ ${isLast ? `- Track ${total} MUST return the core motif resolved, near-silent dy
 TRACKS ${startIdx + 1}–${startIdx + batch.length} of ${total}:
 ${lines}
 
-Each track: "style" ends with the long-form words "${A.V3_LONGFORM}"; "lyrics" uses the EXACT 10-line arc [Instrumental]/[Intro]/[Verse A]/[Verse B]/[Bridge]/[Verse C]/[Bridge]/[Verse D]/[Outro]/[End] (one tag per line, short scene phrase after each), threading the shared core motif. Never the flat Intro/Verse/Outro trio.
+Each track: "style" (SOUND only) ends with the long-form words "${A.V3_LONGFORM}"; "lyrics" uses the EXACT 10-line arc [Instrumental]/[Intro]/[Verse A]/[Verse B]/[Bridge]/[Verse C]/[Bridge]/[Verse D]/[Outro]/[End], each tag then a short CINEMATIC IMAGERY line (weather/light/room/time/motion — NEVER instrument or audio words like drums/bass/reverb/vinyl/tape; refer to the melody only as "the motif"), threading the shared motif. Never the flat Intro/Verse/Outro trio.
 
 Return ONLY a minified JSON ARRAY (no wrapper), exactly ${batch.length} items:
 [{"title":"","scene":"2-4 words","role":"","key":"","style":"motif + long-form words","lyrics":"[Instrumental]\\n[Intro] ...\\n[Verse A] ...\\n[Verse B] ...\\n[Bridge] ...\\n[Verse C] ...\\n[Bridge] ...\\n[Verse D] ...\\n[Outro] ...\\n[End]","motifMark":"intro|variation|return|null","prompt":""}]
@@ -4032,7 +4114,7 @@ Calm, warm, instrumental, no vocals.`;
 
     const meta = {
       album: j1.album, axis: axis.label,
-      anchor: j1.anchor || '', coreMotif: j1.coreMotif || A.coreMotif(base.instrument),
+      anchor: j1.anchor || '', coreMotif: A.cleanMotif(j1.coreMotif, base.instrument),
       dna: j1.dna || A.albumDNA(base),
     };
 
