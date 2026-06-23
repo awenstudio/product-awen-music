@@ -3671,81 +3671,6 @@ function ToastContainer({ toasts, onClose, onAction }) {
 }
 
 function App() {
-/* ========== TOKEN MODAL ========== */
-function TokenModal({ open, onSubmit, onCancel }) {
-  const [val, setVal] = React.useState('');
-  const [show, setShow] = React.useState(false);
-  const inputRef = React.useRef(null);
-
-  React.useEffect(() => {
-    if (open) {
-      setVal('');
-      setTimeout(() => inputRef.current && inputRef.current.focus(), 80);
-    }
-  }, [open]);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const h = (e) => { if (e.key === 'Escape') onCancel(); };
-    window.addEventListener('keydown', h);
-    return () => window.removeEventListener('keydown', h);
-  }, [open, onCancel]);
-
-  if (!open) return null;
-
-  function submit() {
-    if (val.trim()) onSubmit(val.trim());
-  }
-
-  return (
-    <div className="modal-back" onClick={onCancel} role="dialog" aria-modal="true">
-      <div className="modal-card" onClick={e => e.stopPropagation()}>
-        <div className="modal-h">{T('tokenTitle')}</div>
-        <div className="modal-sub">{T('tokenSub')}</div>
-        <div className="modal-pw-row">
-          <input ref={inputRef} type={show ? 'text' : 'password'}
-            className="modal-pw-input" value={val}
-            placeholder={T('tokenPlaceholder')}
-            onChange={e => setVal(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && submit()}
-            autoComplete="current-password" />
-          <button type="button" className="modal-pw-toggle" onClick={() => setShow(!show)}>
-            {show ? T('tokenHide') : T('tokenShow')}
-          </button>
-        </div>
-        <div className="modal-actions">
-          <button type="button" className="modal-btn" onClick={onCancel}>{T('tokenCancel')}</button>
-          <button type="button" className="modal-btn primary" onClick={submit} disabled={!val.trim()}>
-            {T('tokenSubmit')}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ========== TOAST SYSTEM ========== */
-function ToastContainer({ toasts, onClose, onAction }) {
-  if (!toasts.length) return null;
-  return (
-    <div className="toast-container">
-      {toasts.map(t => (
-        <div key={t.id} className={'toast' + (t.kind === 'error' ? ' error' : '')} role="alert">
-          <div className="toast-msg">
-            {t.msg}
-            {t.actionLabel && (
-              <div className="toast-actions">
-                <button className="toast-btn primary" onClick={() => onAction(t)}>{t.actionLabel}</button>
-                <button className="toast-btn" onClick={() => onClose(t.id)}>{T('tokenCancel')}</button>
-              </div>
-            )}
-          </div>
-          {!t.actionLabel && <button className="toast-close" onClick={() => onClose(t.id)} aria-label="close">×</button>}
-        </div>
-      ))}
-    </div>
-  );
-}
   const A = window.AWEN;
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
@@ -3851,7 +3776,7 @@ function ToastContainer({ toasts, onClose, onAction }) {
   // API key is entered once via modal and stored in localStorage.
   const MIMO_URL   = 'https://token-plan-cn.xiaomimimo.com/v1/chat/completions';
   const MIMO_MODEL = 'mimo-v2.5-pro';
-  const API_TIMEOUT_MS = 90000;
+  const API_TIMEOUT_MS = 180000;
 
   // Safe localStorage wrappers — Safari private mode / quota errors will not crash the app.
   const safeLS = {
