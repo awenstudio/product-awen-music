@@ -2675,6 +2675,7 @@ function SongCard({ song, onStatus, onDelete, onPin, onRemix }) {
       <div className="card-head">
         <div className="card-headL">
           <span className="card-id">{song.id}</span>
+          {song.createdAt && <span className="card-id" style={{color:'var(--ink-faint)'}}>{song.createdAt}</span>}
           {song.genTime && <span className="card-gentime">⏱ {song.genTime}s</span>}
           {song.lineage && <span className="card-lineage">{song.lineage}</span>}
         </div>
@@ -3020,6 +3021,7 @@ ${tr.title}`;
         <div className="album-meta">
           <div className="album-head">
             <span className="card-id">{album.id}</span>
+            {album.createdAt && <span className="card-id" style={{color:'var(--ink-faint)'}}>{album.createdAt}</span>}
             {album.genTime && <span className="card-gentime">⏱ {album.genTime}s</span>}
             <span className="album-axis">{album.axisLabel}</span>
             <div className="album-head-r">
@@ -4017,7 +4019,7 @@ No vocals. Cover / video / thumbnail MUST share the same visual identity.`;
     const genTime = ai ? ((Date.now() - _genStart) / 1000).toFixed(1) : null;
     if (!ai) ai = A.fallbackPrompt(baseSel);
 
-    setSongs((prev) => prev.map((x) => x.id === id ? { ...x, generating: false, ai, genTime } : x));
+    setSongs((prev) => prev.map((x) => x.id === id ? { ...x, generating: false, ai, genTime, createdAt: new Date().toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) } : x));
     setBusy(false);
   }
 
@@ -4181,7 +4183,7 @@ Calm, warm, instrumental, no vocals.`;
     }
     const albGenTime = data ? ((Date.now() - _albStart) / 1000).toFixed(1) : null;
     if (!data) data = A.fallbackAlbum(axisKey, sel, recipes);
-    setAlbums((prev) => prev.map((x) => x.id === id ? { ...x, generating: false, data, genTime: albGenTime } : x));
+    setAlbums((prev) => prev.map((x) => x.id === id ? { ...x, generating: false, data, genTime: albGenTime, createdAt: new Date().toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) } : x));
     setBusy(false);
   }
 
@@ -4204,7 +4206,7 @@ Calm, warm, instrumental, no vocals.`;
     }
     const scnGenTime = data ? ((Date.now() - _scnStart) / 1000).toFixed(1) : null;
     if (!data) data = A.fallbackAlbum('day', base, recipes);
-    setAlbums((prev) => prev.map((x) => x.id === id ? { ...x, generating: false, data, genTime: scnGenTime } : x));
+    setAlbums((prev) => prev.map((x) => x.id === id ? { ...x, generating: false, data, genTime: scnGenTime, createdAt: new Date().toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) } : x));
     setBusy(false);
   }
 
