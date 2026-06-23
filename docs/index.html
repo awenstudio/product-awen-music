@@ -414,6 +414,19 @@
             color:var(--accent); flex:0 0 auto; white-space:nowrap; }
   .dna-vals{ font-size:11.5px; color:var(--ink); line-height:1.4; flex:1 1 auto; min-width:0; }
 
+  /* ---- Key Banner ---- */
+  .key-banner{ background:var(--accent); color:var(--accent-ink); padding:10px clamp(16px,4vw,44px);
+               display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13.5px; font-weight:600; }
+  .key-banner-label{ white-space:nowrap; }
+  .key-banner-input{ flex:1; min-width:200px; max-width:480px; background:rgba(0,0,0,.2);
+                     border:1px solid rgba(255,255,255,.35); border-radius:7px; padding:7px 12px;
+                     font-family:var(--font-mono); font-size:13px; color:inherit; outline:none; }
+  .key-banner-input::placeholder{ opacity:.6; }
+  .key-banner-input:focus{ border-color:rgba(255,255,255,.7); background:rgba(0,0,0,.3); }
+  .key-banner-btn{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.35); border-radius:7px;
+                   padding:7px 16px; font-weight:700; font-size:13px; color:inherit; cursor:pointer;
+                   white-space:nowrap; }
+  .key-banner-btn:hover{ background:rgba(0,0,0,.4); }
   /* ---- TokenModal ---- */
   .modal-back{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex;
                align-items:center; justify-content:center; z-index:10000; padding:20px; }
@@ -3680,6 +3693,16 @@ function App() {
   const [activeUniverseId, setActiveUniverseId] = React.useState(null);
   const [toasts, setToasts] = React.useState([]);
   const [tokenModalOpen, setTokenModalOpen] = React.useState(false);
+  const [hasKey, setHasKey] = React.useState(() => !!localStorage.getItem('mimo_api_key'));
+  const [bannerVal, setBannerVal] = React.useState('');
+  function saveBannerKey() {
+    const v = bannerVal.trim();
+    if (!v) return;
+    localStorage.setItem('mimo_api_key', v);
+    setHasKey(true);
+    setBannerVal('');
+    if (window.__awen_resolveToken) window.__awen_resolveToken(v);
+  }
 
   // Listen for AI flow's request-token event
   React.useEffect(() => {
@@ -4153,6 +4176,15 @@ Calm, warm, instrumental, no vocals.`;
         onSubmit={(v) => { setTokenModalOpen(false); window.__awen_resolveToken(v); }}
         onCancel={() => { setTokenModalOpen(false); window.__awen_resolveToken(''); }} />
       <ToastContainer toasts={toasts} onClose={dismissToast} onAction={handleToastAction} />
+      {!hasKey && (
+        <div className="key-banner">
+          <span className="key-banner-label">🔑 {window.I18N.isZh() ? '填入 MiMo API Key 才能 AI 生成' : 'Enter MiMo API Key to enable AI generation'}</span>
+          <input className="key-banner-input" type="password" value={bannerVal}
+            placeholder="tp-xxxx..." onChange={e => setBannerVal(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && saveBannerKey()} />
+          <button className="key-banner-btn" onClick={saveBannerKey}>{window.I18N.isZh() ? '保存' : 'Save'}</button>
+        </div>
+      )}
       {/* top bar */}
       <header className="topbar">
         <div className="brand">
