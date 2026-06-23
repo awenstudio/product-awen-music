@@ -3894,7 +3894,6 @@ function ToastContainer({ toasts, onClose, onAction }) {
         },
         body: JSON.stringify({
           model: MIMO_MODEL,
-          max_tokens: 16384,
           messages: [{ role: 'user', content: prompt }],
         }),
         signal: ctrl.signal,
