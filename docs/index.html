@@ -180,7 +180,12 @@
   /* ---- V2: identity layer grouping + visual columns ---- */
   .board-stack{ display:flex; flex-direction:column; gap:18px; margin-top:16px; }
   /* V3 Scene mode hides the 11-dimension matrix — Scene/Mood/Purpose replaces it */
-  .app[data-mode="scene"] .board-stack{ display:none; }
+  .app[data-mode="scene"] .board-stack,
+  .app[data-mode="library"] .board-stack,
+  .app[data-mode="library"] .presets,
+  .app[data-mode="library"] .tab-intro,
+  .app[data-mode="library"] .console,
+  .app[data-mode="library"] .feed{ display:none; }
   .board-group{ max-width:1240px; width:100%; margin:0 auto; }
   .board-group .board{ margin-top:8px; }
   .board-group-h{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
@@ -414,6 +419,47 @@
             color:var(--accent); flex:0 0 auto; white-space:nowrap; }
   .dna-vals{ font-size:11.5px; color:var(--ink); line-height:1.4; flex:1 1 auto; min-width:0; }
 
+  /* ---- Settings button & modal ---- */
+  .settings-btn{ background:transparent; border:1px solid var(--line); border-radius:9px; color:var(--ink-dim);
+                 font-size:15px; width:32px; height:32px; cursor:pointer; display:inline-flex; align-items:center;
+                 justify-content:center; }
+  .settings-btn:hover{ color:var(--ink); border-color:var(--line2); }
+  .settings-section{ display:flex; flex-direction:column; gap:14px; }
+  .settings-row{ display:flex; flex-direction:column; gap:6px; }
+  .settings-label{ font-size:12px; font-weight:700; color:var(--ink-dim); letter-spacing:.04em; text-transform:uppercase; }
+  .settings-stored{ font-family:var(--font-mono); font-size:11px; color:var(--accent); }
+  .settings-input{ background:var(--panel2); border:1px solid var(--line2); border-radius:8px; padding:8px 12px;
+                   font-family:var(--font-mono); font-size:13px; color:var(--ink); width:100%; outline:none; }
+  .settings-input:focus{ border-color:var(--accent); }
+  .settings-save-btn{ align-self:flex-start; background:var(--accent); color:var(--accent-ink); border:none;
+                      border-radius:8px; padding:7px 18px; font-weight:700; font-size:13px; cursor:pointer; }
+  .settings-save-btn:disabled{ opacity:.4; cursor:default; }
+  .settings-divider{ border:none; border-top:1px solid var(--line); margin:4px 0; }
+  .settings-hint{ font-weight:400; color:var(--ink-faint); font-size:11px; margin-left:6px; }
+  .settings-note{ font-size:11.5px; color:var(--ink-faint); line-height:1.55; margin:2px 0 0; }
+  .settings-note a{ color:var(--accent); text-decoration:none; }
+  .settings-note a:hover{ text-decoration:underline; }
+  /* ---- Library ---- */
+  .lib-section{ max-width:1240px; margin:0 auto; }
+  .lib-header{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .lib-title{ font-size:15px; font-weight:700; color:var(--ink-dim); letter-spacing:.04em; }
+  .lib-refresh-btn{ font-size:12px; color:var(--accent); background:none; border:none; cursor:pointer; }
+  .lib-pub-badge{ font-family:var(--font-mono); font-size:11px; background:var(--accent-soft); color:var(--accent);
+                  padding:3px 8px; border-radius:6px; }
+  .lib-pub-btn{ font-size:11.5px; color:var(--ink-faint); background:none; border:1px dashed var(--line2);
+                border-radius:6px; padding:3px 10px; cursor:pointer; }
+  .lib-pub-btn:hover{ color:var(--accent); border-color:var(--accent); }
+  .lib-pub-input-row{ display:flex; align-items:center; gap:6px; }
+  .lib-pub-input{ font-family:var(--font-mono); font-size:11.5px; background:var(--panel2); border:1px solid var(--line2);
+                  border-radius:6px; padding:3px 8px; color:var(--ink); }
+  .lib-pub-confirm{ font-size:11.5px; background:var(--accent); color:var(--accent-ink); border:none; border-radius:6px;
+                    padding:3px 10px; cursor:pointer; font-weight:700; }
+  .lib-pub-cancel{ font-size:11.5px; background:none; border:none; color:var(--ink-faint); cursor:pointer; }
+  .star-btn{ background:transparent; border:1px solid var(--line); border-radius:7px; color:var(--ink-faint);
+             font-size:13px; width:26px; height:26px; line-height:1; cursor:pointer; display:inline-flex;
+             align-items:center; justify-content:center; transition:.13s; }
+  .star-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .star-btn.starred{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
   /* ---- Key Banner ---- */
   .key-banner{ background:var(--accent); color:var(--accent-ink); padding:10px clamp(16px,4vw,44px);
                display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13.5px; font-weight:600; }
@@ -1625,6 +1671,7 @@
       hintShuffle: '锁定满意的维度，摇号生成其余（老虎机式）。',
       hintDecompose: '从导入的参考曲拆解出发，逐项变异 remix。',
       hintAlbum: '锁定声音身份，沿一条行进轴一次铺出整张专辑。',
+      hintLibrary: '收藏的好歌，永久保存在 GitHub，换设备也不丢。点 ⭐ 收藏一首歌，自动推送到 GitHub。',
       recipeNow: '当前配方',
       srcLabel: '原曲',
       mutated: (p) => `+${p.n} 处变异`,
@@ -1702,6 +1749,7 @@
       hintShuffle: 'Lock the dimensions you like, slot-machine the rest.',
       hintDecompose: 'Start from the imported reference and mutate it track by track.',
       hintAlbum: 'Lock one sonic identity, traverse an axis to lay out a whole album.',
+      hintLibrary: 'Favourites saved permanently in GitHub — never lost across devices. Click ⭐ on any card to save it.',
       recipeNow: 'CURRENT RECIPE',
       srcLabel: 'source',
       mutated: (p) => `+${p.n} mutated`,
@@ -2672,8 +2720,57 @@ function Skeleton() {
   );
 }
 
+/* ---------- library card ---------- */
+function LibCard({ item, onRemove, onSetPublished }) {
+  const [markingPub, setMarkingPub] = React.useState(false);
+  const pubInputId = 'pubdate-' + item.id;
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div className="card-headL">
+          <span className="card-id">{item.id}</span>
+          {item.savedAt && <span className="card-id" style={{color:'var(--ink-faint)'}}>收藏 {item.savedAt}</span>}
+          {item.genTime && <span className="card-gentime">⏱ {item.genTime}s</span>}
+        </div>
+        <div className="card-headR">
+          <button type="button" className="icon-btn" title="从曲库移除"
+            onClick={() => { if (window.confirm('确认从曲库移除「' + item.title + '」？')) onRemove(item.id); }}>×</button>
+        </div>
+      </div>
+      <div className="card-title">{item.title}</div>
+      {item.tagline && <div className="card-tagline">{item.tagline}</div>}
+      {item.sel && (
+        <div className="tags">
+          {item.sel.environment && <span className="tag"><b>ENV</b>{item.sel.environment}</span>}
+          {item.sel.instrument && <span className="tag"><b>INST</b>{item.sel.instrument}</span>}
+          {item.sel.style && <span className="tag"><b>STY</b>{item.sel.style}</span>}
+          {item.sel.bpm && <span className="tag"><b>BPM</b>{item.sel.bpm}</span>}
+        </div>
+      )}
+      <div style={{marginTop:'4px'}}>
+        {item.publishedAt ? (
+          <span className="lib-pub-badge">📅 发布于 {item.publishedAt}</span>
+        ) : markingPub ? (
+          <span className="lib-pub-input-row">
+            <input type="date" className="lib-pub-input" id={pubInputId}
+              defaultValue={new Date().toISOString().slice(0, 10)} />
+            <button className="lib-pub-confirm" onClick={() => {
+              const v = document.getElementById(pubInputId)?.value;
+              if (v) onSetPublished(item.id, v);
+              setMarkingPub(false);
+            }}>确认</button>
+            <button className="lib-pub-cancel" onClick={() => setMarkingPub(false)}>取消</button>
+          </span>
+        ) : (
+          <button className="lib-pub-btn" onClick={() => setMarkingPub(true)}>+ 记录发布日期</button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- one produced song ---------- */
-function SongCard({ song, onStatus, onDelete, onPin, onRemix }) {
+function SongCard({ song, onStatus, onDelete, onPin, onRemix, onStar }) {
   const A = window.AWEN;
   const ai = song.ai;
   const tags = [...A.DIMS.map(d => ({ code: d.code, val: song.sel[d.key] })),
@@ -2705,6 +2802,11 @@ function SongCard({ song, onStatus, onDelete, onPin, onRemix }) {
                 ↺ Remix
               </button>
             </Tooltip>
+          )}
+          {onStar && !song.generating && song.ai && (
+            <button type="button" className={"star-btn" + (song.starred ? " starred" : "")}
+              title={song.starred ? "已收藏到 GitHub 曲库" : "收藏到 GitHub 曲库"}
+              onClick={() => onStar(song)}>⭐</button>
           )}
           <button type="button" className={"icon-btn" + (song.pinned ? " on" : "")} title={song.pinned ? "已锁定 — 点击解锁" : "锁定 (防误删)"} onClick={() => { if (song.pinned) { if (window.confirm('确认解锁？解锁后此曲目可被删除。')) onPin(song.id); } else { onPin(song.id); } }} style={song.pinned ? {background:"var(--accent)",borderColor:"var(--accent)",color:"var(--accent-ink)",fontSize:"13px"} : {fontSize:"13px"}}>{song.pinned ? '🔒' : '🔓'}</button>
           {!song.pinned && <button type="button" className="icon-btn" title="Delete" onClick={() => onDelete(song.id)}>×</button>}
@@ -2953,7 +3055,7 @@ function AlbumConsole({ axisKey, count, base, busy, onAxis, onCount, onBuild }) 
 }
 
 /* ---------- one produced album ---------- */
-function AlbumCard({ album, onStatus, onDelete, onPin }) {
+function AlbumCard({ album, onStatus, onDelete, onPin, onStar }) {
   const A = window.AWEN;
   const data = album.data;
   const status = album.status || 'Draft';
@@ -3044,6 +3146,11 @@ ${tr.title}`;
                   <span className="status-dot" />{T('st' + status)}
                 </button>
               </Tooltip>
+              {onStar && !album.generating && album.data && (
+                <button type="button" className={"star-btn" + (album.starred ? " starred" : "")}
+                  title={album.starred ? "已收藏到 GitHub 曲库" : "收藏到 GitHub 曲库"}
+                  onClick={() => onStar(album)}>⭐</button>
+              )}
               <button type="button" className={"icon-btn" + (album.pinned ? " on" : "")} title={album.pinned ? "已锁定 — 点击解锁" : "锁定 (防误删)"} onClick={() => { if (album.pinned) { if (window.confirm('确认解锁？解锁后此专辑可被删除。')) onPin(album.id); } else { onPin(album.id); } }} style={album.pinned ? {background:"var(--accent)",borderColor:"var(--accent)",color:"var(--accent-ink)",fontSize:"13px"} : {fontSize:"13px"}}>{album.pinned ? '🔒' : '🔓'}</button>
               {!album.pinned && <button type="button" className="icon-btn" onClick={() => onDelete(album.id)}>×</button>}
             </div>
@@ -3601,6 +3708,7 @@ const MODE_INFO = {
   shuffle: { label: 'Shuffle', zh: '锁定满意的维度，摇号生成其余（老虎机式）' },
   decompose: { label: 'Decompose', zh: '从导入的参考曲拆解出发，逐项变异 remix' },
   album: { label: 'Album', zh: '锁定声音身份，沿一条行进轴一次铺出整张专辑' },
+  library: { label: '⭐ 曲库', zh: '收藏的好歌，永久保存在 GitHub' },
 };
 
 function loadState() {
@@ -3660,6 +3768,61 @@ function TokenModal({ open, onSubmit, onCancel }) {
   );
 }
 
+/* ========== SETTINGS MODAL ========== */
+function SettingsModal({ open, onClose, onMimoSaved }) {
+  const [mimoVal, setMimoVal] = React.useState('');
+  const [patVal, setPatVal] = React.useState('');
+  if (!open) return null;
+  const currentMimo = localStorage.getItem('mimo_api_key') || '';
+  const currentPat = localStorage.getItem('github_pat') || '';
+  function saveMimo() {
+    const v = mimoVal.trim(); if (!v) return;
+    localStorage.setItem('mimo_api_key', v); setMimoVal('');
+    if (onMimoSaved) onMimoSaved(true);
+  }
+  function savePat() {
+    const v = patVal.trim(); if (!v) return;
+    localStorage.setItem('github_pat', v); setPatVal('');
+  }
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" style={{maxWidth:'480px'}} onClick={e => e.stopPropagation()}>
+        <div className="modal-head">
+          <span>⚙ 设置</span>
+          <button type="button" className="modal-close" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">
+          <div className="settings-section">
+            <div className="settings-row">
+              <span className="settings-label">MiMo API Key</span>
+              {currentMimo && <span className="settings-stored">已存储: ···{currentMimo.slice(-6)}</span>}
+              <input className="settings-input" type="password" value={mimoVal}
+                placeholder="tp-xxxx..." onChange={e => setMimoVal(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && saveMimo()} />
+              <button className="settings-save-btn" onClick={saveMimo} disabled={!mimoVal.trim()}>保存 MiMo Key</button>
+            </div>
+            <hr className="settings-divider" />
+            <div className="settings-row">
+              <span className="settings-label">GitHub PAT <span className="settings-hint">用于收藏歌曲写入 GitHub</span></span>
+              {currentPat && <span className="settings-stored">已存储: ···{currentPat.slice(-6)}</span>}
+              <input className="settings-input" type="password" value={patVal}
+                placeholder="github_pat_xxxx..." onChange={e => setPatVal(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && savePat()} />
+              <button className="settings-save-btn" onClick={savePat} disabled={!patVal.trim()}>保存 GitHub PAT</button>
+              <p className="settings-note">
+                需要 <b>awenstudio/product-awen-music</b> 仓库的 Contents: Write 权限<br/>
+                <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">
+                  去 GitHub 生成 Fine-grained PAT →
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ========== TOAST SYSTEM ========== */
 function ToastContainer({ toasts, onClose, onAction }) {
   if (!toasts.length) return null;
@@ -3703,6 +3866,11 @@ function App() {
     setBannerVal('');
     if (window.__awen_resolveToken) window.__awen_resolveToken(v);
   }
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [libItems, setLibItems] = React.useState([]);
+  const [libSha, setLibSha] = React.useState(null);
+  const [libLoading, setLibLoading] = React.useState(false);
+  const [libError, setLibError] = React.useState(null);
 
   // Listen for AI flow's request-token event
   React.useEffect(() => {
@@ -3807,6 +3975,88 @@ function App() {
     set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e) { return false; } },
     del(k){ try { localStorage.removeItem(k); } catch(e) {} },
   };
+
+  // GitHub library helpers
+  const GH_REPO = 'awenstudio/product-awen-music';
+  const GH_LIB_PATH = 'docs/library.json';
+  async function ghFetch(method, url, body) {
+    const pat = safeLS.get('github_pat');
+    if (!pat) throw new Error('需要 GitHub PAT');
+    const res = await fetch(url, {
+      method,
+      headers: { Authorization: `Bearer ${pat}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(body ? { 'Content-Type': 'application/json' } : {}) },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    });
+    if (!res.ok) { const t = await res.text(); throw new Error(`GitHub ${res.status}: ${t.slice(0,120)}`); }
+    return res.json();
+  }
+  async function loadLibrary() {
+    setLibLoading(true); setLibError(null);
+    try {
+      const data = await ghFetch('GET', `https://api.github.com/repos/${GH_REPO}/contents/${GH_LIB_PATH}`);
+      const parsed = JSON.parse(atob(data.content.replace(/\n/g, '')));
+      setLibItems(parsed.songs || []); setLibSha(data.sha);
+    } catch (e) {
+      if (e.message.includes('404')) { setLibItems([]); setLibSha(null); }
+      else setLibError(e.message);
+    }
+    setLibLoading(false);
+  }
+  async function _writeLibrary(items, sha) {
+    const json = JSON.stringify({ version: 1, songs: items }, null, 2);
+    const content = btoa(unescape(encodeURIComponent(json)));
+    const res = await ghFetch('PUT', `https://api.github.com/repos/${GH_REPO}/contents/${GH_LIB_PATH}`,
+      { message: `update library (${items.length} items)`, content, ...(sha ? { sha } : {}) });
+    setLibSha(res.content.sha);
+  }
+  async function addToLibrary(item) {
+    const pat = safeLS.get('github_pat');
+    if (!pat) { setSettingsOpen(true); pushToast('请先在设置里填入 GitHub PAT', { kind: 'warn' }); return; }
+    // Always read latest SHA to avoid conflicts
+    let curItems = [], curSha = null;
+    try {
+      const data = await ghFetch('GET', `https://api.github.com/repos/${GH_REPO}/contents/${GH_LIB_PATH}`);
+      const parsed = JSON.parse(atob(data.content.replace(/\n/g, '')));
+      curItems = parsed.songs || []; curSha = data.sha;
+    } catch (e) { if (!e.message.includes('404')) { pushToast('读取曲库失败: ' + e.message, { kind: 'error' }); return; } }
+    const isSong = !!item.sel;
+    const ai = item.ai || item.data || {};
+    const entry = {
+      id: item.id, type: isSong ? 'song' : 'album',
+      title: ai.title || (item.data?.tracks?.[0]?.title) || item.id,
+      tagline: ai.tagline || item.axisLabel || '',
+      sel: item.sel || null,
+      genTime: item.genTime || null,
+      createdAt: item.createdAt || null,
+      savedAt: new Date().toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }),
+      publishedAt: null,
+    };
+    const idx = curItems.findIndex(x => x.id === item.id);
+    const updated = idx >= 0 ? curItems.map((x, i) => i === idx ? { ...x, ...entry } : x) : [entry, ...curItems];
+    try {
+      await _writeLibrary(updated, curSha);
+      setLibItems(updated);
+      setSongs(prev => prev.map(s => s.id === item.id ? { ...s, starred: true } : s));
+      setAlbums(prev => prev.map(a => a.id === item.id ? { ...a, starred: true } : a));
+      pushToast(`⭐ 已收藏「${entry.title}」并推送到 GitHub`);
+    } catch (e) { pushToast('收藏失败: ' + e.message, { kind: 'error' }); }
+  }
+  async function removeFromLibrary(id) {
+    const updated = libItems.filter(x => x.id !== id);
+    try {
+      await _writeLibrary(updated, libSha);
+      setLibItems(updated);
+      setSongs(prev => prev.map(s => s.id === id ? { ...s, starred: false } : s));
+      setAlbums(prev => prev.map(a => a.id === id ? { ...a, starred: false } : a));
+      pushToast('已从曲库移除');
+    } catch (e) { pushToast('移除失败: ' + e.message, { kind: 'error' }); }
+  }
+  async function setPublishedAt(id, date) {
+    const updated = libItems.map(x => x.id === id ? { ...x, publishedAt: date } : x);
+    try { await _writeLibrary(updated, libSha); setLibItems(updated); }
+    catch (e) { pushToast('保存失败: ' + e.message, { kind: 'error' }); }
+  }
+  React.useEffect(() => { if (mode === 'library') loadLibrary(); }, [mode]);
 
   // API key is requested via a React modal on first use, then stored in localStorage.
   let _tokenResolver = null;
@@ -4172,6 +4422,8 @@ Calm, warm, instrumental, no vocals.`;
 
   return (
     <div className="app" data-theme={t.theme} data-density={t.density} data-mode={mode}>
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)}
+        onMimoSaved={(v) => setHasKey(v)} />
       <TokenModal open={tokenModalOpen}
         onSubmit={(v) => { setTokenModalOpen(false); window.__awen_resolveToken(v); }}
         onCancel={() => { setTokenModalOpen(false); window.__awen_resolveToken(''); }} />
@@ -4208,6 +4460,7 @@ Calm, warm, instrumental, no vocals.`;
         <button type="button" className="help-btn" onClick={() => setShowGuide(true)}>
           <span className="help-q">?</span> {T('help')}
         </button>
+        <button type="button" className="settings-btn" title="设置 (MiMo Key / GitHub PAT)" onClick={() => setSettingsOpen(true)}>⚙</button>
         <div className="lang-toggle">
           <button type="button" className={'lang-opt' + (lang === 'zh' ? ' on' : '')}
           onClick={() => setLang('zh')}>中</button>
@@ -4220,7 +4473,7 @@ Calm, warm, instrumental, no vocals.`;
         </div>
       </header>
 
-      <div className="mode-hint">{T({ scene: 'hintScene', pick: 'hintPick', shuffle: 'hintShuffle', decompose: 'hintDecompose', album: 'hintAlbum' }[mode])}</div>
+      <div className="mode-hint">{T({ scene: 'hintScene', pick: 'hintPick', shuffle: 'hintShuffle', decompose: 'hintDecompose', album: 'hintAlbum', library: 'hintLibrary' }[mode])}</div>
 
       <TabIntro mode={mode} />
 
@@ -4341,7 +4594,7 @@ Calm, warm, instrumental, no vocals.`;
 
         <div className="albshelf">
               {albums.map((a) =>
-          <AlbumCard key={a.id} album={a} onStatus={setAlbumStatus} onDelete={removeAlbum} onPin={setPinAlbum} />
+          <AlbumCard key={a.id} album={a} onStatus={setAlbumStatus} onDelete={removeAlbum} onPin={setPinAlbum} onStar={addToLibrary} />
           )}
             </div>
         }
@@ -4362,12 +4615,42 @@ Calm, warm, instrumental, no vocals.`;
 
         <div className="feed-list">
               {songs.map((s) =>
-          <SongCard key={s.id} song={s} onStatus={setStatus} onDelete={removeSong} onPin={setPinSong} onRemix={remixSong} />
+          <SongCard key={s.id} song={s} onStatus={setStatus} onDelete={removeSong} onPin={setPinSong} onRemix={remixSong} onStar={addToLibrary} />
           )}
             </div>
         }
         </div>
       }
+
+      {/* Library */}
+      {mode === 'library' && (
+        <div className="lib-section">
+          <div className="lib-header">
+            <span className="lib-title">{libItems.length > 0 ? `${libItems.length} 首收藏` : '曲库'}</span>
+            <button className="lib-refresh-btn" onClick={loadLibrary} disabled={libLoading}>↺ 刷新</button>
+          </div>
+          {libLoading && <div className="empty"><p>正在从 GitHub 读取曲库…</p></div>}
+          {libError && <div className="empty"><b>读取失败</b><p>{libError}</p>
+            {libError.includes('PAT') && <button className="key-banner-btn" style={{marginTop:8}} onClick={() => setSettingsOpen(true)}>⚙ 去设置填入 PAT</button>}
+          </div>}
+          {!libLoading && !libError && libItems.length === 0 && (
+            <div className="empty">
+              <b>曲库是空的</b>
+              <p>在任意歌曲 / 专辑卡片上点 ⭐ 收藏，自动保存到 GitHub</p>
+              {!safeLS.get('github_pat') && <button className="key-banner-btn" style={{marginTop:8}} onClick={() => setSettingsOpen(true)}>⚙ 先设置 GitHub PAT</button>}
+            </div>
+          )}
+          {!libLoading && libItems.length > 0 && (
+            <div className="feed-list">
+              {libItems.map(item => (
+                <LibCard key={item.id} item={item}
+                  onRemove={removeFromLibrary}
+                  onSetPublished={(id, date) => setPublishedAt(id, date)} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Tweaks */}
       <TweaksPanel title="Tweaks">
