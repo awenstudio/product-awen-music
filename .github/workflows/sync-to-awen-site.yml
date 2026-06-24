@@ -19,7 +19,9 @@ jobs:
 
       - name: Clone awen-site and sync
         run: |
-          git clone git@github.com:awenstudio/awen-site.git awen-site
+          set -e
+          git clone git@github.com:awenstudio/awenstudio.github.io.git awen-site
+          mkdir -p awen-site/music
           cp docs/index.html awen-site/music/index.html
           cd awen-site
           git config user.name "github-actions[bot]"
